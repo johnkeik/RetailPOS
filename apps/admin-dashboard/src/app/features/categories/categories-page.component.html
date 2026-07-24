@@ -1,0 +1,108 @@
+<app-page-title
+  title="Categories"
+  subtitle="Manage product categories used across the catalog."
+/>
+
+<section class="categories-layout">
+  <article class="panel">
+    <header class="panel-header">
+      <h3>Category List</h3>
+      <p>Search by category name or code.</p>
+    </header>
+
+    <label class="field" for="search">Search</label>
+    <input
+      id="search"
+      type="text"
+      class="text-input"
+      [value]="searchQuery()"
+      (input)="onSearch(search.value)"
+      #search
+      placeholder="e.g. Designer or niche"
+    />
+
+    @if (loading()) {
+      <div class="inline-state">Loading categories from emulator...</div>
+    }
+
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (filteredCategories().length > 0) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Status</th>
+              <th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (category of filteredCategories(); track category.id) {
+              <tr>
+                <td>{{ category.name }}</td>
+                <td>{{ category.code || '-' }}</td>
+                <td>
+                  <span class="status-chip" [class.inactive]="!category.active">
+                    {{ category.active ? 'ACTIVE' : 'INACTIVE' }}
+                  </span>
+                </td>
+                <td class="actions-col">
+                  <button type="button" class="btn ghost" (click)="startEdit(category)">
+                    {{ isEditing(category) ? 'Editing' : 'Edit' }}
+                  </button>
+                  <button type="button" class="btn ghost" (click)="toggleActive(category)">
+                    {{ category.active ? 'Deactivate' : 'Activate' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">No categories found for current filter.</div>
+    }
+  </article>
+
+  <article class="panel">
+    <header class="panel-header">
+      <h3>{{ editingCategoryId() ? 'Edit Category' : 'Create Category' }}</h3>
+      <p>Category code is optional and useful for import mapping.</p>
+    </header>
+
+    <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="form-grid">
+      <div>
+        <label class="field" for="name">Category name</label>
+        <input id="name" type="text" class="text-input" formControlName="name" />
+        @if (categoryForm.controls.name.touched && categoryForm.controls.name.invalid) {
+          <small class="error">
+            Category name is required.
+          </small>
+        }
+      </div>
+
+      <div>
+        <label class="field" for="code">Code</label>
+        <input id="code" type="text" class="text-input" formControlName="code" />
+      </div>
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Active</span>
+      </label>
+
+      <div class="button-row">
+        <button type="submit" class="btn primary">
+          {{ editingCategoryId() ? 'Save Changes' : 'Create Category' }}
+        </button>
+        @if (editingCategoryId()) {
+          <button type="button" class="btn ghost" (click)="cancelEdit()">Cancel</button>
+        }
+      </div>
+    </form>
+  </article>
+</section>
