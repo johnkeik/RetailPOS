@@ -16,9 +16,15 @@ tenants
 
     tenantId
 
+        employees
+
         products
 
         variants
+
+        brands
+
+        categories
 
         inventory
 
@@ -26,7 +32,7 @@ tenants
 
         stockMovements
 
-        users
+users
 
 
 
@@ -36,6 +42,10 @@ tenants
 
 
 Every document belongs to one tenant.
+
+Tenant business data path:
+
+tenants/{tenantId}/...
 
 
 Example:
@@ -241,7 +251,7 @@ The MVP uses a simple EmployeeCode login.
 Example:
 
 
-employees/{employeeId}
+tenants/{tenantId}/employees/{employeeId}
 
 
 {

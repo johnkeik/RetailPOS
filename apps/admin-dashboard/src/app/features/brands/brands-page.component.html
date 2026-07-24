@@ -1,0 +1,108 @@
+<app-page-title
+  title="Brands"
+  subtitle="Manage fragrance brands available in the catalog."
+/>
+
+<section class="brands-layout">
+  <article class="panel">
+    <header class="panel-header">
+      <h3>Brand List</h3>
+      <p>Search by brand name or code.</p>
+    </header>
+
+    <label class="field" for="search">Search</label>
+    <input
+      id="search"
+      type="text"
+      class="text-input"
+      [value]="searchQuery()"
+      (input)="onSearch(search.value)"
+      #search
+      placeholder="e.g. Dior or armani"
+    />
+
+    @if (loading()) {
+      <div class="inline-state">Loading brands from emulator...</div>
+    }
+
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (filteredBrands().length > 0) {
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Code</th>
+            <th>Status</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (brand of filteredBrands(); track brand.id) {
+            <tr>
+            <td>{{ brand.name }}</td>
+            <td>{{ brand.code || '-' }}</td>
+            <td>
+              <span class="status-chip" [class.inactive]="!brand.active">
+                {{ brand.active ? 'ACTIVE' : 'INACTIVE' }}
+              </span>
+            </td>
+            <td class="actions-col">
+              <button type="button" class="btn ghost" (click)="startEdit(brand)">
+                {{ isEditing(brand) ? 'Editing' : 'Edit' }}
+              </button>
+              <button type="button" class="btn ghost" (click)="toggleActive(brand)">
+                {{ brand.active ? 'Deactivate' : 'Activate' }}
+              </button>
+            </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      </div>
+    } @else {
+      <div class="empty-state">No brands found for current filter.</div>
+    }
+  </article>
+
+  <article class="panel">
+    <header class="panel-header">
+      <h3>{{ editingBrandId() ? 'Edit Brand' : 'Create Brand' }}</h3>
+      <p>Brand code is optional and useful for imports.</p>
+    </header>
+
+    <form [formGroup]="brandForm" (ngSubmit)="saveBrand()" class="form-grid">
+      <div>
+        <label class="field" for="name">Brand name</label>
+        <input id="name" type="text" class="text-input" formControlName="name" />
+        @if (brandForm.controls.name.touched && brandForm.controls.name.invalid) {
+          <small class="error">
+          Brand name is required.
+          </small>
+        }
+      </div>
+
+      <div>
+        <label class="field" for="code">Code</label>
+        <input id="code" type="text" class="text-input" formControlName="code" />
+      </div>
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Active</span>
+      </label>
+
+      <div class="button-row">
+        <button type="submit" class="btn primary">
+          {{ editingBrandId() ? 'Save Changes' : 'Create Brand' }}
+        </button>
+        @if (editingBrandId()) {
+          <button type="button" class="btn ghost" (click)="cancelEdit()">Cancel</button>
+        }
+      </div>
+    </form>
+  </article>
+</section>

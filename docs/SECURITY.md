@@ -71,6 +71,10 @@ Can:
 
 Every document:
 
+Path rule for tenant business data:
+
+match /tenants/{tenantId}/{document=**}
+
 
 allow read/write:
 
@@ -79,7 +83,11 @@ if request.auth != null
 
 AND
 
-resource.data.tenantId == userTenant
+tenantId == userTenant
+
+AND
+
+request.resource.data.tenantId == userTenant
 
 
 

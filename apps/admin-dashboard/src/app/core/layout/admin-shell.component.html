@@ -1,0 +1,22 @@
+<div class="shell">
+  <header class="topbar">
+    <h1>Perfume POS Admin</h1>
+  </header>
+
+  <div class="content-grid">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        {{ item.label }}
+      </a>
+    </aside>
+
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

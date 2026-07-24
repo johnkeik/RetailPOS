@@ -28,7 +28,8 @@ inventory
 {
  productId:"dior-sauvage",
 
- variantId:"100ml",
+tenants/{tenantId}/inventory
+
 
  quantity:25,
 
@@ -36,7 +37,7 @@ inventory
 }
 
 
-
+tenants/{tenantId}/inventory for current stock.
 The POS reads this collection when displaying available products.
 
 

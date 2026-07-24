@@ -30,15 +30,23 @@ Main database.
 Collections:
 
 
-products
+tenants/{tenantId}/products
 
-variants
+tenants/{tenantId}/variants
 
-inventory
+tenants/{tenantId}/brands
 
-orders
+tenants/{tenantId}/categories
 
-stockMovements
+tenants/{tenantId}/employees
+
+tenants/{tenantId}/inventory
+
+tenants/{tenantId}/orders
+
+tenants/{tenantId}/stockMovements
+
+users/{uid} (auth profile)
 
 
 
@@ -135,7 +143,7 @@ Reading all stock movements to calculate stock.
 
 Use:
 
-inventory collection for current stock.
+tenants/{tenantId}/inventory for current stock.
 
 
 

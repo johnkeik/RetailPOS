@@ -18,6 +18,12 @@ Prefer:
 - simple, explicit services
 - reusable, domain-focused components
 
+Component file structure:
+
+- For large components, use separate files: `.ts` + `.html` + `.scss`.
+- Avoid inline template/styles for components with non-trivial layout or styling.
+- Reserve inline template/styles for very small components only.
+
 Avoid:
 
 - generic CRUD scaffolding
