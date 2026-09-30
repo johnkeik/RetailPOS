@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+
+import { AuthService } from '../auth/auth.service';
+import { TenantContextService } from '../auth/tenant-context.service';
 
 type NavItem = {
   label: string;
@@ -13,15 +16,32 @@ type NavItem = {
   templateUrl: './admin-shell.component.html',
   styleUrl: './admin-shell.component.scss'
 })
-export class AdminShellComponent {
+export class AdminShellComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly tenantContext = inject(TenantContextService);
+  private readonly router = inject(Router);
+
   protected readonly navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Products', path: '/products' },
-    { label: 'Brands', path: '/brands' },
-    { label: 'Categories', path: '/categories' },
-    { label: 'Variants', path: '/variants' },
-    { label: 'Inventory', path: '/inventory' },
-    { label: 'Stock Movements', path: '/stock-movements' },
-    { label: 'Sales History', path: '/sales-history' }
+    { label: 'Πίνακας Ελέγχου', path: '/dashboard' },
+    { label: 'Προϊόντα', path: '/products' },
+    { label: 'Μάρκες', path: '/brands' },
+    { label: 'Κατηγορίες', path: '/categories' },
+    { label: 'Υπάλληλοι', path: '/employees' },
+    { label: 'Παραλλαγές', path: '/variants' },
+    { label: 'Απόθεμα', path: '/inventory' },
+    { label: 'Κινήσεις Αποθέματος', path: '/stock-movements' },
+    { label: 'Ιστορικό Πωλήσεων', path: '/sales-history' }
   ];
+
+  ngOnInit(): void {
+    const user = this.authService.currentUser();
+    if (user?.tenantId) {
+      this.tenantContext.setTenant(user.tenantId);
+    }
+  }
+
+  protected async signOut(): Promise<void> {
+    this.authService.signOut();
+    await this.router.navigate(['/login']);
+  }
 }

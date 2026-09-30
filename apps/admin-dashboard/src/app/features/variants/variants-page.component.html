@@ -1,0 +1,200 @@
+<app-page-title
+  title="Παραλλαγές"
+  subtitle="Διαχείριση κοινών προτύπων παραλλαγών (επαναχρησιμοποιούνται σε προϊόντα)."
+/>
+
+<section class="variants-layout">
+  <article class="panel">
+    <header class="panel-header">
+      <h3>Λίστα προτύπων παραλλαγών</h3>
+      <p>Αναζήτηση με βάση το όνομα, τον κωδικό, τη συσκευασία ή τη μονάδα.</p>
+    </header>
+
+    <label class="field" for="search">Αναζήτηση</label>
+    <input
+      id="search"
+      type="text"
+      class="text-input"
+      [value]="searchQuery()"
+      (input)="onSearch(search.value)"
+      #search
+      placeholder="π.χ. 50ml χύμα ή 1 τεμ."
+    />
+
+    @if (loading()) {
+      <div class="inline-state">Φόρτωση παραλλαγών από τον emulator...</div>
+    }
+
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (formError()) {
+      <div class="inline-error">{{ formError() }}</div>
+    }
+
+    @if (filteredVariants().length > 0) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Όνομα</th>
+              <th>Κωδικός</th>
+              <th>Μέγεθος</th>
+              <th>Συσκευασία</th>
+              <th>Κόστος</th>
+              <th>Πώληση</th>
+              <th>Αντιστοιχισμένα προϊόντα</th>
+              <th>Κατάσταση</th>
+              <th class="actions-col">Ενέργειες</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (variant of filteredVariants(); track variant.id) {
+              <tr>
+                <td>{{ variant.name }}</td>
+                <td>{{ variant.code || '-' }}</td>
+                <td>{{ variant.size ?? 1 }} {{ variant.unit }}</td>
+                <td>{{ variant.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΑ' }}</td>
+                <td>{{ variant.costPrice ?? '-' }}</td>
+                <td>{{ variant.sellingPrice }}</td>
+                <td>{{ variant.assignedProducts }}</td>
+                <td>
+                  <span class="status-chip" [class.inactive]="!variant.active">
+                    {{ variant.active ? 'ΕΝΕΡΓΗ' : 'ΑΝΕΝΕΡΓΗ' }}
+                  </span>
+                </td>
+                <td class="actions-col">
+                  <button type="button" class="btn ghost" (click)="startEdit(variant)">
+                    {{ isEditing(variant) ? 'Επεξεργασία' : 'Επεξεργασία' }}
+                  </button>
+                  <button type="button" class="btn ghost" (click)="toggleActive(variant)">
+                    {{ variant.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">Δεν βρέθηκαν παραλλαγές για το τρέχον φίλτρο.</div>
+    }
+  </article>
+
+  <article class="panel">
+    <header class="panel-header">
+      <h3>{{ editingVariantId() ? 'Επεξεργασία προτύπου παραλλαγής' : 'Δημιουργία προτύπου παραλλαγής' }}</h3>
+      <p>Ορίστε μία φορά τις επαναχρησιμοποιήσιμες τιμές και τη συσκευασία και στη συνέχεια αντιστοιχίστε τα πρότυπα σε προϊόντα.</p>
+    </header>
+
+    <form [formGroup]="variantForm" (ngSubmit)="saveVariant()" class="form-grid">
+      <div>
+        <label class="field" for="name">Όνομα προτύπου</label>
+        <input id="name" type="text" class="text-input" formControlName="name" />
+        @if (variantForm.controls.name.touched && variantForm.controls.name.invalid) {
+          <small class="inline-error">Το όνομα προτύπου είναι υποχρεωτικό.</small>
+        }
+      </div>
+
+      <div>
+        <label class="field" for="code">Κωδικός προτύπου</label>
+        <input id="code" type="text" class="text-input" formControlName="code" />
+      </div>
+
+      <div class="double-grid">
+        <div>
+          <label class="field" for="size">Μέγεθος</label>
+          <input id="size" type="number" class="text-input" formControlName="size" min="1" />
+        </div>
+
+        <div>
+          <label class="field" for="unit">Μονάδα</label>
+          <input id="unit" type="text" class="text-input" formControlName="unit" />
+          @if (variantForm.controls.unit.touched && variantForm.controls.unit.invalid) {
+            <small class="inline-error">Η μονάδα είναι υποχρεωτική.</small>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label class="field" for="packagingType">Συσκευασία</label>
+        <select id="packagingType" class="text-input" formControlName="packagingType">
+          @for (option of packagingOptions; track option) {
+            <option [value]="option">{{ option === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΑ' }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="double-grid">
+        <div>
+          <label class="field" for="costPrice">Τιμή κόστους (προαιρετικό)</label>
+          <input id="costPrice" type="number" class="text-input" formControlName="costPrice" min="0" step="0.01" />
+        </div>
+
+        <div>
+          <label class="field" for="sellingPrice">Τιμή πώλησης</label>
+          <input id="sellingPrice" type="number" class="text-input" formControlName="sellingPrice" min="0" step="0.01" />
+        </div>
+      </div>
+
+      @if (isFormBulk() && editingVariantId()) {
+        <div class="consumable-section">
+          <h4 class="consumable-title">Αναλώσιμα εξαρτήματα</h4>
+          <p class="consumable-hint">Παρακολουθήστε τα υλικά συσκευασίας που καταναλώνονται όταν χρησιμοποιείται αυτή η χύμα παραλλαγή (π.χ. μπουκάλια, καπάκια).</p>
+
+          @if (consumablePartRows().length > 0) {
+            <ul class="consumable-list">
+              @for (part of consumablePartRows(); track part.variantTemplateId) {
+                <li class="consumable-item">
+                  <span>{{ part.templateName }} &times; {{ part.quantity }}</span>
+                  <button type="button" class="btn ghost small" (click)="removeConsumablePart(part.variantTemplateId)">Αφαίρεση</button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="consumable-empty">Δεν έχουν συνδεθεί αναλώσιμα εξαρτήματα.</p>
+          }
+
+          <div class="consumable-add">
+            <select
+              class="text-input"
+              [value]="newConsumableTemplateId()"
+              (change)="newConsumableTemplateId.set(consumableSelect.value)"
+              #consumableSelect
+            >
+              <option value="">Επιλέξτε πρότυπο για προσθήκη</option>
+              @for (tmpl of availableConsumableTemplates(); track tmpl.id) {
+                <option [value]="tmpl.id">{{ tmpl.name }} ({{ tmpl.size ?? 1 }}{{ tmpl.unit }})</option>
+              }
+            </select>
+            <input
+              type="number"
+              class="text-input consumable-qty"
+              min="1"
+              [value]="newConsumableQty()"
+              (input)="newConsumableQty.set(+consumableQtyInput.value)"
+              #consumableQtyInput
+              placeholder="Ποσότητα"
+            />
+            <button type="button" class="btn ghost" (click)="addConsumablePart()">Προσθήκη</button>
+          </div>
+        </div>
+      }
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Ενεργό</span>
+      </label>
+
+      <div class="button-row">
+        <button type="submit" class="btn primary">
+          {{ editingVariantId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία προτύπου' }}
+        </button>
+        @if (editingVariantId()) {
+          <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
+        }
+      </div>
+    </form>
+  </article>
+</section>

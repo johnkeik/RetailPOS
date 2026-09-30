@@ -1,0 +1,58 @@
+<app-page-title
+  title="Ιστορικό πωλήσεων"
+  subtitle="Χρονολόγιο και σύνολα παραγγελιών για επιχειρησιακό έλεγχο."
+/>
+
+<section class="panel">
+  <div class="filters">
+    <label class="field" for="search">Αναζήτηση (υπάλληλος ή ID παραγγελίας)</label>
+    <input
+      id="search"
+      class="text-input"
+      type="text"
+      [value]="searchQuery()"
+      (input)="onSearch(search.value)"
+      #search
+      placeholder="Υπάλληλος ή ID παραγγελίας"
+    />
+  </div>
+
+  @if (loading()) {
+    <div class="inline-state">Φόρτωση ιστορικού πωλήσεων...</div>
+  }
+
+  @if (error()) {
+    <div class="inline-error">{{ error() }}</div>
+  }
+
+  @if (filteredRows().length > 0) {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ημερομηνία</th>
+            <th>Παραγγελία</th>
+            <th>Υπάλληλος</th>
+            <th>Είδη</th>
+            <th>Σύνολο</th>
+            <th>Κατάσταση</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of filteredRows(); track row.id) {
+            <tr>
+              <td>{{ row.createdAt }}</td>
+              <td>{{ row.id }}</td>
+              <td>{{ row.employeeId }}</td>
+              <td>{{ row.itemCount }}</td>
+              <td>{{ row.total }}</td>
+              <td>{{ row.status === 'COMPLETED' ? 'ΟΛΟΚΛΗΡΩΜΕΝΗ' : row.status === 'CANCELLED' ? 'ΑΚΥΡΩΜΕΝΗ' : row.status }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="empty-state">Δεν βρέθηκε ιστορικό πωλήσεων για το τρέχον φίλτρο.</div>
+  }
+</section>

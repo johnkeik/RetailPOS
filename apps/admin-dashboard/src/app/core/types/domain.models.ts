@@ -4,6 +4,7 @@ export type TenantStatus = 'ACTIVE' | 'INACTIVE';
 export type ProductGender = 'M' | 'F' | 'UNISEX';
 export type ProductType = 'PERFUME' | 'OTHER';
 export type PackagingType = 'BULK' | 'PACKAGED';
+export type PackagingCategory = 'BULK' | 'PACKAGED';
 export type StockMovementType =
   | 'PURCHASE'
   | 'SALE'
@@ -48,6 +49,12 @@ export type Category = {
   createdAt: FirestoreTimestampLike;
 };
 
+// Per-product pricing for an assigned variant template
+export type ProductVariantAssignment = {
+  sellingPrice: number;
+  costPrice?: number;
+};
+
 // Firestore: tenants/{tenantId}/products/{productId}
 export type Product = {
   tenantId: string;
@@ -57,7 +64,32 @@ export type Product = {
   gender?: ProductGender;
   categoryId: string;
   productType: ProductType;
+  packagingCategory: PackagingCategory;
+  // templateId → per-product pricing
+  variantAssignments?: Record<string, ProductVariantAssignment>;
   isPremium?: boolean;
+  active: boolean;
+  createdAt: FirestoreTimestampLike;
+  updatedAt?: FirestoreTimestampLike;
+};
+
+// A consumable part linked to a BULK variant template
+export type ConsumablePart = {
+  variantTemplateId: string;
+  quantity: number; // units consumed per sale/use
+};
+
+// Firestore: tenants/{tenantId}/variantTemplates/{templateId}
+export type VariantTemplate = {
+  tenantId: string;
+  name: string;
+  code?: string;
+  size?: number;
+  unit: string;
+  packagingType: PackagingType;
+  costPrice?: number;
+  sellingPrice: number;
+  consumableParts?: ConsumablePart[];
   active: boolean;
   createdAt: FirestoreTimestampLike;
   updatedAt?: FirestoreTimestampLike;
@@ -67,12 +99,14 @@ export type Product = {
 export type Variant = {
   tenantId: string;
   productId: string;
+  variantTemplateId?: string;
+  variantTemplateName?: string;
   sku?: string;
-  size: number;
+  size?: number;
   unit: string;
   packagingType: PackagingType;
   isPremium?: boolean;
-  costPrice: number;
+  costPrice?: number;
   sellingPrice: number;
   active: boolean;
   createdAt: FirestoreTimestampLike;

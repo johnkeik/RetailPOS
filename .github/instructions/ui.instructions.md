@@ -18,6 +18,11 @@ Avoid:
 - unnecessary animation
 - visual complexity without functional value
 
+Localization:
+
+- Target audience is Greek. All user-facing literals (labels, buttons, messages, placeholders, statuses) must be in Greek.
+- Code identifiers (variables, types, keys) stay in English; only user-visible text is Greek.
+
 POS UI emphasis:
 
 - large touch targets

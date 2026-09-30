@@ -1,0 +1,156 @@
+.panel {
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.text-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.table-wrap {
+  overflow: auto;
+  max-height: 420px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  z-index: 1;
+}
+
+.reason-cell {
+  white-space: normal;
+  min-width: 160px;
+  color: #475569;
+}
+
+th {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.positive {
+  color: #166534;
+  font-weight: 700;
+}
+
+.negative {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.inline-state,
+.inline-error,
+.empty-state {
+  margin-top: 10px;
+}
+
+.inline-success {
+  margin-top: 10px;
+  color: #166534;
+}
+
+.inline-error {
+  color: #b91c1c;
+}
+
+.empty-state {
+  color: #64748b;
+}
+
+.actions-header {
+  margin-bottom: 12px;
+}
+
+.actions-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.actions-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.action-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.action-card h4 {
+  margin: 0 0 8px;
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.btn {
+  margin-top: 10px;
+  border: 1px solid #0f172a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .action-card {
+    padding: 10px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

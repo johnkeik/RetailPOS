@@ -1,16 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  updateDoc
-} from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
-import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
+import { FIREBASE_FIRESTORE, FIREBASE_FUNCTIONS } from '../../core/firebase/firebase.providers';
 import { Category } from '../../core/types/domain.models';
 
 export type CategoryRow = Category & {
@@ -20,6 +13,7 @@ export type CategoryRow = Category & {
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {
   private readonly firestore = inject(FIREBASE_FIRESTORE);
+  private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly tenantContext = inject(TenantContextService);
 
   readonly categories = signal<CategoryRow[]>([]);
@@ -79,23 +73,9 @@ export class CategoriesService {
     active: boolean;
   }): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
     this.error.set(null);
-
-    const payload: Category = {
-      tenantId,
-      name: input.name,
-      code: input.code,
-      active: input.active,
-      createdAt: new Date().toISOString()
-    };
-
-    const categoriesRef = collection(this.firestore, `tenants/${tenantId}/categories`);
-    await addDoc(categoriesRef, payload);
+    await httpsCallable(this.functions, 'createCategory')({ tenantId, ...input });
     await this.loadCategories();
   }
 
@@ -104,38 +84,16 @@ export class CategoriesService {
     input: { name: string; code?: string; active: boolean }
   ): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
     this.error.set(null);
-
-    const categoryRef = doc(
-      this.firestore,
-      `tenants/${tenantId}/categories/${categoryId}`
-    );
-    await updateDoc(categoryRef, {
-      name: input.name,
-      code: input.code ?? null,
-      active: input.active
-    });
-
+    await httpsCallable(this.functions, 'updateCategory')({ tenantId, categoryId, ...input });
     await this.loadCategories();
   }
 
   async toggleCategoryActive(categoryId: string, active: boolean): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
-    const categoryRef = doc(
-      this.firestore,
-      `tenants/${tenantId}/categories/${categoryId}`
-    );
-    await updateDoc(categoryRef, { active });
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    await httpsCallable(this.functions, 'toggleCategoryActive')({ tenantId, categoryId, active });
     await this.loadCategories();
   }
 

@@ -1,9 +1,34 @@
 <app-page-title
-  title="Dashboard"
-  subtitle="Operations overview for products, inventory, and sales."
+  title="Πίνακας ελέγχου"
+  subtitle="Επισκόπηση προϊόντων, αποθέματος και πωλήσεων."
 />
 
-<section class="dashboard-placeholder" aria-label="Dashboard placeholder">
-  <h3>Admin Dashboard Ready</h3>
-  <p>Next pages will be enabled one-by-one from the execution plan.</p>
+<section class="dashboard-placeholder" aria-label="Προσωρινός πίνακας ελέγχου">
+  <h3>Ο πίνακας διαχείρισης είναι έτοιμος</h3>
+  <p>Οι επόμενες σελίδες θα ενεργοποιηθούν σταδιακά σύμφωνα με το πλάνο υλοποίησης.</p>
+</section>
+
+<section class="dashboard-seed" aria-label="Προσωρινή δημιουργία δεδομένων emulator">
+  <h3>Προσωρινά δεδομένα emulator</h3>
+  <p>Δημιουργία 50 δοκιμαστικών προϊόντων αρωμάτων, μαρκών, κατηγοριών και προτύπων παραλλαγών για τοπικές δοκιμές.</p>
+
+  <button type="button" class="seed-button" (click)="seedMockCatalog()" [disabled]="seedLoading()">
+    {{ seedLoading() ? 'Δημιουργία δοκιμαστικού καταλόγου...' : 'Δημιουργία δοκιμαστικού καταλόγου' }}
+  </button>
+
+  <button type="button" class="seed-button secondary" (click)="seedMockInventory()" [disabled]="seedLoading()">
+    {{ seedLoading() ? 'Δημιουργία δοκιμαστικού αποθέματος...' : 'Δημιουργία δοκιμαστικού αποθέματος' }}
+  </button>
+
+  <button type="button" class="seed-button secondary" (click)="seedMockSalesHistory()" [disabled]="seedLoading()">
+    {{ seedLoading() ? 'Δημιουργία πωλήσεων...' : 'Δημιουργία ιστορικού πωλήσεων (40 παραγγελίες)' }}
+  </button>
+
+  @if (seedStatus()) {
+    <p class="seed-status">{{ seedStatus() }}</p>
+  }
+
+  @if (seedError()) {
+    <p class="seed-error">{{ seedError() }}</p>
+  }
 </section>

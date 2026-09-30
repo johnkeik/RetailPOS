@@ -1,0 +1,111 @@
+<app-page-title
+  title="Υπάλληλοι"
+  subtitle="Διαχείριση υπαλλήλων που μπορούν να συνδεθούν στο ταμείο (POS)."
+/>
+
+<section class="employees-layout">
+  <article class="panel">
+    <header class="panel-header">
+      <h3>Λίστα υπαλλήλων</h3>
+      <p>Αναζήτηση με βάση το όνομα ή τον κωδικό υπαλλήλου.</p>
+    </header>
+
+    <label class="field" for="search">Αναζήτηση</label>
+    <input
+      id="search"
+      type="text"
+      class="text-input"
+      [value]="searchQuery()"
+      (input)="onSearch(search.value)"
+      #search
+      placeholder="π.χ. Μαρία ή 123"
+    />
+
+    @if (loading()) {
+      <div class="inline-state">Φόρτωση υπαλλήλων από τον emulator...</div>
+    }
+
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (filteredEmployees().length > 0) {
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Όνομα</th>
+            <th>Κωδικός</th>
+            <th>Κατάσταση</th>
+            <th class="actions-col">Ενέργειες</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of filteredEmployees(); track employee.id) {
+            <tr>
+            <td>{{ employee.name }}</td>
+            <td>{{ employee.employeeCode }}</td>
+            <td>
+              <span class="status-chip" [class.inactive]="!employee.active">
+                {{ employee.active ? 'ΕΝΕΡΓΟΣ' : 'ΑΝΕΝΕΡΓΟΣ' }}
+              </span>
+            </td>
+            <td class="actions-col">
+              <button type="button" class="btn ghost" (click)="startEdit(employee)">Επεξεργασία</button>
+              <button type="button" class="btn ghost" (click)="toggleActive(employee)">
+                {{ employee.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
+              </button>
+            </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      </div>
+    } @else {
+      <div class="empty-state">Δεν βρέθηκαν υπάλληλοι για τα τρέχοντα φίλτρα.</div>
+    }
+  </article>
+
+  <article class="panel">
+    <header class="panel-header">
+      <h3>{{ editingEmployeeId() ? 'Επεξεργασία υπαλλήλου' : 'Δημιουργία υπαλλήλου' }}</h3>
+      <p>Ο κωδικός υπαλλήλου χρησιμοποιείται για είσοδο στο ταμείο (POS).</p>
+    </header>
+
+    <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()" class="form-grid">
+      <div>
+        <label class="field" for="name">Όνομα υπαλλήλου</label>
+        <input id="name" type="text" class="text-input" formControlName="name" />
+        @if (employeeForm.controls.name.touched && employeeForm.controls.name.invalid) {
+          <small class="error">Το όνομα υπαλλήλου είναι υποχρεωτικό.</small>
+        }
+      </div>
+
+      <div>
+        <label class="field" for="employeeCode">Κωδικός υπαλλήλου</label>
+        <input id="employeeCode" type="text" class="text-input" formControlName="employeeCode" />
+        @if (employeeForm.controls.employeeCode.touched && employeeForm.controls.employeeCode.invalid) {
+          <small class="error">Ο κωδικός υπαλλήλου είναι υποχρεωτικός.</small>
+        }
+      </div>
+
+      @if (formError()) {
+        <div class="inline-error">{{ formError() }}</div>
+      }
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Ενεργός</span>
+      </label>
+
+      <div class="button-row">
+        <button type="submit" class="btn primary">
+          {{ editingEmployeeId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία υπαλλήλου' }}
+        </button>
+        @if (editingEmployeeId()) {
+          <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
+        }
+      </div>
+    </form>
+  </article>
+</section>

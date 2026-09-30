@@ -1,0 +1,109 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { EmployeeRow, EmployeesService } from './employees.service';
+
+@Component({
+  selector: 'app-employees-page',
+  imports: [ReactiveFormsModule, PageTitleComponent],
+  templateUrl: './employees-page.component.html',
+  styleUrl: './employees-page.component.scss'
+})
+export class EmployeesPageComponent {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly employeesService = inject(EmployeesService);
+
+  protected readonly searchQuery = signal('');
+  protected readonly editingEmployeeId = signal<string | null>(null);
+  protected readonly formError = signal<string | null>(null);
+
+  protected readonly loading = this.employeesService.loading;
+  protected readonly error = this.employeesService.error;
+
+  protected readonly filteredEmployees = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    const rows = this.employeesService.employees();
+
+    if (!query) {
+      return rows;
+    }
+
+    return rows.filter(
+      (employee) =>
+        employee.name.toLowerCase().includes(query) ||
+        employee.employeeCode.toLowerCase().includes(query)
+    );
+  });
+
+  protected readonly employeeForm = this.formBuilder.nonNullable.group({
+    name: ['', [Validators.required, Validators.maxLength(80)]],
+    employeeCode: ['', [Validators.required, Validators.maxLength(20)]],
+    active: [true]
+  });
+
+  protected onSearch(value: string): void {
+    this.searchQuery.set(value);
+  }
+
+  protected async saveEmployee(): Promise<void> {
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
+      return;
+    }
+
+    const form = this.employeeForm.getRawValue();
+    const input = {
+      name: form.name.trim(),
+      employeeCode: form.employeeCode.trim(),
+      active: form.active
+    };
+
+    this.formError.set(null);
+    const activeId = this.editingEmployeeId();
+
+    try {
+      if (activeId) {
+        await this.employeesService.updateEmployee(activeId, input);
+      } else {
+        await this.employeesService.createEmployee(input);
+      }
+      this.resetForm();
+    } catch (error) {
+      console.error(error);
+      this.formError.set('Ο κωδικος υπαλληλου χρησιμοποιειται ηδη.');
+    }
+  }
+
+  protected startEdit(employee: EmployeeRow): void {
+    this.editingEmployeeId.set(employee.id);
+    this.formError.set(null);
+    this.employeeForm.setValue({
+      name: employee.name,
+      employeeCode: employee.employeeCode,
+      active: employee.active
+    });
+  }
+
+  protected async toggleActive(employee: EmployeeRow): Promise<void> {
+    await this.employeesService.toggleEmployeeActive(employee.id, !employee.active);
+  }
+
+  protected cancelEdit(): void {
+    this.resetForm();
+  }
+
+  protected isEditing(employee: EmployeeRow): boolean {
+    return this.editingEmployeeId() === employee.id;
+  }
+
+  private resetForm(): void {
+    this.editingEmployeeId.set(null);
+    this.formError.set(null);
+    this.employeeForm.reset({
+      name: '',
+      employeeCode: '',
+      active: true
+    });
+  }
+}

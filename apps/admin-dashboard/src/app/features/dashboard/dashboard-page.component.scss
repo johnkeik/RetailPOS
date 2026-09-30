@@ -14,3 +14,56 @@
   margin: 0;
   color: #475569;
 }
+
+.dashboard-seed {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.dashboard-seed h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.dashboard-seed p {
+  margin: 0;
+  color: #475569;
+}
+
+.seed-button {
+  margin-top: 12px;
+  margin-right: 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seed-button.secondary {
+  background: #0f766e;
+}
+
+.seed-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.seed-status,
+.seed-error {
+  margin-top: 12px !important;
+}
+
+.seed-status {
+  color: #0f766e;
+}
+
+.seed-error {
+  color: #b91c1c;
+}

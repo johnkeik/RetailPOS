@@ -1,16 +1,16 @@
 <app-page-title
-  title="Brands"
-  subtitle="Manage fragrance brands available in the catalog."
+  title="Μάρκες"
+  subtitle="Διαχείριση των μαρκών αρωμάτων του καταλόγου."
 />
 
 <section class="brands-layout">
   <article class="panel">
     <header class="panel-header">
-      <h3>Brand List</h3>
-      <p>Search by brand name or code.</p>
+      <h3>Λίστα μαρκών</h3>
+      <p>Αναζήτηση με βάση το όνομα ή τον κωδικό μάρκας.</p>
     </header>
 
-    <label class="field" for="search">Search</label>
+    <label class="field" for="search">Αναζήτηση</label>
     <input
       id="search"
       type="text"
@@ -18,11 +18,11 @@
       [value]="searchQuery()"
       (input)="onSearch(search.value)"
       #search
-      placeholder="e.g. Dior or armani"
+      placeholder="π.χ. Dior ή armani"
     />
 
     @if (loading()) {
-      <div class="inline-state">Loading brands from emulator...</div>
+      <div class="inline-state">Φόρτωση μαρκών από τον emulator...</div>
     }
 
     @if (error()) {
@@ -34,10 +34,10 @@
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Code</th>
-            <th>Status</th>
-            <th class="actions-col">Actions</th>
+            <th>Όνομα</th>
+            <th>Κωδικός</th>
+            <th>Κατάσταση</th>
+            <th class="actions-col">Ενέργειες</th>
           </tr>
         </thead>
         <tbody>
@@ -47,15 +47,15 @@
             <td>{{ brand.code || '-' }}</td>
             <td>
               <span class="status-chip" [class.inactive]="!brand.active">
-                {{ brand.active ? 'ACTIVE' : 'INACTIVE' }}
+                {{ brand.active ? 'ΕΝΕΡΓΗ' : 'ΑΝΕΝΕΡΓΗ' }}
               </span>
             </td>
             <td class="actions-col">
               <button type="button" class="btn ghost" (click)="startEdit(brand)">
-                {{ isEditing(brand) ? 'Editing' : 'Edit' }}
+                {{ isEditing(brand) ? 'Επεξεργασία' : 'Επεξεργασία' }}
               </button>
               <button type="button" class="btn ghost" (click)="toggleActive(brand)">
-                {{ brand.active ? 'Deactivate' : 'Activate' }}
+                {{ brand.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
               </button>
             </td>
             </tr>
@@ -64,43 +64,43 @@
       </table>
       </div>
     } @else {
-      <div class="empty-state">No brands found for current filter.</div>
+      <div class="empty-state">Δεν βρέθηκαν μάρκες για τα τρέχοντα φίλτρα.</div>
     }
   </article>
 
   <article class="panel">
     <header class="panel-header">
-      <h3>{{ editingBrandId() ? 'Edit Brand' : 'Create Brand' }}</h3>
-      <p>Brand code is optional and useful for imports.</p>
+      <h3>{{ editingBrandId() ? 'Επεξεργασία μάρκας' : 'Δημιουργία μάρκας' }}</h3>
+      <p>Ο κωδικός μάρκας είναι προαιρετικός και χρήσιμος για εισαγωγές.</p>
     </header>
 
     <form [formGroup]="brandForm" (ngSubmit)="saveBrand()" class="form-grid">
       <div>
-        <label class="field" for="name">Brand name</label>
+        <label class="field" for="name">Όνομα μάρκας</label>
         <input id="name" type="text" class="text-input" formControlName="name" />
         @if (brandForm.controls.name.touched && brandForm.controls.name.invalid) {
           <small class="error">
-          Brand name is required.
+          Το όνομα μάρκας είναι υποχρεωτικό.
           </small>
         }
       </div>
 
       <div>
-        <label class="field" for="code">Code</label>
+        <label class="field" for="code">Κωδικός</label>
         <input id="code" type="text" class="text-input" formControlName="code" />
       </div>
 
       <label class="checkbox-row" for="active">
         <input id="active" type="checkbox" formControlName="active" />
-        <span>Active</span>
+        <span>Ενεργή</span>
       </label>
 
       <div class="button-row">
         <button type="submit" class="btn primary">
-          {{ editingBrandId() ? 'Save Changes' : 'Create Brand' }}
+          {{ editingBrandId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία μάρκας' }}
         </button>
         @if (editingBrandId()) {
-          <button type="button" class="btn ghost" (click)="cancelEdit()">Cancel</button>
+          <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
         }
       </div>
     </form>

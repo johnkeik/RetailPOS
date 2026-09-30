@@ -1,0 +1,20 @@
+<section class="login-shell">
+  <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
+    <h2>Admin sign in</h2>
+    <p>Use the local emulator setup for development.</p>
+
+    <label>
+      <span>Email</span>
+      <input type="email" formControlName="email" />
+    </label>
+
+    <label>
+      <span>Password</span>
+      <input type="password" formControlName="password" />
+    </label>
+
+    <button type="submit" [disabled]="loading()">{{ loading() ? 'Signing in…' : 'Sign in' }}</button>
+
+    <p *ngIf="error()" class="error">{{ error() }}</p>
+  </form>
+</section>

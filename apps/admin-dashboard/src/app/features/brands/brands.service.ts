@@ -1,16 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  orderBy,
-  query,
-  updateDoc
-} from 'firebase/firestore';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
-import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
+import { FIREBASE_FIRESTORE, FIREBASE_FUNCTIONS } from '../../core/firebase/firebase.providers';
 import { Brand } from '../../core/types/domain.models';
 
 export type BrandRow = Brand & {
@@ -20,6 +13,7 @@ export type BrandRow = Brand & {
 @Injectable({ providedIn: 'root' })
 export class BrandsService {
   private readonly firestore = inject(FIREBASE_FIRESTORE);
+  private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly tenantContext = inject(TenantContextService);
 
   readonly brands = signal<BrandRow[]>([]);
@@ -76,23 +70,9 @@ export class BrandsService {
     active: boolean;
   }): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
     this.error.set(null);
-
-    const payload: Brand = {
-      tenantId,
-      name: input.name,
-      code: input.code,
-      active: input.active,
-      createdAt: new Date().toISOString()
-    };
-
-    const brandsRef = collection(this.firestore, `tenants/${tenantId}/brands`);
-    await addDoc(brandsRef, payload);
+    await httpsCallable(this.functions, 'createBrand')({ tenantId, ...input });
     await this.loadBrands();
   }
 
@@ -101,32 +81,16 @@ export class BrandsService {
     input: { name: string; code?: string; active: boolean }
   ): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
     this.error.set(null);
-
-    const brandRef = doc(this.firestore, `tenants/${tenantId}/brands/${brandId}`);
-    await updateDoc(brandRef, {
-      name: input.name,
-      code: input.code ?? null,
-      active: input.active
-    });
-
+    await httpsCallable(this.functions, 'updateBrand')({ tenantId, brandId, ...input });
     await this.loadBrands();
   }
 
   async toggleBrandActive(brandId: string, active: boolean): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
-
-    const brandRef = doc(this.firestore, `tenants/${tenantId}/brands/${brandId}`);
-    await updateDoc(brandRef, { active });
+    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    await httpsCallable(this.functions, 'toggleBrandActive')({ tenantId, brandId, active });
     await this.loadBrands();
   }
 
