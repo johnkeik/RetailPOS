@@ -7,7 +7,7 @@ class MockPosCatalogRepository implements PosCatalogRepository {
 
   @override
   Future<PosCatalog> loadCatalog(String tenantId) async {
-    return const PosCatalog(
+    return PosCatalog(
       categories: kPosCategories,
       products: kMockProducts,
     );

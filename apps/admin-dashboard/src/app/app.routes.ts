@@ -7,6 +7,7 @@ import { BrandsPageComponent } from './features/brands/brands-page.component';
 import { CategoriesPageComponent } from './features/categories/categories-page.component';
 import { DashboardPageComponent } from './features/dashboard/dashboard-page.component';
 import { EmployeesPageComponent } from './features/employees/employees-page.component';
+import { ConsumablesPageComponent } from './features/consumables/consumables-page.component';
 import { InventoryPageComponent } from './features/inventory/inventory-page.component';
 import { ProductsPageComponent } from './features/products/products-page.component';
 import { SalesHistoryPageComponent } from './features/sales-history/sales-history-page.component';
@@ -47,6 +48,10 @@ export const routes: Routes = [
 			{
 				path: 'employees',
 				component: EmployeesPageComponent
+			},
+			{
+				path: 'consumables',
+				component: ConsumablesPageComponent
 			},
 			{
 				path: 'variants',

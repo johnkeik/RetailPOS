@@ -29,7 +29,8 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
               'productId': line.product.id,
               'variantTemplateId': line.variant.id,
               'quantity': line.quantity,
-              'unitPrice': line.variant.price,
+              'unitPrice': line.unitPrice,
+              'useSpecialBottle': line.useSpecialBottle,
             },
           )
           .toList(),
@@ -65,6 +66,7 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
           isBulk: item['isBulk'] as bool? ?? false,
           quantity: (item['quantity'] as num? ?? 0).toInt(),
           unitPrice: (item['unitPrice'] as num? ?? 0).toDouble(),
+          useSpecialBottle: item['useSpecialBottle'] as bool? ?? false,
         );
       }).toList();
       final createdAtValue = data['createdAt'];

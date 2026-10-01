@@ -15,16 +15,40 @@ class ProductVariant {
   const ProductVariant({
     required this.id,
     required this.code,
+    required this.name,
     required this.label,
     required this.type,
     required this.price,
+    this.perfumeMl,
+    this.essenceMl,
+    this.hasSpecialBottle = false,
+    this.specialBottleConsumableId,
+    this.specialBottleExtraPrice,
   });
 
   final String id;
   final String code;
+  final String name;
   final String label;
   final ProductVariantType type;
   final double price;
+  final int? perfumeMl;
+  final int? essenceMl;
+  final bool hasSpecialBottle;
+  final String? specialBottleConsumableId;
+  final double? specialBottleExtraPrice;
+
+  String get recipeSummary {
+    if (type != ProductVariantType.bulk) return '';
+    final parts = <String>[];
+    if (perfumeMl != null && perfumeMl! > 0) {
+      parts.add('${perfumeMl}ml βάση');
+    }
+    if (essenceMl != null && essenceMl! > 0) {
+      parts.add('${essenceMl}ml εσάνς');
+    }
+    return parts.join(' + ');
+  }
 }
 
 class ProductItem {
@@ -58,11 +82,22 @@ class CartLine {
     required this.product,
     required this.variant,
     required this.quantity,
+    this.useSpecialBottle = false,
   });
 
   final ProductItem product;
   final ProductVariant variant;
   final int quantity;
+  final bool useSpecialBottle;
+
+  double get extraPricePerUnit =>
+      (useSpecialBottle && variant.hasSpecialBottle)
+          ? (variant.specialBottleExtraPrice ?? 0.0)
+          : 0.0;
+
+  double get unitPrice => variant.price + extraPricePerUnit;
+
+  double get total => unitPrice * quantity;
 }
 
 class PosOrderItem {
@@ -74,6 +109,7 @@ class PosOrderItem {
     required this.isBulk,
     required this.quantity,
     required this.unitPrice,
+    this.useSpecialBottle = false,
   });
 
   final String productCode;
@@ -83,6 +119,7 @@ class PosOrderItem {
   final bool isBulk;
   final int quantity;
   final double unitPrice;
+  final bool useSpecialBottle;
 }
 
 class PosOrder {

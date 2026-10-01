@@ -1,27 +1,27 @@
 <app-page-title
-  title="Πίνακας ελέγχου"
-  subtitle="Επισκόπηση προϊόντων, αποθέματος και πωλήσεων."
+  title="Dashboard"
+  subtitle="Operations overview for products, inventory, and sales."
 />
 
-<section class="dashboard-placeholder" aria-label="Προσωρινός πίνακας ελέγχου">
-  <h3>Ο πίνακας διαχείρισης είναι έτοιμος</h3>
-  <p>Οι επόμενες σελίδες θα ενεργοποιηθούν σταδιακά σύμφωνα με το πλάνο υλοποίησης.</p>
+<section class="dashboard-placeholder" aria-label="Dashboard placeholder">
+  <h3>Admin Dashboard Ready</h3>
+  <p>Next pages will be enabled one-by-one from the execution plan.</p>
 </section>
 
-<section class="dashboard-seed" aria-label="Προσωρινή δημιουργία δεδομένων emulator">
-  <h3>Προσωρινά δεδομένα emulator</h3>
-  <p>Δημιουργία 50 δοκιμαστικών προϊόντων αρωμάτων, μαρκών, κατηγοριών και προτύπων παραλλαγών για τοπικές δοκιμές.</p>
+<section class="dashboard-seed" aria-label="Temporary emulator data seeding">
+  <h3>Temporary Emulator Seed</h3>
+  <p>Create 50 mock perfume products, brands, categories, and variant templates for local emulator testing.</p>
 
   <button type="button" class="seed-button" (click)="seedMockCatalog()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Δημιουργία δοκιμαστικού καταλόγου...' : 'Δημιουργία δοκιμαστικού καταλόγου' }}
+    {{ seedLoading() ? 'Creating mock catalog...' : 'Create Mock Catalog' }}
   </button>
 
   <button type="button" class="seed-button secondary" (click)="seedMockInventory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Δημιουργία δοκιμαστικού αποθέματος...' : 'Δημιουργία δοκιμαστικού αποθέματος' }}
+    {{ seedLoading() ? 'Seeding inventory...' : 'Seed Mock Inventory' }}
   </button>
 
   <button type="button" class="seed-button secondary" (click)="seedMockSalesHistory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Δημιουργία πωλήσεων...' : 'Δημιουργία ιστορικού πωλήσεων (40 παραγγελίες)' }}
+    {{ seedLoading() ? 'Seeding sales...' : 'Seed Sales History (40 orders)' }}
   </button>
 
   @if (seedStatus()) {

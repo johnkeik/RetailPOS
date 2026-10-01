@@ -144,6 +144,8 @@ export class ProductsService {
           productType: (data.productType as ProductType) ?? 'PERFUME',
           packagingCategory: (data.packagingCategory as PackagingCategory) ?? 'PACKAGED',
           gender: data.gender as ProductGender | undefined,
+          perfumeBaseCode: data.perfumeBaseCode,
+          essenceCode: data.essenceCode,
           variantAssignments: (data.variantAssignments as Record<string, ProductVariantAssignment>) ?? {},
           active: data.active ?? true,
           createdAt: this.normalizeTimestamp(data.createdAt),
@@ -159,7 +161,7 @@ export class ProductsService {
       this.products.set(products);
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to load products data from Firestore emulator.');
+      this.error.set('Αποτυχία φόρτωσης προϊόντων.');
     } finally {
       this.loading.set(false);
     }
@@ -172,15 +174,22 @@ export class ProductsService {
     categoryId: string;
     productType: ProductType;
     packagingCategory: PackagingCategory;
+    perfumeBaseCode?: string;
+    essenceCode?: string;
     gender?: ProductGender;
     variantAssignments: Record<string, ProductVariantAssignment>;
     active: boolean;
   }): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
     this.error.set(null);
-    await httpsCallable(this.functions, 'createProduct')({ tenantId, ...input });
-    await this.loadAll();
+    try {
+      await httpsCallable(this.functions, 'createProduct')({ tenantId, ...input });
+      await this.loadAll();
+    } catch (err) {
+      console.error(err);
+      this.error.set('Αποτυχία δημιουργίας προϊόντος.');
+    }
   }
 
   async updateProduct(
@@ -192,16 +201,23 @@ export class ProductsService {
       categoryId: string;
       productType: ProductType;
       packagingCategory: PackagingCategory;
+      perfumeBaseCode?: string;
+      essenceCode?: string;
       gender?: ProductGender;
       variantAssignments: Record<string, ProductVariantAssignment>;
       active: boolean;
     }
   ): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
     this.error.set(null);
-    await httpsCallable(this.functions, 'updateProduct')({ tenantId, productId, ...input });
-    await this.loadAll();
+    try {
+      await httpsCallable(this.functions, 'updateProduct')({ tenantId, productId, ...input });
+      await this.loadAll();
+    } catch (err) {
+      console.error(err);
+      this.error.set('Αποτυχία ενημέρωσης προϊόντος.');
+    }
   }
 
   async seedDefaultVariantTemplates(): Promise<void> {
@@ -279,9 +295,30 @@ export class ProductsService {
 
   async toggleProductActive(productId: string, active: boolean): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
-    await httpsCallable(this.functions, 'toggleProductActive')({ tenantId, productId, active });
-    await this.loadAll();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
+    try {
+      await httpsCallable(this.functions, 'toggleProductActive')({ tenantId, productId, active });
+      await this.loadAll();
+    } catch (err) {
+      console.error(err);
+      this.error.set('Αποτυχία αλλαγής κατάστασης προϊόντος.');
+    }
+  }
+
+  async deleteProduct(productId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteProduct')({ tenantId, productId });
+      await this.loadAll();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής προϊόντος.';
+      this.error.set(msg);
+      return false;
+    }
   }
 
   private normalizeTimestamp(value: unknown): string {

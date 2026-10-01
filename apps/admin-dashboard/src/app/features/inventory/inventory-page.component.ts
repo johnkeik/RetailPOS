@@ -31,11 +31,22 @@ export class InventoryPageComponent implements OnInit {
    */
   protected stockStatus(row: { quantity: number; isBulk: boolean }): 'ok' | 'low' | 'empty' {
     const qty = row.quantity;
-    if (qty === 0) return 'empty';
+    if (qty <= 0) return 'empty';
     const threshold = this.lowStockThreshold();
     const effective = row.isBulk ? threshold * 1000 : threshold; // convert L → ml for BULK
     if (qty <= effective) return 'low';
     return 'ok';
+  }
+
+  protected getStatusLabel(status: 'ok' | 'low' | 'empty'): string {
+    switch (status) {
+      case 'ok':
+        return 'ΕΠΑΡΚΕΣ';
+      case 'low':
+        return 'ΧΑΜΗΛΟ';
+      case 'empty':
+        return 'ΕΞΑΝΤΛΗΜΕΝΟ';
+    }
   }
 
   protected readonly summary = computed(() => {

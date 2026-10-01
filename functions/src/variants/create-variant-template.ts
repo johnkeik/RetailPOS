@@ -31,6 +31,17 @@ export const createVariantTemplate = onCall(async (request) => {
 
   if (data.size != null) payload.size = Number(data.size);
   if (data.costPrice != null) payload.costPrice = Number(data.costPrice);
+  if (data.perfumeMl != null) payload.perfumeMl = Number(data.perfumeMl);
+  if (data.essenceMl != null) payload.essenceMl = Number(data.essenceMl);
+  if (Array.isArray(data.recipeConsumables)) {
+    payload.recipeConsumables = data.recipeConsumables.map((c) => ({
+      consumableId: String(c.consumableId),
+      quantity: Math.max(1, Math.floor(Number(c.quantity) || 1))
+    }));
+  }
+  if (data.hasSpecialBottle != null) payload.hasSpecialBottle = Boolean(data.hasSpecialBottle);
+  if (data.specialBottleConsumableId) payload.specialBottleConsumableId = data.specialBottleConsumableId;
+  if (data.specialBottleExtraPrice != null) payload.specialBottleExtraPrice = Number(data.specialBottleExtraPrice);
 
   await templateRef.set(payload);
   return {ok: true, templateId: templateRef.id};

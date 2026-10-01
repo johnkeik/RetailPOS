@@ -55,6 +55,25 @@ export type ProductVariantAssignment = {
   costPrice?: number;
 };
 
+// Firestore: tenants/{tenantId}/consumables/{consumableId}
+export type Consumable = {
+  id?: string;
+  tenantId: string;
+  name: string;
+  code?: string;
+  unit: string;
+  costPrice?: number;
+  active: boolean;
+  createdAt: FirestoreTimestampLike;
+  updatedAt?: FirestoreTimestampLike;
+};
+
+// Recipe consumable specification for a variant
+export type VariantRecipeConsumable = {
+  consumableId: string;
+  quantity: number;
+};
+
 // Firestore: tenants/{tenantId}/products/{productId}
 export type Product = {
   tenantId: string;
@@ -65,6 +84,8 @@ export type Product = {
   categoryId: string;
   productType: ProductType;
   packagingCategory: PackagingCategory;
+  perfumeBaseCode?: string;
+  essenceCode?: string;
   // templateId → per-product pricing
   variantAssignments?: Record<string, ProductVariantAssignment>;
   isPremium?: boolean;
@@ -73,7 +94,7 @@ export type Product = {
   updatedAt?: FirestoreTimestampLike;
 };
 
-// A consumable part linked to a BULK variant template
+// A consumable part linked to a BULK variant template (legacy reference)
 export type ConsumablePart = {
   variantTemplateId: string;
   quantity: number; // units consumed per sale/use
@@ -89,7 +110,13 @@ export type VariantTemplate = {
   packagingType: PackagingType;
   costPrice?: number;
   sellingPrice: number;
+  perfumeMl?: number;
+  essenceMl?: number;
+  recipeConsumables?: VariantRecipeConsumable[];
   consumableParts?: ConsumablePart[];
+  hasSpecialBottle?: boolean;
+  specialBottleConsumableId?: string;
+  specialBottleExtraPrice?: number;
   active: boolean;
   createdAt: FirestoreTimestampLike;
   updatedAt?: FirestoreTimestampLike;

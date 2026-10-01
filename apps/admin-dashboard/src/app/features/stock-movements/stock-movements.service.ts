@@ -3,7 +3,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
-import { PackagingCategory, Product, StockMovement, VariantTemplate } from '../../core/types/domain.models';
+import { Consumable, PackagingCategory, Product, StockMovement, VariantTemplate } from '../../core/types/domain.models';
 
 export type StockMovementRow = StockMovement & {
   id: string;
@@ -12,6 +12,7 @@ export type StockMovementRow = StockMovement & {
   productCode: string;
   variantTemplateName: string;
   isBulk: boolean;
+  isConsumable?: boolean;
   displayDelta: string;
 };
 
@@ -47,11 +48,13 @@ export class StockMovementsService {
       const movementsRef = collection(this.firestore, `tenants/${tenantId}/stockMovements`);
       const productsRef = collection(this.firestore, `tenants/${tenantId}/products`);
       const templatesRef = collection(this.firestore, `tenants/${tenantId}/variantTemplates`);
+      const consumablesRef = collection(this.firestore, `tenants/${tenantId}/consumables`);
 
-      const [movementsSnapshot, productsSnapshot, templatesSnapshot] = await Promise.all([
+      const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot] = await Promise.all([
         getDocs(query(movementsRef, orderBy('createdAt', 'desc'))),
         getDocs(query(productsRef, orderBy('name', 'asc'))),
-        getDocs(query(templatesRef, orderBy('name', 'asc')))
+        getDocs(query(templatesRef, orderBy('name', 'asc'))),
+        getDocs(query(consumablesRef, orderBy('name', 'asc')))
       ]);
 
       const productsById = new Map(
@@ -60,7 +63,9 @@ export class StockMovementsService {
           return [item.id, {
             name: data.name ?? '-',
             code: data.productCode ?? '-',
-            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null
+            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null,
+            perfumeBaseCode: data.perfumeBaseCode,
+            essenceCode: data.essenceCode
           }];
         })
       );
@@ -72,19 +77,109 @@ export class StockMovementsService {
         })
       );
 
+      const consumablesById = new Map(
+        consumablesSnapshot.docs.map((item) => {
+          const data = item.data() as Partial<Consumable>;
+          return [item.id, {
+            name: data.name ?? '-',
+            code: data.code ?? '-',
+            unit: data.unit ?? 'τεμ.'
+          }];
+        })
+      );
+
       const rows: StockMovementRow[] = movementsSnapshot.docs.map((item) => {
         const data = item.data() as Partial<StockMovement> & { variantTemplateId?: string };
-        const productMeta = productsById.get(data.productId ?? '') ?? { name: '-', code: '-', packagingCategory: null };
-        const variantTemplateId = data.variantTemplateId;
+        const productId = data.productId ?? '';
+        const vtId = data.variantTemplateId ?? '';
         const quantityDelta = data.quantityDelta ?? 0;
-        const isBulk = productMeta.packagingCategory === 'BULK' || variantTemplateId === 'bulk';
+
+        // 1. Consumable movement
+        if (vtId === 'consumable' || consumablesById.has(productId)) {
+          const cMeta = consumablesById.get(productId);
+          return {
+            id: item.id,
+            tenantId,
+            variantId: 'consumable',
+            variantTemplateId: 'consumable',
+            productId,
+            type: data.type ?? 'ADJUSTMENT',
+            quantityDelta,
+            reason: data.reason,
+            orderId: data.orderId,
+            performedByEmployeeId: data.performedByEmployeeId,
+            createdAt: this.normalizeTimestamp(data.createdAt),
+            productName: cMeta?.name ?? 'Αναλώσιμο',
+            productCode: cMeta?.code ?? '-',
+            variantTemplateName: `Αναλώσιμο (${cMeta?.unit ?? 'τεμ.'})`,
+            isBulk: false,
+            isConsumable: true,
+            displayDelta: `${quantityDelta > 0 ? '+' : ''}${quantityDelta} ${cMeta?.unit ?? 'τεμ.'}`
+          };
+        }
+
+        const productMeta = productsById.get(productId) ?? {
+          name: '-',
+          code: '-',
+          packagingCategory: null,
+          perfumeBaseCode: undefined,
+          essenceCode: undefined
+        };
+
+        // 2. Perfume Base
+        if (vtId === 'perfume') {
+          return {
+            id: item.id,
+            tenantId,
+            variantId: 'perfume',
+            variantTemplateId: 'perfume',
+            productId,
+            type: data.type ?? 'ADJUSTMENT',
+            quantityDelta,
+            reason: data.reason,
+            orderId: data.orderId,
+            performedByEmployeeId: data.performedByEmployeeId,
+            createdAt: this.normalizeTimestamp(data.createdAt),
+            productName: productMeta.name,
+            productCode: productMeta.perfumeBaseCode || productMeta.code,
+            variantTemplateName: 'Άρωμα (Βάση)',
+            isBulk: true,
+            isConsumable: false,
+            displayDelta: this.formatDelta(quantityDelta, true)
+          };
+        }
+
+        // 3. Essence
+        if (vtId === 'essence') {
+          return {
+            id: item.id,
+            tenantId,
+            variantId: 'essence',
+            variantTemplateId: 'essence',
+            productId,
+            type: data.type ?? 'ADJUSTMENT',
+            quantityDelta,
+            reason: data.reason,
+            orderId: data.orderId,
+            performedByEmployeeId: data.performedByEmployeeId,
+            createdAt: this.normalizeTimestamp(data.createdAt),
+            productName: productMeta.name,
+            productCode: productMeta.essenceCode || productMeta.code,
+            variantTemplateName: 'Εσάνς',
+            isBulk: true,
+            isConsumable: false,
+            displayDelta: this.formatDelta(quantityDelta, true)
+          };
+        }
+
+        const isBulk = productMeta.packagingCategory === 'BULK' || vtId === 'bulk';
 
         return {
           id: item.id,
           tenantId,
           variantId: data.variantId ?? '',
-          variantTemplateId,
-          productId: data.productId ?? '',
+          variantTemplateId: vtId,
+          productId,
           type: data.type ?? 'ADJUSTMENT',
           quantityDelta,
           reason: data.reason,
@@ -93,10 +188,11 @@ export class StockMovementsService {
           createdAt: this.normalizeTimestamp(data.createdAt),
           productName: productMeta.name,
           productCode: productMeta.code,
-          variantTemplateName: variantTemplateId
-            ? templatesById.get(variantTemplateId) ?? '-'
+          variantTemplateName: vtId
+            ? templatesById.get(vtId) ?? '-'
             : '-',
           isBulk,
+          isConsumable: false,
           displayDelta: this.formatDelta(quantityDelta, isBulk)
         };
       });
@@ -104,7 +200,7 @@ export class StockMovementsService {
       this.movementRows.set(rows);
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to load stock movements from Firestore emulator.');
+      this.error.set('Αποτυχία φόρτωσης κινήσεων αποθέματος.');
     } finally {
       this.loading.set(false);
     }

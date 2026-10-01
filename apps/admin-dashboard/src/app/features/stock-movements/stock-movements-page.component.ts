@@ -1,10 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { StockMovementType } from '../../core/types/domain.models';
-import { ProductsService } from '../products/products.service';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { ConsumablesService } from '../consumables/consumables.service';
+import { ProductsService } from '../products/products.service';
 import { StockActionsService } from './stock-actions.service';
 import { StockMovementsService } from './stock-movements.service';
+
+export type MovementTargetType = 'PERFUME' | 'ESSENCE' | 'CONSUMABLE' | 'PACKAGED';
 
 @Component({
   selector: 'app-stock-movements-page',
@@ -16,28 +19,36 @@ export class StockMovementsPageComponent implements OnInit {
   private readonly service = inject(StockMovementsService);
   private readonly stockActions = inject(StockActionsService);
   private readonly productsService = inject(ProductsService);
+  private readonly consumablesService = inject(ConsumablesService);
 
   protected readonly searchQuery = signal('');
   protected readonly selectedType = signal<StockMovementType | 'ALL'>('ALL');
   protected readonly actionError = signal<string | null>(null);
   protected readonly actionSuccess = signal<string | null>(null);
 
+  // Form selections for Receive
+  protected readonly receiveTargetType = signal<MovementTargetType>('PERFUME');
   protected readonly receiveProductId = signal('');
+  protected readonly receiveConsumableId = signal('');
   protected readonly receiveTemplateId = signal('');
-  protected readonly receiveQuantity = signal('');
-  protected readonly receiveReason = signal('');
   protected readonly receiveLiters = signal('');
+  protected readonly receiveUnits = signal('');
+  protected readonly receiveReason = signal('');
 
+  // Form selections for Adjust
+  protected readonly adjustTargetType = signal<MovementTargetType>('PERFUME');
   protected readonly adjustProductId = signal('');
+  protected readonly adjustConsumableId = signal('');
   protected readonly adjustTemplateId = signal('');
-  protected readonly adjustDelta = signal('');
+  protected readonly adjustLitersDelta = signal('');
+  protected readonly adjustUnitsDelta = signal('');
   protected readonly adjustReason = signal('');
-  protected readonly adjustLiters = signal('');
 
   protected readonly loading = this.service.loading;
   protected readonly error = this.service.error;
   protected readonly products = this.productsService.products;
   protected readonly variantTemplates = this.productsService.variantTemplates;
+  protected readonly consumables = this.consumablesService.consumables;
 
   protected readonly bulkProducts = computed(() =>
     this.products().filter((p) => p.packagingCategory === 'BULK')
@@ -58,6 +69,7 @@ export class StockMovementsPageComponent implements OnInit {
   ngOnInit(): void {
     void this.service.loadMovements();
     void this.productsService.loadAll();
+    void this.consumablesService.loadAll();
   }
 
   protected readonly receiveTemplateOptions = computed(() => {
@@ -67,16 +79,6 @@ export class StockMovementsPageComponent implements OnInit {
     if (!product) return [];
     const templateIds = Object.keys(product.variantAssignments ?? {});
     return this.variantTemplates().filter((item) => templateIds.includes(item.id));
-  });
-
-  protected readonly isReceiveProductBulk = computed(() => {
-    const productId = this.receiveProductId();
-    return this.products().find((p) => p.id === productId)?.packagingCategory === 'BULK';
-  });
-
-  protected readonly isAdjustProductBulk = computed(() => {
-    const productId = this.adjustProductId();
-    return this.products().find((p) => p.id === productId)?.packagingCategory === 'BULK';
   });
 
   protected readonly adjustTemplateOptions = computed(() => {
@@ -112,78 +114,90 @@ export class StockMovementsPageComponent implements OnInit {
     this.selectedType.set(value as StockMovementType | 'ALL');
   }
 
-  protected formatDate(value: Date | string): string {
-    if (!value) return '-';
-    const d = value instanceof Date ? value : new Date(value);
-    return d.toLocaleString('el-GR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  protected onReceiveProductChange(value: string): void {
-    this.receiveProductId.set(value);
-    this.receiveTemplateId.set('');
-  }
-
-  protected onAdjustProductChange(value: string): void {
-    this.adjustProductId.set(value);
-    this.adjustTemplateId.set('');
-  }
-
   protected async submitReceiveStock(): Promise<void> {
     this.actionError.set(null);
     this.actionSuccess.set(null);
 
-    const isBulk = this.isReceiveProductBulk();
+    const target = this.receiveTargetType();
 
-    if (isBulk) {
+    if (target === 'PERFUME' || target === 'ESSENCE') {
+      const productId = this.receiveProductId();
       const liters = Number(this.receiveLiters());
-      if (!this.receiveProductId() || !Number.isFinite(liters) || liters <= 0) {
-        this.actionError.set('Απαιτείται προϊόν και όγκος μεγαλύτερος του 0.');
+      if (!productId || !Number.isFinite(liters) || liters <= 0) {
+        this.actionError.set('Παρακαλώ επιλέξτε προϊόν και έγκυρη ποσότητα σε λίτρα (> 0).');
         return;
       }
+
+      const variantTemplateId = target === 'PERFUME' ? 'perfume' : 'essence';
+      const label = target === 'PERFUME' ? 'Άρωμα' : 'Εσάνς';
+
       try {
         await this.stockActions.receiveStock({
-          productId: this.receiveProductId(),
-          variantTemplateId: 'bulk',
-          quantity: liters * 1000, // convert liters to ml
+          productId,
+          variantTemplateId,
+          quantity: liters * 1000,
           reason: this.receiveReason().trim() || undefined
         });
-        this.actionSuccess.set(`Παραλήφθηκαν ${liters} L με επιτυχία.`);
+        this.actionSuccess.set(`Παραλαβή ${liters} L (${label}) καταχωρήθηκε επιτυχώς.`);
         this.receiveLiters.set('');
         this.receiveReason.set('');
         await this.service.loadMovements();
-      } catch (error) {
-        console.error(error);
-        this.actionError.set('Η παραλαβή αποθέματος απέτυχε.');
+      } catch (err) {
+        console.error(err);
+        this.actionError.set('Αποτυχία καταχώρισης παραλαβής.');
       }
       return;
     }
 
-    const quantity = Number(this.receiveQuantity());
-    if (!this.receiveProductId() || !this.receiveTemplateId() || !Number.isFinite(quantity) || quantity <= 0) {
-      this.actionError.set('Απαιτείται προϊόν, πρότυπο παραλλαγής και ποσότητα μεγαλύτερη του 0.');
+    if (target === 'CONSUMABLE') {
+      const consumableId = this.receiveConsumableId();
+      const units = Number(this.receiveUnits());
+      if (!consumableId || !Number.isFinite(units) || units <= 0) {
+        this.actionError.set('Παρακαλώ επιλέξτε αναλώσιμο και έγκυρο αριθμό τεμαχίων (> 0).');
+        return;
+      }
+
+      try {
+        await this.stockActions.receiveStock({
+          productId: consumableId,
+          variantTemplateId: 'consumable',
+          quantity: Math.floor(units),
+          reason: this.receiveReason().trim() || undefined
+        });
+        this.actionSuccess.set(`Παραλαβή ${units} τεμ. αναλωσίμου καταχωρήθηκε επιτυχώς.`);
+        this.receiveUnits.set('');
+        this.receiveReason.set('');
+        await this.service.loadMovements();
+      } catch (err) {
+        console.error(err);
+        this.actionError.set('Αποτυχία καταχώρισης παραλαβής αναλωσίμου.');
+      }
+      return;
+    }
+
+    // PACKAGED
+    const productId = this.receiveProductId();
+    const templateId = this.receiveTemplateId();
+    const units = Number(this.receiveUnits());
+    if (!productId || !templateId || !Number.isFinite(units) || units <= 0) {
+      this.actionError.set('Παρακαλώ επιλέξτε προϊόν, παραλλαγή και ποσότητα τεμαχίων (> 0).');
       return;
     }
 
     try {
       await this.stockActions.receiveStock({
-        productId: this.receiveProductId(),
-        variantTemplateId: this.receiveTemplateId(),
-        quantity,
+        productId,
+        variantTemplateId: templateId,
+        quantity: Math.floor(units),
         reason: this.receiveReason().trim() || undefined
       });
-      this.actionSuccess.set('Το απόθεμα παραλήφθηκε με επιτυχία.');
-      this.receiveQuantity.set('');
+      this.actionSuccess.set('Παραλαβή συσκευασμένου προϊόντος καταχωρήθηκε επιτυχώς.');
+      this.receiveUnits.set('');
       this.receiveReason.set('');
       await this.service.loadMovements();
-    } catch (error) {
-      console.error(error);
-      this.actionError.set('Η παραλαβή αποθέματος απέτυχε. Ελέγξτε τον emulator και τα δεδομένα.');
+    } catch (err) {
+      console.error(err);
+      this.actionError.set('Αποτυχία καταχώρισης παραλαβής.');
     }
   }
 
@@ -191,52 +205,97 @@ export class StockMovementsPageComponent implements OnInit {
     this.actionError.set(null);
     this.actionSuccess.set(null);
 
-    const isBulk = this.isAdjustProductBulk();
+    const target = this.adjustTargetType();
 
-    if (isBulk) {
-      const liters = Number(this.adjustLiters());
-      if (!this.adjustProductId() || !Number.isFinite(liters) || liters === 0) {
-        this.actionError.set('Απαιτείται προϊόν και μη μηδενικός όγκος (L).');
+    if (target === 'PERFUME' || target === 'ESSENCE') {
+      const productId = this.adjustProductId();
+      const litersDelta = Number(this.adjustLitersDelta());
+      if (!productId || !Number.isFinite(litersDelta) || litersDelta === 0) {
+        this.actionError.set('Παρακαλώ επιλέξτε προϊόν και μη μηδενική διαφορά σε λίτρα (+ ή -).');
         return;
       }
+
+      const variantTemplateId = target === 'PERFUME' ? 'perfume' : 'essence';
+      const label = target === 'PERFUME' ? 'Άρωμα' : 'Εσάνς';
+
       try {
         await this.stockActions.adjustStock({
-          productId: this.adjustProductId(),
-          variantTemplateId: 'bulk',
-          quantityDelta: liters * 1000,
+          productId,
+          variantTemplateId,
+          quantityDelta: litersDelta * 1000,
           reason: this.adjustReason().trim() || undefined
         });
-        this.actionSuccess.set('Το χύμα απόθεμα διορθώθηκε με επιτυχία.');
-        this.adjustLiters.set('');
+        this.actionSuccess.set(`Προσαρμογή ${label} (${litersDelta > 0 ? '+' : ''}${litersDelta} L) καταχωρήθηκε επιτυχώς.`);
+        this.adjustLitersDelta.set('');
         this.adjustReason.set('');
         await this.service.loadMovements();
-      } catch (error) {
-        console.error(error);
-        this.actionError.set('Η διόρθωση απέτυχε.');
+      } catch (err) {
+        console.error(err);
+        this.actionError.set('Αποτυχία καταχώρισης προσαρμογής.');
       }
       return;
     }
 
-    const quantityDelta = Number(this.adjustDelta());
-    if (!this.adjustProductId() || !this.adjustTemplateId() || !Number.isFinite(quantityDelta) || quantityDelta === 0) {
-      this.actionError.set('Απαιτείται προϊόν, πρότυπο παραλλαγής και μη μηδενική μεταβολή.');
+    if (target === 'CONSUMABLE') {
+      const consumableId = this.adjustConsumableId();
+      const unitsDelta = Number(this.adjustUnitsDelta());
+      if (!consumableId || !Number.isFinite(unitsDelta) || unitsDelta === 0) {
+        this.actionError.set('Παρακαλώ επιλέξτε αναλώσιμο και μη μηδενική μεταβολή τεμαχίων.');
+        return;
+      }
+
+      try {
+        await this.stockActions.adjustStock({
+          productId: consumableId,
+          variantTemplateId: 'consumable',
+          quantityDelta: Math.floor(unitsDelta),
+          reason: this.adjustReason().trim() || undefined
+        });
+        this.actionSuccess.set(`Προσαρμογή αναλωσίμου (${unitsDelta > 0 ? '+' : ''}${unitsDelta} τεμ.) καταχωρήθηκε επιτυχώς.`);
+        this.adjustUnitsDelta.set('');
+        this.adjustReason.set('');
+        await this.service.loadMovements();
+      } catch (err) {
+        console.error(err);
+        this.actionError.set('Αποτυχία καταχώρισης προσαρμογής αναλωσίμου.');
+      }
+      return;
+    }
+
+    // PACKAGED
+    const productId = this.adjustProductId();
+    const templateId = this.adjustTemplateId();
+    const unitsDelta = Number(this.adjustUnitsDelta());
+    if (!productId || !templateId || !Number.isFinite(unitsDelta) || unitsDelta === 0) {
+      this.actionError.set('Παρακαλώ επιλέξτε προϊόν, παραλλαγή και μη μηδενική διαφορά τεμαχίων.');
       return;
     }
 
     try {
       await this.stockActions.adjustStock({
-        productId: this.adjustProductId(),
-        variantTemplateId: this.adjustTemplateId(),
-        quantityDelta,
+        productId,
+        variantTemplateId: templateId,
+        quantityDelta: Math.floor(unitsDelta),
         reason: this.adjustReason().trim() || undefined
       });
-      this.actionSuccess.set('Το απόθεμα διορθώθηκε με επιτυχία.');
-      this.adjustDelta.set('');
+      this.actionSuccess.set('Προσαρμογή συσκευασμένου προϊόντος καταχωρήθηκε επιτυχώς.');
+      this.adjustUnitsDelta.set('');
       this.adjustReason.set('');
       await this.service.loadMovements();
-    } catch (error) {
-      console.error(error);
-      this.actionError.set('Η διόρθωση αποθέματος απέτυχε. Ελέγξτε τον emulator και τα δεδομένα.');
+    } catch (err) {
+      console.error(err);
+      this.actionError.set('Αποτυχία καταχώρισης προσαρμογής.');
+    }
+  }
+
+  protected formatTypeLabel(type: StockMovementType | 'ALL'): string {
+    switch (type) {
+      case 'ALL': return 'Όλες';
+      case 'PURCHASE': return 'ΠΑΡΑΛΑΒΗ';
+      case 'SALE': return 'ΠΩΛΗΣΗ';
+      case 'ADJUSTMENT': return 'ΠΡΟΣΑΡΜΟΓΗ';
+      case 'RETURN': return 'ΕΠΙΣΤΡΟΦΗ';
+      case 'LOSS': return 'ΑΠΩΛΕΙΑ';
     }
   }
 }

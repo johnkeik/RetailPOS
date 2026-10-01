@@ -27,6 +27,7 @@ export class AdminShellComponent implements OnInit {
     { label: 'Μάρκες', path: '/brands' },
     { label: 'Κατηγορίες', path: '/categories' },
     { label: 'Υπάλληλοι', path: '/employees' },
+    { label: 'Αναλώσιμα', path: '/consumables' },
     { label: 'Παραλλαγές', path: '/variants' },
     { label: 'Απόθεμα', path: '/inventory' },
     { label: 'Κινήσεις Αποθέματος', path: '/stock-movements' },

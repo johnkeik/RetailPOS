@@ -4,7 +4,7 @@ import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FIRESTORE, FIREBASE_FUNCTIONS } from '../../core/firebase/firebase.providers';
-import { ConsumablePart, PackagingType, Product, VariantTemplate } from '../../core/types/domain.models';
+import { ConsumablePart, PackagingType, Product, VariantRecipeConsumable, VariantTemplate } from '../../core/types/domain.models';
 
 export type VariantTemplateRow = VariantTemplate & {
   id: string;
@@ -72,6 +72,14 @@ export class VariantsService {
           packagingType: (data.packagingType as PackagingType) ?? 'PACKAGED',
           costPrice: typeof data.costPrice === 'number' ? data.costPrice : undefined,
           sellingPrice: data.sellingPrice ?? 0,
+          perfumeMl: typeof data.perfumeMl === 'number' ? data.perfumeMl : undefined,
+          essenceMl: typeof data.essenceMl === 'number' ? data.essenceMl : undefined,
+          recipeConsumables: Array.isArray(data.recipeConsumables)
+            ? (data.recipeConsumables as VariantRecipeConsumable[])
+            : [],
+          hasSpecialBottle: Boolean(data.hasSpecialBottle),
+          specialBottleConsumableId: data.specialBottleConsumableId,
+          specialBottleExtraPrice: typeof data.specialBottleExtraPrice === 'number' ? data.specialBottleExtraPrice : undefined,
           consumableParts: Array.isArray(data.consumableParts)
             ? (data.consumableParts as ConsumablePart[])
             : [],
@@ -85,7 +93,7 @@ export class VariantsService {
       this.variants.set(variants);
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to load variants data from Firestore emulator.');
+      this.error.set('Αποτυχία φόρτωσης παραλλαγών.');
     } finally {
       this.loading.set(false);
     }
@@ -99,17 +107,23 @@ export class VariantsService {
     packagingType: PackagingType;
     costPrice?: number;
     sellingPrice: number;
+    perfumeMl?: number;
+    essenceMl?: number;
+    recipeConsumables?: VariantRecipeConsumable[];
+    hasSpecialBottle?: boolean;
+    specialBottleConsumableId?: string;
+    specialBottleExtraPrice?: number;
     active: boolean;
   }): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
     this.error.set(null);
     try {
       await httpsCallable(this.functions, 'createVariantTemplate')({ tenantId, ...input });
       await this.loadAll();
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to create variant template.');
+      this.error.set('Αποτυχία δημιουργίας παραλλαγής.');
     }
   }
 
@@ -123,12 +137,18 @@ export class VariantsService {
       packagingType: PackagingType;
       costPrice?: number;
       sellingPrice: number;
-      consumableParts: ConsumablePart[];
+      perfumeMl?: number;
+      essenceMl?: number;
+      recipeConsumables?: VariantRecipeConsumable[];
+      hasSpecialBottle?: boolean;
+      specialBottleConsumableId?: string;
+      specialBottleExtraPrice?: number;
+      consumableParts?: ConsumablePart[];
       active: boolean;
     }
   ): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
     this.error.set(null);
     try {
       await httpsCallable(this.functions, 'updateVariantTemplate')({
@@ -139,7 +159,7 @@ export class VariantsService {
       await this.loadAll();
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to update variant template.');
+      this.error.set('Αποτυχία ενημέρωσης παραλλαγής.');
     }
   }
 
@@ -148,6 +168,22 @@ export class VariantsService {
     if (!tenantId) { this.error.set('Missing tenant context.'); return; }
     await httpsCallable(this.functions, 'toggleVariantTemplateActive')({ tenantId, templateId, active });
     await this.loadAll();
+  }
+
+  async deleteVariant(templateId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteVariantTemplate')({ tenantId, templateId });
+      await this.loadAll();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής παραλλαγής.';
+      this.error.set(msg);
+      return false;
+    }
   }
 
   private normalizeTimestamp(value: unknown): string {

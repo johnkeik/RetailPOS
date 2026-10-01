@@ -34,6 +34,8 @@ export const createProduct = onCall(async (request) => {
     categoryId: data.categoryId,
     productType: data.productType,
     packagingCategory: data.packagingCategory ?? "PACKAGED",
+    perfumeBaseCode: data.perfumeBaseCode?.trim() || null,
+    essenceCode: data.essenceCode?.trim() || null,
     variantAssignments: data.variantAssignments ?? {},
     active: data.active ?? true,
     createdAt: now,

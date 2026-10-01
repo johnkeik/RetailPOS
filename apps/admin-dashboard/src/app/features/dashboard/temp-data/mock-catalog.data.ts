@@ -10,6 +10,18 @@ type MockCategorySeed = {
   name: string;
 };
 
+type MockConsumableSeed = {
+  code: string;
+  name: string;
+  unit: string;
+  costPrice: number;
+};
+
+type MockRecipeConsumableSeed = {
+  consumableCode: string;
+  quantity: number;
+};
+
 type MockVariantTemplateSeed = {
   code: string;
   name: string;
@@ -18,6 +30,9 @@ type MockVariantTemplateSeed = {
   packagingType: 'BULK' | 'PACKAGED';
   sellingPrice: number;
   costPrice: number;
+  perfumeMl?: number;
+  essenceMl?: number;
+  recipeConsumables?: MockRecipeConsumableSeed[];
 };
 
 type MockVariantAssignmentSeed = {
@@ -33,115 +48,323 @@ type MockProductSeed = {
   categoryCode: string;
   gender: ProductGender;
   packagingCategory: PackagingCategory;
+  perfumeBaseCode?: string;
+  essenceCode?: string;
   variantAssignments: MockVariantAssignmentSeed[];
 };
 
 const bulkAssignments = (base: number): MockVariantAssignmentSeed[] => [
-  { templateCode: 'BULK-50', sellingPrice: base, costPrice: Math.round(base * 0.45) },
-  { templateCode: 'BULK-100', sellingPrice: Math.round(base * 1.7), costPrice: Math.round(base * 0.76) },
-  { templateCode: 'BULK-150', sellingPrice: Math.round(base * 2.25), costPrice: Math.round(base * 1.0) },
+  { templateCode: 'BULK-30', sellingPrice: Math.round(base * 0.7), costPrice: Math.round(base * 0.3) },
+  { templateCode: 'BULK-50', sellingPrice: base, costPrice: Math.round(base * 0.42) },
+  { templateCode: 'BULK-100', sellingPrice: Math.round(base * 1.7), costPrice: Math.round(base * 0.72) },
+  { templateCode: 'BULK-150', sellingPrice: Math.round(base * 2.3), costPrice: Math.round(base * 0.98) },
 ];
 
 const premiumAssignments = (base: number): MockVariantAssignmentSeed[] => [
-  { templateCode: 'PREM-50', sellingPrice: base, costPrice: Math.round(base * 0.52) },
-  { templateCode: 'PREM-100', sellingPrice: Math.round(base * 1.82), costPrice: Math.round(base * 0.95) },
-  { templateCode: 'PREM-150', sellingPrice: Math.round(base * 2.45), costPrice: Math.round(base * 1.28) },
+  { templateCode: 'PREM-30', sellingPrice: Math.round(base * 0.72), costPrice: Math.round(base * 0.35) },
+  { templateCode: 'PREM-50', sellingPrice: base, costPrice: Math.round(base * 0.48) },
+  { templateCode: 'PREM-100', sellingPrice: Math.round(base * 1.8), costPrice: Math.round(base * 0.85) },
 ];
 
 const packagedAssignments = (base: number): MockVariantAssignmentSeed[] => [
-  { templateCode: 'PACK-30', sellingPrice: Math.round(base * 0.78), costPrice: Math.round(base * 0.37) },
-  { templateCode: 'PACK-50', sellingPrice: base, costPrice: Math.round(base * 0.46) },
-  { templateCode: 'PACK-100', sellingPrice: Math.round(base * 1.75), costPrice: Math.round(base * 0.81) },
-  { templateCode: 'PACK-150', sellingPrice: Math.round(base * 2.35), costPrice: Math.round(base * 1.08) },
+  { templateCode: 'PACK-30', sellingPrice: Math.round(base * 0.75), costPrice: Math.round(base * 0.35) },
+  { templateCode: 'PACK-50', sellingPrice: base, costPrice: Math.round(base * 0.45) },
+  { templateCode: 'PACK-100', sellingPrice: Math.round(base * 1.75), costPrice: Math.round(base * 0.78) },
 ];
-
-// Hybrid is now normalised to BULK — a product cannot mix packaging categories
-const hybridAssignments = (base: number): MockVariantAssignmentSeed[] => bulkAssignments(base);
 
 export const mockCatalogData = {
   brands: <MockBrandSeed[]>[
-    { code: 'AUR', name: 'Aurelia' },
-    { code: 'NVX', name: 'Novex' },
-    { code: 'SLN', name: 'Solenne' },
-    { code: 'VLT', name: 'Velour' },
-    { code: 'AZR', name: 'Azura' },
-    { code: 'MRC', name: 'Monarch' },
-    { code: 'ELY', name: 'Elysian' },
-    { code: 'CRN', name: 'Cinder' },
-    { code: 'ARB', name: 'Arbor' },
-    { code: 'NCT', name: 'Noctis' },
+    { code: 'DIO', name: 'Dior' },
+    { code: 'CHN', name: 'Chanel' },
+    { code: 'YSL', name: 'Yves Saint Laurent' },
+    { code: 'CRD', name: 'Creed' },
+    { code: 'TMF', name: 'Tom Ford' },
+    { code: 'MFK', name: 'Maison Francis Kurkdjian' },
+    { code: 'LNC', name: 'Lancôme' },
+    { code: 'ARM', name: 'Giorgio Armani' },
+    { code: 'LLB', name: 'Le Labo' },
+    { code: 'CAR', name: 'Carolina Herrera' },
   ],
   categories: <MockCategorySeed[]>[
-    { code: 'MEN', name: 'Men Perfumes' },
-    { code: 'WMN', name: 'Women Perfumes' },
-    { code: 'UNX', name: 'Unisex Perfumes' },
+    { code: 'MEN', name: 'Ανδρικά Αρώματα' },
+    { code: 'WMN', name: 'Γυναικεία Αρώματα' },
+    { code: 'UNX', name: 'Unisex Αρώματα' },
     { code: 'SIG', name: 'Signature Collection' },
     { code: 'PRM', name: 'Premium Collection' },
   ],
+  consumables: <MockConsumableSeed[]>[
+    { code: 'BTL-30', name: 'Μπουκάλι 30ml', unit: 'τεμ.', costPrice: 0.45 },
+    { code: 'BTL-50', name: 'Μπουκάλι 50ml', unit: 'τεμ.', costPrice: 0.60 },
+    { code: 'BTL-100', name: 'Μπουκάλι 100ml', unit: 'τεμ.', costPrice: 0.85 },
+    { code: 'BTL-150', name: 'Μπουκάλι 150ml', unit: 'τεμ.', costPrice: 1.10 },
+    { code: 'PMP-STD', name: 'Βαλβίδα Spray (Pump)', unit: 'τεμ.', costPrice: 0.30 },
+    { code: 'CAP-STD', name: 'Καπάκι Standard', unit: 'τεμ.', costPrice: 0.20 },
+    { code: 'CAP-MAG', name: 'Καπάκι Μαγνητικό', unit: 'τεμ.', costPrice: 0.50 },
+  ],
   variantTemplates: <MockVariantTemplateSeed[]>[
-    { code: 'Χυμα 30ml',  name: 'Bulk 50ml',      size: 50,  unit: 'ml', packagingType: 'BULK',     sellingPrice: 24, costPrice: 11 },
-    { code: 'BULK-100', name: 'Bulk 100ml',     size: 100, unit: 'ml', packagingType: 'BULK',     sellingPrice: 41, costPrice: 19 },
-    { code: 'BULK-150', name: 'Bulk 150ml',     size: 150, unit: 'ml', packagingType: 'BULK',     sellingPrice: 56, costPrice: 26 },
-    { code: 'PREM-50',  name: 'Prem 50ml',      size: 50,  unit: 'ml', packagingType: 'BULK',     sellingPrice: 34, costPrice: 18 },
-    { code: 'PREM-100', name: 'Prem 100ml',     size: 100, unit: 'ml', packagingType: 'BULK',     sellingPrice: 59, costPrice: 31 },
-    { code: 'PREM-150', name: 'Prem 150ml',     size: 150, unit: 'ml', packagingType: 'BULK',     sellingPrice: 78, costPrice: 42 },
-    { code: 'PACK-30',  name: 'Packaged 30ml',  size: 30,  unit: 'ml', packagingType: 'PACKAGED', sellingPrice: 22, costPrice: 10 },
-    { code: 'PACK-50',  name: 'Packaged 50ml',  size: 50,  unit: 'ml', packagingType: 'PACKAGED', sellingPrice: 29, costPrice: 14 },
-    { code: 'PACK-100', name: 'Packaged 100ml', size: 100, unit: 'ml', packagingType: 'PACKAGED', sellingPrice: 49, costPrice: 24 },
-    { code: 'PACK-150', name: 'Packaged 150ml', size: 150, unit: 'ml', packagingType: 'PACKAGED', sellingPrice: 65, costPrice: 31 },
+    // 4 Bulk Standard variants (συνταγή: ~80% άρωμα, 20% εσάνς)
+    {
+      code: 'BULK-30',
+      name: 'Χύμα 30ml',
+      size: 30,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 15,
+      costPrice: 6,
+      perfumeMl: 24,
+      essenceMl: 6,
+      recipeConsumables: [
+        { consumableCode: 'BTL-30', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-STD', quantity: 1 }
+      ]
+    },
+    {
+      code: 'BULK-50',
+      name: 'Χύμα 50ml',
+      size: 50,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 22,
+      costPrice: 9,
+      perfumeMl: 40,
+      essenceMl: 10,
+      recipeConsumables: [
+        { consumableCode: 'BTL-50', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-STD', quantity: 1 }
+      ]
+    },
+    {
+      code: 'BULK-100',
+      name: 'Χύμα 100ml',
+      size: 100,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 38,
+      costPrice: 15,
+      perfumeMl: 80,
+      essenceMl: 20,
+      recipeConsumables: [
+        { consumableCode: 'BTL-100', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-STD', quantity: 1 }
+      ]
+    },
+    {
+      code: 'BULK-150',
+      name: 'Χύμα 150ml',
+      size: 150,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 52,
+      costPrice: 21,
+      perfumeMl: 120,
+      essenceMl: 30,
+      recipeConsumables: [
+        { consumableCode: 'BTL-150', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-STD', quantity: 1 }
+      ]
+    },
+
+    // 3 Premium Bulk variants (συνταγή: ~70% άρωμα, 30% εσάνς + μαγνητικό καπάκι)
+    {
+      code: 'PREM-30',
+      name: 'Premium 30ml',
+      size: 30,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 20,
+      costPrice: 8,
+      perfumeMl: 21,
+      essenceMl: 9,
+      recipeConsumables: [
+        { consumableCode: 'BTL-30', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-MAG', quantity: 1 }
+      ]
+    },
+    {
+      code: 'PREM-50',
+      name: 'Premium 50ml',
+      size: 50,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 30,
+      costPrice: 12,
+      perfumeMl: 35,
+      essenceMl: 15,
+      recipeConsumables: [
+        { consumableCode: 'BTL-50', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-MAG', quantity: 1 }
+      ]
+    },
+    {
+      code: 'PREM-100',
+      name: 'Premium 100ml',
+      size: 100,
+      unit: 'ml',
+      packagingType: 'BULK',
+      sellingPrice: 52,
+      costPrice: 22,
+      perfumeMl: 70,
+      essenceMl: 30,
+      recipeConsumables: [
+        { consumableCode: 'BTL-100', quantity: 1 },
+        { consumableCode: 'PMP-STD', quantity: 1 },
+        { consumableCode: 'CAP-MAG', quantity: 1 }
+      ]
+    },
+
+    // 3 Packaged variants (έτοιμα συσκευασμένα προϊόντα)
+    {
+      code: 'PACK-30',
+      name: 'Συσκευασμένο 30ml',
+      size: 30,
+      unit: 'ml',
+      packagingType: 'PACKAGED',
+      sellingPrice: 25,
+      costPrice: 10
+    },
+    {
+      code: 'PACK-50',
+      name: 'Συσκευασμένο 50ml',
+      size: 50,
+      unit: 'ml',
+      packagingType: 'PACKAGED',
+      sellingPrice: 35,
+      costPrice: 15
+    },
+    {
+      code: 'PACK-100',
+      name: 'Συσκευασμένο 100ml',
+      size: 100,
+      unit: 'ml',
+      packagingType: 'PACKAGED',
+      sellingPrice: 58,
+      costPrice: 25
+    },
   ],
   products: <MockProductSeed[]>[
-    { productCode: '310001', name: 'Aurelia Velvet Dawn',    brandCode: 'AUR', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(32) },
-    { productCode: '310002', name: 'Aurelia Citrus Veil',    brandCode: 'AUR', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(29) },
-    { productCode: '310003', name: 'Aurelia White Fig',      brandCode: 'AUR', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(26) },
-    { productCode: '310004', name: 'Aurelia Rose Ember',     brandCode: 'AUR', categoryCode: 'PRM', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(41) },
-    { productCode: '310005', name: 'Aurelia Golden Iris',    brandCode: 'AUR', categoryCode: 'SIG', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(36) },
-    { productCode: '310006', name: 'Novex Iron Cedar',       brandCode: 'NVX', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(27) },
-    { productCode: '310007', name: 'Novex Night Voltage',    brandCode: 'NVX', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(31) },
-    { productCode: '310008', name: 'Novex Carbon Bloom',     brandCode: 'NVX', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(30) },
-    { productCode: '310009', name: 'Novex Reserve Smoke',    brandCode: 'NVX', categoryCode: 'PRM', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(44) },
-    { productCode: '310010', name: 'Novex Amber Transit',    brandCode: 'NVX', categoryCode: 'SIG', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(33) },
-    { productCode: '310011', name: 'Solenne Petal Haze',     brandCode: 'SLN', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(31) },
-    { productCode: '310012', name: 'Solenne Sugar Neroli',   brandCode: 'SLN', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(28) },
-    { productCode: '310013', name: 'Solenne Linen Glow',     brandCode: 'SLN', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(24) },
-    { productCode: '310014', name: 'Solenne Imperial Bloom', brandCode: 'SLN', categoryCode: 'PRM', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(43) },
-    { productCode: '310015', name: 'Solenne Cocoa Petals',   brandCode: 'SLN', categoryCode: 'SIG', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(35) },
-    { productCode: '310016', name: 'Velour Atlas Spice',     brandCode: 'VLT', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(29) },
-    { productCode: '310017', name: 'Velour Driftwood Mint',  brandCode: 'VLT', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(34) },
-    { productCode: '310018', name: 'Velour Salted Musk',     brandCode: 'VLT', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(33) },
-    { productCode: '310019', name: 'Velour Grand Leather',   brandCode: 'VLT', categoryCode: 'PRM', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(47) },
-    { productCode: '310020', name: 'Velour Saffron Trace',   brandCode: 'VLT', categoryCode: 'SIG', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(36) },
-    { productCode: '310021', name: 'Azura Sea Magnolia',     brandCode: 'AZR', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(30) },
-    { productCode: '310022', name: 'Azura Blue Petal',       brandCode: 'AZR', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(27) },
-    { productCode: '310023', name: 'Azura Mineral Sky',      brandCode: 'AZR', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(25) },
-    { productCode: '310024', name: 'Azura Royal Current',    brandCode: 'AZR', categoryCode: 'PRM', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: premiumAssignments(42) },
-    { productCode: '310025', name: 'Azura Basil Shore',      brandCode: 'AZR', categoryCode: 'SIG', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(34) },
-    { productCode: '310026', name: 'Monarch Ember Crown',    brandCode: 'MRC', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(30) },
-    { productCode: '310027', name: 'Monarch Fig Regent',     brandCode: 'MRC', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(35) },
-    { productCode: '310028', name: 'Monarch Pear Archive',   brandCode: 'MRC', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(32) },
-    { productCode: '310029', name: 'Monarch Oud Reserve',    brandCode: 'MRC', categoryCode: 'PRM', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(49) },
-    { productCode: '310030', name: 'Monarch Moss Ledger',    brandCode: 'MRC', categoryCode: 'SIG', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(37) },
-    { productCode: '310031', name: 'Elysian Silk Orchard',   brandCode: 'ELY', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(33) },
-    { productCode: '310032', name: 'Elysian Honey Veil',     brandCode: 'ELY', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(30) },
-    { productCode: '310033', name: 'Elysian Glass Tea',      brandCode: 'ELY', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(28) },
-    { productCode: '310034', name: 'Elysian Velvet Gold',    brandCode: 'ELY', categoryCode: 'PRM', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(46) },
-    { productCode: '310035', name: 'Elysian Cedar Pearl',    brandCode: 'ELY', categoryCode: 'SIG', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(36) },
-    { productCode: '310036', name: 'Cinder Asphalt Bloom',   brandCode: 'CRN', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(28) },
-    { productCode: '310037', name: 'Cinder Black Citrus',    brandCode: 'CRN', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(32) },
-    { productCode: '310038', name: 'Cinder Soft Smoke',      brandCode: 'CRN', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(31) },
-    { productCode: '310039', name: 'Cinder Platinum Ash',    brandCode: 'CRN', categoryCode: 'PRM', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: premiumAssignments(45) },
-    { productCode: '310040', name: 'Cinder Fern Alloy',      brandCode: 'CRN', categoryCode: 'SIG', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(35) },
-    { productCode: '310041', name: 'Arbor Cedar Milk',       brandCode: 'ARB', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(29) },
-    { productCode: '310042', name: 'Arbor Pine Nectar',      brandCode: 'ARB', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: hybridAssignments(27) },
-    { productCode: '310043', name: 'Arbor Green Resin',      brandCode: 'ARB', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(26) },
-    { productCode: '310044', name: 'Arbor Antique Bark',     brandCode: 'ARB', categoryCode: 'PRM', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: premiumAssignments(43) },
-    { productCode: '310045', name: 'Arbor Moss Lantern',     brandCode: 'ARB', categoryCode: 'SIG', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(34) },
-    { productCode: '310046', name: 'Noctis Lunar Smoke',     brandCode: 'NCT', categoryCode: 'MEN', gender: 'M',      packagingCategory: 'BULK',     variantAssignments: bulkAssignments(31) },
-    { productCode: '310047', name: 'Noctis Violet Circuit',  brandCode: 'NCT', categoryCode: 'WMN', gender: 'F',      packagingCategory: 'BULK',     variantAssignments: hybridAssignments(33) },
-    { productCode: '310048', name: 'Noctis Quiet Static',    brandCode: 'NCT', categoryCode: 'UNX', gender: 'UNISEX', packagingCategory: 'PACKAGED', variantAssignments: packagedAssignments(30) },
-    { productCode: '310049', name: 'Noctis Black Reserve',   brandCode: 'NCT', categoryCode: 'PRM', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: premiumAssignments(48) },
-    { productCode: '310050', name: 'Noctis Silver Echo',     brandCode: 'NCT', categoryCode: 'SIG', gender: 'UNISEX', packagingCategory: 'BULK',     variantAssignments: bulkAssignments(38) },
+    {
+      productCode: '310001',
+      name: 'Sauvage Type',
+      brandCode: 'DIO',
+      categoryCode: 'MEN',
+      gender: 'M',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-SAUV',
+      essenceCode: 'ESS-SAUV',
+      variantAssignments: bulkAssignments(22)
+    },
+    {
+      productCode: '310002',
+      name: 'Black Opium Type',
+      brandCode: 'YSL',
+      categoryCode: 'WMN',
+      gender: 'F',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-BLKO',
+      essenceCode: 'ESS-BLKO',
+      variantAssignments: bulkAssignments(22)
+    },
+    {
+      productCode: '310003',
+      name: 'Baccarat Rouge 540 Type',
+      brandCode: 'MFK',
+      categoryCode: 'PRM',
+      gender: 'UNISEX',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-BR54',
+      essenceCode: 'ESS-BR54',
+      variantAssignments: premiumAssignments(32)
+    },
+    {
+      productCode: '310004',
+      name: 'Aventus Type',
+      brandCode: 'CRD',
+      categoryCode: 'MEN',
+      gender: 'M',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-AVNT',
+      essenceCode: 'ESS-AVNT',
+      variantAssignments: premiumAssignments(34)
+    },
+    {
+      productCode: '310005',
+      name: 'Good Girl Type',
+      brandCode: 'CAR',
+      categoryCode: 'WMN',
+      gender: 'F',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-GDGL',
+      essenceCode: 'ESS-GDGL',
+      variantAssignments: bulkAssignments(22)
+    },
+    {
+      productCode: '310006',
+      name: 'Tobacco Vanille Type',
+      brandCode: 'TMF',
+      categoryCode: 'SIG',
+      gender: 'UNISEX',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-TBVN',
+      essenceCode: 'ESS-TBVN',
+      variantAssignments: premiumAssignments(36)
+    },
+    {
+      productCode: '310007',
+      name: 'La Vie Est Belle Type',
+      brandCode: 'LNC',
+      categoryCode: 'WMN',
+      gender: 'F',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-LVEB',
+      essenceCode: 'ESS-LVEB',
+      variantAssignments: bulkAssignments(22)
+    },
+    {
+      productCode: '310008',
+      name: 'Bleu de Chanel Type',
+      brandCode: 'CHN',
+      categoryCode: 'MEN',
+      gender: 'M',
+      packagingCategory: 'BULK',
+      perfumeBaseCode: 'PRF-BLCH',
+      essenceCode: 'ESS-BLCH',
+      variantAssignments: bulkAssignments(24)
+    },
+    {
+      productCode: '310009',
+      name: 'Santal 33 Type',
+      brandCode: 'LLB',
+      categoryCode: 'UNX',
+      gender: 'UNISEX',
+      packagingCategory: 'PACKAGED',
+      variantAssignments: packagedAssignments(45)
+    },
+    {
+      productCode: '310010',
+      name: 'Acqua Di Gio Type',
+      brandCode: 'ARM',
+      categoryCode: 'MEN',
+      gender: 'M',
+      packagingCategory: 'PACKAGED',
+      variantAssignments: packagedAssignments(38)
+    },
   ],
 };
 
-export type { MockBrandSeed, MockCategorySeed, MockProductSeed, MockVariantAssignmentSeed, MockVariantTemplateSeed };
+export type {
+  MockBrandSeed,
+  MockCategorySeed,
+  MockConsumableSeed,
+  MockProductSeed,
+  MockRecipeConsumableSeed,
+  MockVariantAssignmentSeed,
+  MockVariantTemplateSeed
+};
+
+

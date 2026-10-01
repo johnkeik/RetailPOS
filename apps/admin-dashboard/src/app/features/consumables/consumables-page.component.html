@@ -1,0 +1,140 @@
+<app-page-title
+  title="Αναλώσιμα"
+  subtitle="Διαχείριση αναλωσίμων προϊόντων συσκευασίας (μπουκάλια, καπάκια, βαποριζατέρ)."
+/>
+
+<section class="consumables-container">
+  <article class="panel">
+    <header class="panel-header-row">
+      <div>
+        <h3>Λίστα Αναλωσίμων</h3>
+        <p>Αναζήτηση με όνομα, κωδικό ή μονάδα μέτρησης.</p>
+      </div>
+      <button type="button" class="btn primary" (click)="openCreateDrawer()">
+        + Νέο Αναλώσιμο
+      </button>
+    </header>
+
+    <div class="search-bar">
+      <label class="field sr-only" for="search">Αναζήτηση</label>
+      <input
+        id="search"
+        type="text"
+        class="text-input"
+        [value]="searchQuery()"
+        (input)="onSearch(search.value)"
+        #search
+        placeholder="Αναζήτηση αναλωσίμου (π.χ. Μπουκάλι 50ml, Καπάκι)..."
+      />
+    </div>
+
+    @if (loading()) {
+      <div class="inline-state">Φόρτωση αναλωσίμων...</div>
+    }
+
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (filteredConsumables().length > 0) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Όνομα</th>
+              <th>Κωδικός</th>
+              <th>Μονάδα</th>
+              <th>Τιμή Κόστους (€)</th>
+              <th>Κατάσταση</th>
+              <th class="actions-col">Ενέργειες</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredConsumables(); track item.id) {
+              <tr>
+                <td><strong>{{ item.name }}</strong></td>
+                <td><span class="code-tag">{{ item.code || '-' }}</span></td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.costPrice != null ? item.costPrice + ' €' : '-' }}</td>
+                <td>
+                  <span class="status-chip" [class.inactive]="!item.active">
+                    {{ item.active ? 'ΕΝΕΡΓΟ' : 'ΑΝΕΝΕΡΓΟ' }}
+                  </span>
+                </td>
+                <td class="actions-col">
+                  <button type="button" class="btn ghost small" (click)="startEdit(item)">
+                    Επεξεργασία
+                  </button>
+                  <button type="button" class="btn ghost small" (click)="toggleActive(item)">
+                    {{ item.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">Δεν βρέθηκαν αναλώσιμα.</div>
+    }
+  </article>
+</section>
+
+<!-- Slide-Over Drawer Backdrop -->
+@if (isDrawerOpen()) {
+  <div class="drawer-backdrop" (click)="closeDrawer()"></div>
+}
+
+<!-- Slide-Over Drawer -->
+<aside class="drawer-panel" [class.open]="isDrawerOpen()">
+  <header class="drawer-header">
+    <div>
+      <h3>{{ editingConsumableId() ? 'Επεξεργασία Αναλωσίμου' : 'Νέο Αναλώσιμο' }}</h3>
+      <p>Ορίστε τα υλικά συσκευασίας που μετριούνται σε τεμάχια.</p>
+    </div>
+    <button type="button" class="drawer-close-btn" (click)="closeDrawer()" aria-label="Κλείσιμο">&times;</button>
+  </header>
+
+  @if (formError()) {
+    <div class="inline-error drawer-error">{{ formError() }}</div>
+  }
+
+  <form [formGroup]="consumableForm" (ngSubmit)="saveConsumable()" class="drawer-body">
+    <div>
+      <label class="field" for="name">Όνομα Αναλωσίμου</label>
+      <input id="name" type="text" class="text-input" formControlName="name" placeholder="π.χ. Μπουκάλι 50ml" />
+      @if (consumableForm.controls.name.touched && consumableForm.controls.name.invalid) {
+        <small class="inline-error">Το όνομα είναι υποχρεωτικό.</small>
+      }
+    </div>
+
+    <div>
+      <label class="field" for="code">Κωδικός Αναλωσίμου</label>
+      <input id="code" type="text" class="text-input" formControlName="code" placeholder="π.χ. BTL-50" />
+    </div>
+
+    <div class="double-grid">
+      <div>
+        <label class="field" for="unit">Μονάδα Μέτρησης</label>
+        <input id="unit" type="text" class="text-input" formControlName="unit" placeholder="π.χ. τεμ." />
+      </div>
+
+      <div>
+        <label class="field" for="costPrice">Τιμή Κόστους (€)</label>
+        <input id="costPrice" type="number" class="text-input" formControlName="costPrice" min="0" step="0.01" placeholder="0.00" />
+      </div>
+    </div>
+
+    <label class="checkbox-row" for="active">
+      <input id="active" type="checkbox" formControlName="active" />
+      <span>Ενεργό Αναλώσιμο</span>
+    </label>
+
+    <div class="drawer-footer">
+      <button type="button" class="btn ghost" (click)="closeDrawer()">Ακύρωση</button>
+      <button type="submit" class="btn primary">
+        {{ editingConsumableId() ? 'Αποθήκευση Αλλαγών' : 'Δημιουργία Αναλωσίμου' }}
+      </button>
+    </div>
+  </form>
+</aside>

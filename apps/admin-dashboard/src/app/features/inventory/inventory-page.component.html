@@ -1,20 +1,20 @@
 <app-page-title
   title="Απόθεμα"
-  subtitle="Τρέχον απόθεμα ανά προϊόν και πρότυπο παραλλαγής."
+  subtitle="Άμεση απεικόνιση τρέχοντος αποθέματος ανά προϊόν (Άρωμα, Εσάνς) και αναλώσιμα."
 />
 
 <div class="summary-cards">
   <div class="stat-card">
     <span class="stat-value">{{ summary().total }}</span>
-    <span class="stat-label">Παρακολουθούμενα SKU</span>
+    <span class="stat-label">Σύνολο Ειδών</span>
   </div>
   <div class="stat-card" [class.stat-warn]="summary().lowStock > 0">
     <span class="stat-value">{{ summary().lowStock }}</span>
-    <span class="stat-label">Χαμηλό απόθεμα</span>
+    <span class="stat-label">Χαμηλό Απόθεμα</span>
   </div>
   <div class="stat-card" [class.stat-danger]="summary().outOfStock > 0">
     <span class="stat-value">{{ summary().outOfStock }}</span>
-    <span class="stat-label">Εξαντλημένο</span>
+    <span class="stat-label">Εξαντλημένα</span>
   </div>
 </div>
 
@@ -29,12 +29,12 @@
         [value]="searchQuery()"
         (input)="onSearch(search.value)"
         #search
-        placeholder="Κωδικός, όνομα προϊόντος ή παραλλαγή"
+        placeholder="Κωδικός, όνομα ή συστατικό"
       />
     </div>
 
     <div>
-      <label class="field" for="threshold">Όριο χαμηλού αποθέματος <small>(τεμάχια / λίτρα)</small></label>
+      <label class="field" for="threshold">Όριο χαμηλού αποθέματος <small>(τεμ. / λίτρα)</small></label>
       <input
         id="threshold"
         class="text-input"
@@ -47,7 +47,7 @@
     </div>
 
     <div>
-      <label class="field" for="pkgFilter">Συσκευασία</label>
+      <label class="field" for="pkgFilter">Τύπος Είδους</label>
       <select
         id="pkgFilter"
         class="text-input"
@@ -56,8 +56,8 @@
         #pkgFilter
       >
         <option value="ALL">Όλα</option>
-        <option value="PACKAGED">Συσκευασμένα</option>
-        <option value="BULK">Χύμα</option>
+        <option value="PACKAGED">Συσκευασμένα / Αναλώσιμα</option>
+        <option value="BULK">Χύμα (Άρωμα / Εσάνς)</option>
       </select>
     </div>
 
@@ -87,12 +87,12 @@
       <table>
         <thead>
           <tr>
-            <th>Προϊόν</th>
-            <th>Παραλλαγή</th>
-            <th>Συσκευασία</th>
-            <th>Ποσότητα</th>
+            <th>Είδος / Προϊόν</th>
+            <th>Συστατικό / Παραλλαγή</th>
+            <th>Κατηγορία</th>
+            <th>Διαθέσιμο</th>
             <th>Κατάσταση</th>
-            <th>Ενημέρωση</th>
+            <th>Τελευταία Ενημέρωση</th>
           </tr>
         </thead>
         <tbody>
@@ -101,8 +101,12 @@
               <td>{{ row.productCode }} — {{ row.productName }}</td>
               <td>{{ row.variantTemplateName }}</td>
               <td>
-                @if (row.packagingType) {
-                  <span class="pkg-badge" [class.bulk]="row.packagingType === 'BULK'">{{ row.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΑ' }}</span>
+                @if (row.isConsumable) {
+                  <span class="pkg-badge consumable-badge">ΑΝΑΛΩΣΙΜΟ</span>
+                } @else if (row.packagingType) {
+                  <span class="pkg-badge" [class.bulk]="row.packagingType === 'BULK'">
+                    {{ row.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΟ' }}
+                  </span>
                 } @else {
                   <span class="muted">—</span>
                 }
@@ -112,38 +116,21 @@
               </td>
               <td>
                 <span class="status-chip status-{{ stockStatus(row) }}">
-                  {{ stockStatus(row) === 'empty' ? 'ΕΞΑΝΤΛΗΜΕΝΟ' : stockStatus(row) === 'low' ? 'ΧΑΜΗΛΟ' : 'ΕΠΑΡΚΕΣ' }}
+                  {{ getStatusLabel(stockStatus(row)) }}
                 </span>
               </td>
               <td class="muted">{{ formatDate(row.updatedAt) }}</td>
             </tr>
-            @for (part of row.consumableParts; track part.variantTemplateId) {
-              <tr class="consumable-row">
-                <td class="consumable-label" colspan="2">
-                  <span class="consumable-arrow">↳</span>
-                  {{ part.variantTemplateName }}
-                  <small class="consumable-meta">({{ part.quantityPerUnit }}ml ανά τεμάχιο)</small>
-                </td>
-                <td><span class="pkg-badge consumable-badge">CONSUMABLE</span></td>
-                <td class="qty-cell qty-{{ stockStatus({ quantity: part.currentStock, isBulk: false }) }}">{{ part.currentStock }}</td>
-                <td>
-                  <span class="status-chip status-{{ stockStatus({ quantity: part.currentStock, isBulk: false }) }}">
-                    {{ stockStatus({ quantity: part.currentStock, isBulk: false }) === 'empty' ? 'ΕΞΑΝΤΛΗΜΕΝΟ' : stockStatus({ quantity: part.currentStock, isBulk: false }) === 'low' ? 'ΧΑΜΗΛΟ' : 'ΕΠΑΡΚΕΣ' }}
-                  </span>
-                </td>
-                <td class="muted">—</td>
-              </tr>
-            }
           }
         </tbody>
       </table>
     </div>
   } @else if (!loading()) {
-    <div class="empty-state">Δεν βρέθηκαν εγγραφές αποθέματος για τα τρέχοντα φίλτρα.</div>
+    <div class="empty-state">Δεν βρέθηκαν εγγραφές αποθέματος για τα επιλεγμένα φίλτρα.</div>
   }
 
   <div class="table-footer">
-    <span class="muted">{{ filteredRows().length }} of {{ summary().total }} SKUs shown</span>
-    <a href="/stock-movements" class="footer-link">Κινήσεις αποθέματος →</a>
+    <span class="muted">Εμφάνιση {{ filteredRows().length }} από {{ summary().total }} ειδών</span>
+    <a href="/stock-movements" class="footer-link">Κινήσεις Αποθέματος →</a>
   </div>
 </section>

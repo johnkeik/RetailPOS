@@ -195,10 +195,9 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                                           FontWeight.w600),
                                                 ),
                                                 Text(
-                                                  '${item.variantCode}${item.variantLabel.isEmpty ? '' : ' · ${item.variantLabel}'} · ${item.quantity} τεμ.',
+                                                  '${item.variantCode}${item.variantLabel.isEmpty ? '' : ' · ${item.variantLabel}'}${item.useSpecialBottle ? ' · ✨ Special Μπουκάλι' : ''} · ${item.quantity} τεμ.',
                                                   style: TextStyle(
-                                                      color: colors
-                                                          .onSurfaceVariant),
+                                                      color: colors.onSurfaceVariant),
                                                 ),
                                               ],
                                             ),

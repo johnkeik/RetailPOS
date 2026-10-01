@@ -3,7 +3,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
-import { ConsumablePart, InventorySnapshot, PackagingCategory, PackagingType, Product, VariantTemplate } from '../../core/types/domain.models';
+import { Consumable, ConsumablePart, InventorySnapshot, PackagingCategory, PackagingType, Product, VariantTemplate } from '../../core/types/domain.models';
 
 export const BULK_SENTINEL = 'bulk';
 
@@ -22,6 +22,7 @@ export type InventoryRow = InventorySnapshot & {
   variantTemplateName: string;
   packagingType: PackagingType | null;
   isBulk: boolean;
+  isConsumable?: boolean;
   displayQty: string;
   consumableParts: ConsumablePartRow[];
 };
@@ -46,7 +47,7 @@ export class InventoryService {
   async loadInventory(): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
     if (!tenantId) {
-      this.error.set('Missing tenant context.');
+      this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.');
       this.inventoryRows.set([]);
       return;
     }
@@ -58,23 +59,31 @@ export class InventoryService {
       const inventoryRef = collection(this.firestore, `tenants/${tenantId}/inventory`);
       const productsRef = collection(this.firestore, `tenants/${tenantId}/products`);
       const templatesRef = collection(this.firestore, `tenants/${tenantId}/variantTemplates`);
+      const consumablesRef = collection(this.firestore, `tenants/${tenantId}/consumables`);
 
-      const [inventorySnapshot, productsSnapshot, templatesSnapshot] = await Promise.all([
+      const [inventorySnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot] = await Promise.all([
         getDocs(query(inventoryRef, orderBy('updatedAt', 'desc'))),
         getDocs(query(productsRef, orderBy('name', 'asc'))),
-        getDocs(query(templatesRef, orderBy('name', 'asc')))
+        getDocs(query(templatesRef, orderBy('name', 'asc'))),
+        getDocs(query(consumablesRef, orderBy('name', 'asc')))
       ]);
 
-      // Products: name, code, packagingCategory (may be absent on old docs)
-      type ProductMeta = { name: string; productCode: string; packagingCategory: PackagingCategory | null };
+      type ProductMeta = {
+        name: string;
+        productCode: string;
+        packagingCategory: PackagingCategory | null;
+        perfumeBaseCode?: string;
+        essenceCode?: string;
+      };
       const productsById = new Map<string, ProductMeta>(
         productsSnapshot.docs.map((item) => {
           const data = item.data() as Partial<Product>;
           return [item.id, {
             name: data.name ?? '-',
             productCode: data.productCode ?? '-',
-            // null = not yet set in Firestore; will be inferred from templates below
-            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null
+            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null,
+            perfumeBaseCode: data.perfumeBaseCode,
+            essenceCode: data.essenceCode
           }];
         })
       );
@@ -92,132 +101,142 @@ export class InventoryService {
         })
       );
 
-      // ── Infer packagingCategory for products that don't have it stored ────
-      // A product is BULK when every inventory entry it has points to a BULK template.
-      const templateTypesByProduct = new Map<string, Set<PackagingType | null>>();
-      for (const item of inventorySnapshot.docs) {
-        const data = item.data() as Partial<InventorySnapshot> & { variantTemplateId?: string };
-        const productId = data.productId ?? '';
-        const templateId = data.variantTemplateId ?? '';
-        const set = templateTypesByProduct.get(productId) ?? new Set();
-        const pkgType = templateId === BULK_SENTINEL
-          ? 'BULK'
-          : (templatesById.get(templateId)?.packagingType ?? null);
-        set.add(pkgType);
-        templateTypesByProduct.set(productId, set);
-      }
+      const consumablesById = new Map(
+        consumablesSnapshot.docs.map((item) => {
+          const data = item.data() as Partial<Consumable>;
+          return [item.id, {
+            name: data.name ?? '-',
+            code: data.code ?? '-',
+            unit: data.unit ?? 'τεμ.'
+          }];
+        })
+      );
 
-      for (const [productId, types] of templateTypesByProduct) {
-        const meta = productsById.get(productId);
-        if (!meta || meta.packagingCategory !== null) continue;
-        // All templates are BULK → infer BULK; any PACKAGED or unknown → PACKAGED
-        meta.packagingCategory = [...types].every((t) => t === 'BULK') ? 'BULK' : 'PACKAGED';
-      }
-
-      // ── Pass 1: aggregate BULK product totals ─────────────────────────────
-      // A BULK product can have multiple legacy inventory entries (one per variant
-      // template) OR the new single 'bulk' sentinel entry. Either way we sum them
-      // into one row per product.
-      type BulkAggregate = { totalMl: number; latestUpdatedAt: string };
-      const bulkAggregates = new Map<string, BulkAggregate>();
-
-      for (const item of inventorySnapshot.docs) {
-        const data = item.data() as Partial<InventorySnapshot> & { variantTemplateId?: string };
-        const productId = data.productId ?? '';
-        const productMeta = productsById.get(productId);
-        if (productMeta?.packagingCategory !== 'BULK') continue;
-
-        const agg = bulkAggregates.get(productId) ?? { totalMl: 0, latestUpdatedAt: '' };
-        agg.totalMl += data.quantity ?? 0;
-        const ts = this.normalizeTimestamp(data.updatedAt);
-        if (!agg.latestUpdatedAt || ts > agg.latestUpdatedAt) {
-          agg.latestUpdatedAt = ts;
-        }
-        bulkAggregates.set(productId, agg);
-      }
-
-      // ── Pass 2: build consumable stock lookup (PACKAGED only) ─────────────
-      const stockByTemplateId = new Map<string, number>();
-      for (const item of inventorySnapshot.docs) {
-        const data = item.data() as Partial<InventorySnapshot> & { variantTemplateId?: string };
-        const templateId = data.variantTemplateId;
-        const productMeta = productsById.get(data.productId ?? '');
-        // Only PACKAGED inventory contributes to consumable cross-references
-        if (templateId && templateId !== BULK_SENTINEL && productMeta?.packagingCategory !== 'BULK') {
-          stockByTemplateId.set(templateId, (stockByTemplateId.get(templateId) ?? 0) + (data.quantity ?? 0));
-        }
-      }
-
-      // ── Pass 3: build output rows ─────────────────────────────────────────
       const rows: InventoryRow[] = [];
-      const seenBulkProducts = new Set<string>();
 
       for (const item of inventorySnapshot.docs) {
         const data = item.data() as Partial<InventorySnapshot> & { variantTemplateId?: string };
         const productId = data.productId ?? '';
-        const productMeta = productsById.get(productId);
+        const vtId = data.variantTemplateId ?? '';
+        const qty = data.quantity ?? 0;
+        const updatedAt = this.normalizeTimestamp(data.updatedAt);
 
-        if (productMeta?.packagingCategory === 'BULK') {
-          // One row per BULK product — deduplicate
-          if (seenBulkProducts.has(productId)) continue;
-          seenBulkProducts.add(productId);
-
-          const agg = bulkAggregates.get(productId) ?? { totalMl: 0, latestUpdatedAt: '' };
-          rows.push({
-            id: `${productId}__bulk`,
-            tenantId,
-            productId,
-            variantId: BULK_SENTINEL,
-            variantTemplateId: BULK_SENTINEL,
-            quantity: agg.totalMl,
-            updatedAt: agg.latestUpdatedAt || new Date().toISOString(),
-            productName: productMeta.name,
-            productCode: productMeta.productCode,
-            variantTemplateName: 'Bulk Pool',
-            packagingType: 'BULK',
-            isBulk: true,
-            displayQty: this.formatLiters(agg.totalMl),
-            consumableParts: []
-          });
-        } else {
-          // PACKAGED: one row per inventory entry (product × variant)
-          const variantTemplateId = data.variantTemplateId ?? '';
-          const templateMeta = templatesById.get(variantTemplateId);
-          const qty = data.quantity ?? 0;
-
-          const consumableParts: ConsumablePartRow[] = (templateMeta?.consumableParts ?? []).map((part) => {
-            const partTemplate = templatesById.get(part.variantTemplateId);
-            return {
-              variantTemplateId: part.variantTemplateId,
-              variantTemplateName: partTemplate?.name ?? part.variantTemplateId,
-              quantityPerUnit: part.quantity,
-              currentStock: stockByTemplateId.get(part.variantTemplateId) ?? 0
-            };
-          });
-
+        // 1. Consumable row
+        if (vtId === 'consumable' || consumablesById.has(productId)) {
+          const cMeta = consumablesById.get(productId);
           rows.push({
             id: item.id,
             tenantId,
             productId,
-            variantId: data.variantId ?? '',
-            variantTemplateId,
+            variantId: 'consumable',
+            variantTemplateId: 'consumable',
             quantity: qty,
-            updatedAt: this.normalizeTimestamp(data.updatedAt),
+            updatedAt,
+            productName: cMeta?.name ?? 'Αναλώσιμο',
+            productCode: cMeta?.code ?? '-',
+            variantTemplateName: `Αναλώσιμο (${cMeta?.unit ?? 'τεμ.'})`,
+            packagingType: 'PACKAGED',
+            isBulk: false,
+            isConsumable: true,
+            displayQty: `${qty} ${cMeta?.unit ?? 'τεμ.'}`,
+            consumableParts: []
+          });
+          continue;
+        }
+
+        const productMeta = productsById.get(productId);
+
+        // 2. Perfume Base Component
+        if (vtId === 'perfume') {
+          rows.push({
+            id: item.id,
+            tenantId,
+            productId,
+            variantId: 'perfume',
+            variantTemplateId: 'perfume',
+            quantity: qty,
+            updatedAt,
+            productName: productMeta?.name ?? '-',
+            productCode: productMeta?.perfumeBaseCode || productMeta?.productCode || '-',
+            variantTemplateName: 'Άρωμα (Βάση)',
+            packagingType: 'BULK',
+            isBulk: true,
+            isConsumable: false,
+            displayQty: this.formatLiters(qty),
+            consumableParts: []
+          });
+          continue;
+        }
+
+        // 3. Essence Component
+        if (vtId === 'essence') {
+          rows.push({
+            id: item.id,
+            tenantId,
+            productId,
+            variantId: 'essence',
+            variantTemplateId: 'essence',
+            quantity: qty,
+            updatedAt,
+            productName: productMeta?.name ?? '-',
+            productCode: productMeta?.essenceCode || productMeta?.productCode || '-',
+            variantTemplateName: 'Εσάνς',
+            packagingType: 'BULK',
+            isBulk: true,
+            isConsumable: false,
+            displayQty: this.formatLiters(qty),
+            consumableParts: []
+          });
+          continue;
+        }
+
+        // 4. Legacy bulk
+        if (vtId === BULK_SENTINEL || productMeta?.packagingCategory === 'BULK') {
+          rows.push({
+            id: item.id,
+            tenantId,
+            productId,
+            variantId: BULK_SENTINEL,
+            variantTemplateId: BULK_SENTINEL,
+            quantity: qty,
+            updatedAt,
             productName: productMeta?.name ?? '-',
             productCode: productMeta?.productCode ?? '-',
-            variantTemplateName: templateMeta?.name ?? '-',
-            packagingType: templateMeta?.packagingType ?? null,
-            isBulk: false,
-            displayQty: String(qty),
-            consumableParts
+            variantTemplateName: 'Χύμα (Παλιό Pool)',
+            packagingType: 'BULK',
+            isBulk: true,
+            isConsumable: false,
+            displayQty: this.formatLiters(qty),
+            consumableParts: []
           });
+          continue;
         }
+
+        // 5. Standard Packaged
+        const templateMeta = templatesById.get(vtId);
+        rows.push({
+          id: item.id,
+          tenantId,
+          productId,
+          variantId: data.variantId ?? '',
+          variantTemplateId: vtId,
+          quantity: qty,
+          updatedAt,
+          productName: productMeta?.name ?? '-',
+          productCode: productMeta?.productCode ?? '-',
+          variantTemplateName: templateMeta?.name ?? '-',
+          packagingType: templateMeta?.packagingType ?? null,
+          isBulk: false,
+          isConsumable: false,
+          displayQty: `${qty} τεμ.`,
+          consumableParts: []
+        });
       }
 
       this.inventoryRows.set(rows);
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to load inventory snapshot from Firestore emulator.');
+      this.error.set('Αποτυχία φόρτωσης αποθέματος.');
     } finally {
       this.loading.set(false);
     }
@@ -225,7 +244,7 @@ export class InventoryService {
 
   private formatLiters(ml: number): string {
     if (ml >= 1000) {
-      return `${(ml / 1000).toFixed(3).replace(/\.?0+$/, '')} L`;
+      return `${(ml / 1000).toFixed(3).replace(/\.?0+$/, '')} L (${ml} ml)`;
     }
     return `${ml} ml`;
   }

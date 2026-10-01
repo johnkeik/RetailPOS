@@ -7,7 +7,7 @@
 
 .filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 2fr 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -28,14 +28,16 @@
 }
 
 .table-wrap {
-  overflow: auto;
-  max-height: 420px;
+  overflow-x: auto;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
   width: 100%;
+  min-width: 680px;
   border-collapse: collapse;
 }
 
@@ -45,19 +47,6 @@ td {
   border-bottom: 1px solid #e2e8f0;
   text-align: left;
   white-space: nowrap;
-}
-
-th {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  z-index: 1;
-}
-
-.reason-cell {
-  white-space: normal;
-  min-width: 160px;
-  color: #475569;
 }
 
 th {
@@ -114,18 +103,20 @@ th {
 .action-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .action-card {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 12px;
+  padding: 16px;
   background: #f8fafc;
 }
 
 .action-card h4 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  color: #1e293b;
+  font-size: 1rem;
 }
 
 .field-hint {
@@ -139,18 +130,31 @@ th {
   margin-top: 10px;
   border: 1px solid #0f172a;
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 8px 14px;
   background: #0f172a;
   color: #ffffff;
   cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #1e293b;
+  }
 }
 
-@media (max-width: 640px) {
-  .action-card {
-    padding: 10px;
+@media (max-width: 768px) {
+  .panel {
+    padding: 12px;
   }
 
-  .btn {
-    width: 100%;
+  .filters {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }

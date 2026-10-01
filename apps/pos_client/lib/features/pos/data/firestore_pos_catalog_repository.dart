@@ -85,13 +85,27 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
             (template['sellingPrice'] as num?)?.toDouble() ??
             0;
 
+        final perfumeMl = (template['perfumeMl'] as num?)?.toInt();
+        final essenceMl = (template['essenceMl'] as num?)?.toInt();
+        final hasSpecialBottle = template['hasSpecialBottle'] == true;
+        final specialBottleConsumableId = template['specialBottleConsumableId'] as String?;
+        final specialBottleExtraPrice = (template['specialBottleExtraPrice'] as num?)?.toDouble();
+
+        final templateName = (template['name'] as String? ?? templateCode).trim();
+
         variants.add(
           ProductVariant(
             id: templateId,
             code: templateCode,
+            name: templateName,
             label: _variantLabel(template),
             type: _variantType(template['packagingType'] as String?),
             price: price,
+            perfumeMl: perfumeMl,
+            essenceMl: essenceMl,
+            hasSpecialBottle: hasSpecialBottle,
+            specialBottleConsumableId: specialBottleConsumableId,
+            specialBottleExtraPrice: specialBottleExtraPrice,
           ),
         );
       }

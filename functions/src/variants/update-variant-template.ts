@@ -24,6 +24,17 @@ export const updateVariantTemplate = onCall(async (request) => {
     active: Boolean(data.active),
     size: data.size != null ? Number(data.size) : null,
     costPrice: data.costPrice != null ? Number(data.costPrice) : null,
+    perfumeMl: data.perfumeMl != null ? Number(data.perfumeMl) : null,
+    essenceMl: data.essenceMl != null ? Number(data.essenceMl) : null,
+    recipeConsumables: Array.isArray(data.recipeConsumables)
+      ? data.recipeConsumables.map((c) => ({
+          consumableId: String(c.consumableId),
+          quantity: Math.max(1, Math.floor(Number(c.quantity) || 1))
+        }))
+      : [],
+    hasSpecialBottle: Boolean(data.hasSpecialBottle),
+    specialBottleConsumableId: data.specialBottleConsumableId?.trim() || null,
+    specialBottleExtraPrice: data.specialBottleExtraPrice != null ? Number(data.specialBottleExtraPrice) : null,
     consumableParts: Array.isArray(data.consumableParts) ? data.consumableParts : [],
     updatedAt: serverTimestamp(),
   };

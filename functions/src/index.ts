@@ -17,10 +17,16 @@ export {toggleCategoryActive} from "./categories/toggle-category-active";
 export {createProduct} from "./products/create-product";
 export {updateProduct} from "./products/update-product";
 export {toggleProductActive} from "./products/toggle-product-active";
+export {deleteProduct} from "./products/delete-product";
+
+export {createConsumable} from "./consumables/create-consumable";
+export {updateConsumable} from "./consumables/update-consumable";
+export {toggleConsumableActive} from "./consumables/toggle-consumable-active";
 
 export {createVariantTemplate} from "./variants/create-variant-template";
 export {updateVariantTemplate} from "./variants/update-variant-template";
 export {toggleVariantTemplateActive} from "./variants/toggle-variant-template-active";
+export {deleteVariantTemplate} from "./variants/delete-variant-template";
 
 export {createEmployee} from "./employees/create-employee";
 export {updateEmployee} from "./employees/update-employee";

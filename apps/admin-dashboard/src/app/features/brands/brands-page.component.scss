@@ -50,6 +50,10 @@
 .table-wrap {
   margin-top: 12px;
   overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .inline-state {
@@ -66,6 +70,7 @@
 
 table {
   width: 100%;
+  min-width: 450px;
   border-collapse: collapse;
 }
 
