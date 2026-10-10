@@ -13,34 +13,12 @@ Design goals:
 ## Firestore Tenant Strategy
 
 Canonical strategy for MVP SaaS:
-- Use tenant-scoped subcollections for all business entities.
-- Require `tenantId` on every business document.
-- Enforce tenant boundaries in Firestore rules and Cloud Functions.
-
-Collections:
-- `tenants`
-- `tenants/{tenantId}/employees`
-- `tenants/{tenantId}/brands`
-- `tenants/{tenantId}/categories`
-- `tenants/{tenantId}/products`
-- `tenants/{tenantId}/variants`
+- `variantAssignments` (map): per-template selling and cost prices.
+- `variantOrder` (string[]): variant template IDs in the order shown in POS; omitted on older products, which retain the default ordering.
 - `tenants/{tenantId}/inventory`
 - `tenants/{tenantId}/stockMovements`
-- `tenants/{tenantId}/orders`
-
-Tenant boundary rules:
-- Read/write is allowed only when authenticated user tenant matches path `tenantId`.
-- Cross-tenant queries are forbidden.
-- All mutation functions validate `tenantId` ownership server-side.
-
----
 
 ## 1) Tenant
-
-### Purpose
-Represents one business account (one perfume store organization) in the SaaS.
-
-### Firestore collection
 `tenants`
 
 ### Fields

@@ -45,6 +45,26 @@ export type AdjustStockInput = {
   performedByEmployeeId?: string;
 };
 
+export type RecordableStockMovementType = Extract<
+  StockMovementType,
+  "PURCHASE" | "ADJUSTMENT" | "LOSS"
+>;
+
+// quantity is positive, except for ADJUSTMENT where the sign is the direction.
+export type StockMovementLineInput = {
+  productId: string;
+  variantTemplateId: string;
+  quantity: number;
+};
+
+export type RecordStockMovementsInput = {
+  tenantId: string;
+  type: RecordableStockMovementType;
+  reason?: string;
+  performedByEmployeeId?: string;
+  lines: StockMovementLineInput[];
+};
+
 export type OrderItemInput = {
   productId: string;
   variantTemplateId: string;
@@ -57,6 +77,38 @@ export type CreateOrderInput = {
   tenantId: string;
   employeeId: string;
   items: OrderItemInput[];
+};
+
+export type SetManagerPinInput = {
+  tenantId: string;
+  pin: string;
+};
+
+export type CancelOrderInput = {
+  tenantId: string;
+  employeeId: string;
+  orderId: string;
+  managerPin: string;
+  reason: string;
+};
+
+export type SeedMockOrdersInput = {
+  tenantId: string;
+  orders: Array<{
+    employeeId: string;
+    subtotal: number;
+    discountTotal: number;
+    total: number;
+    createdAt: string;
+    items: Array<{
+      productId: string;
+      variantId: string;
+      variantTemplateId: string;
+      quantity: number;
+      unitPrice: number;
+      lineTotal: number;
+    }>;
+  }>;
 };
 
 export type CreateBrandInput = {
@@ -80,6 +132,11 @@ export type ToggleBrandActiveInput = {
   active: boolean;
 };
 
+export type DeleteBrandInput = {
+  tenantId: string;
+  brandId: string;
+};
+
 export type CreateCategoryInput = {
   tenantId: string;
   name: string;
@@ -99,6 +156,11 @@ export type ToggleCategoryActiveInput = {
   tenantId: string;
   categoryId: string;
   active: boolean;
+};
+
+export type DeleteCategoryInput = {
+  tenantId: string;
+  categoryId: string;
 };
 
 export type CreateEmployeeInput = {
@@ -122,6 +184,11 @@ export type ToggleEmployeeActiveInput = {
   active: boolean;
 };
 
+export type DeleteEmployeeInput = {
+  tenantId: string;
+  employeeId: string;
+};
+
 export type ProductVariantAssignment = {
   sellingPrice: number;
   costPrice?: number;
@@ -135,10 +202,9 @@ export type CreateProductInput = {
   categoryId: string;
   productType: ProductType;
   packagingCategory: PackagingCategory;
-  perfumeBaseCode?: string;
-  essenceCode?: string;
   gender?: ProductGender;
   variantAssignments?: Record<string, ProductVariantAssignment>;
+  variantOrder?: string[];
   active?: boolean;
 };
 
@@ -151,11 +217,16 @@ export type UpdateProductInput = {
   categoryId: string;
   productType: ProductType;
   packagingCategory: PackagingCategory;
-  perfumeBaseCode?: string;
-  essenceCode?: string;
   gender?: ProductGender;
   variantAssignments?: Record<string, ProductVariantAssignment>;
+  variantOrder?: string[];
   active: boolean;
+};
+
+export type AssignVariantToProductsInput = {
+  tenantId: string;
+  productIds: string[];
+  variantTemplateId: string;
 };
 
 export type ToggleProductActiveInput = {
@@ -221,6 +292,11 @@ export type ToggleConsumableActiveInput = {
   tenantId: string;
   consumableId: string;
   active: boolean;
+};
+
+export type DeleteConsumableInput = {
+  tenantId: string;
+  consumableId: string;
 };
 
 export type CreateVariantTemplateInput = {

@@ -4,6 +4,20 @@ import { assertRole, resolveActorContext, validateTenantScope } from "../common/
 import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { BULK_INVENTORY_SENTINEL, CreateOrderInput } from "../types/domain";
 
+// The standard bottle is the first recipe consumable; the special bottle replaces only that one.
+function usesSpecialBottle(
+  useSpecialBottle: boolean,
+  template: FirebaseFirestore.DocumentData | undefined,
+  recipeIndex: number
+): boolean {
+  return (
+    useSpecialBottle &&
+    recipeIndex === 0 &&
+    Boolean(template?.hasSpecialBottle) &&
+    Boolean(template?.specialBottleConsumableId)
+  );
+}
+
 export const createOrder = onCall(async (request) => {
   const data = request.data as CreateOrderInput;
 
@@ -12,7 +26,9 @@ export const createOrder = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "employeeId and at least one item are required.");
   }
 
-  const actor = await resolveActorContext(request.auth, data.tenantId);
+  const actor = request.auth?.uid
+    ? await resolveActorContext(request.auth, data.tenantId)
+    : { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
 
   const cleanedItems = data.items.map((item) => ({
@@ -39,16 +55,19 @@ export const createOrder = onCall(async (request) => {
   const now = serverTimestamp();
 
   await db.runTransaction(async (tx) => {
+    const employeeRef = db.doc(`tenants/${actor.tenantId}/employees/${data.employeeId}`);
     // --- Batch-read products and variant templates ---
     const uniqueProductIds = [...new Set(cleanedItems.map((i) => i.productId))];
     const uniqueTemplateIds = [...new Set(cleanedItems.map((i) => i.variantTemplateId))];
 
-    const productSnaps = await Promise.all(
-      uniqueProductIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/products/${id}`)))
-    );
-    const templateSnaps = await Promise.all(
-      uniqueTemplateIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/variantTemplates/${id}`)))
-    );
+    const [employeeSnap, productSnaps, templateSnaps] = await Promise.all([
+      tx.get(employeeRef),
+      Promise.all(uniqueProductIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/products/${id}`)))),
+      Promise.all(uniqueTemplateIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/variantTemplates/${id}`))))
+    ]);
+    if (!employeeSnap.exists || employeeSnap.data()?.["active"] === false) {
+      throw new HttpsError("permission-denied", "Ο υπάλληλος δεν βρέθηκε ή είναι ανενεργός.");
+    }
 
     const productMap = new Map(productSnaps.map((s) => [s.id, s.data()]));
     const templateMap = new Map(templateSnaps.map((s) => [s.id, s.data()]));
@@ -63,7 +82,14 @@ export const createOrder = onCall(async (request) => {
     //   - sizeInMl * quantity from productId__bulk
     // PACKAGED products:
     //   - 1 unit * quantity from productId__variantTemplateId
-    const inventoryDeltas = new Map<string, number>(); // docId → net delta
+    const inventoryDeltas = new Map<string, number>();
+    const inventoryProductIds = new Map<string, Set<string>>();
+    const addInventoryDelta = (docId: string, delta: number, productId: string) => {
+      inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) + delta);
+      const productIds = inventoryProductIds.get(docId) ?? new Set<string>();
+      productIds.add(productId);
+      inventoryProductIds.set(docId, productIds);
+    };
 
     for (const item of cleanedItems) {
       const product = productMap.get(item.productId);
@@ -83,26 +109,24 @@ export const createOrder = onCall(async (request) => {
           if (perfumeMl > 0) {
             const docId = inventoryDocId(item.productId, "perfume");
             const deduction = item.quantity * perfumeMl;
-            inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) - deduction);
+            addInventoryDelta(docId, -deduction, item.productId);
           }
           if (essenceMl > 0) {
             const docId = inventoryDocId(item.productId, "essence");
             const deduction = item.quantity * essenceMl;
-            inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) - deduction);
+            addInventoryDelta(docId, -deduction, item.productId);
           }
 
           if (Array.isArray(template?.recipeConsumables)) {
-            for (const rc of template.recipeConsumables) {
+            for (const [rcIndex, rc] of template.recipeConsumables.entries()) {
               let cId = rc.consumableId;
-              // If customer requested special bottle and template has a special bottle configured, swap bottle consumable
-              if (item.useSpecialBottle && template?.hasSpecialBottle && template?.specialBottleConsumableId) {
-                // Determine if this consumable is the standard bottle (e.g. name or if specialBottleConsumableId is configured)
+              if (usesSpecialBottle(item.useSpecialBottle, template, rcIndex)) {
                 cId = template.specialBottleConsumableId;
               }
               const cQty = Number(rc.quantity) || 1;
               const docId = inventoryDocId(cId, "consumable");
               const deduction = item.quantity * cQty;
-              inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) - deduction);
+              addInventoryDelta(docId, -deduction, item.productId);
             }
           }
         } else {
@@ -113,12 +137,12 @@ export const createOrder = onCall(async (request) => {
           }
           const deduction = item.quantity * sizeInMl;
           const docId = inventoryDocId(item.productId, BULK_INVENTORY_SENTINEL);
-          inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) - deduction);
+          addInventoryDelta(docId, -deduction, item.productId);
         }
       } else {
         const deduction = item.quantity; // deduct units
         const docId = inventoryDocId(item.productId, item.variantTemplateId);
-        inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) - deduction);
+        addInventoryDelta(docId, -deduction, item.productId);
       }
     }
 
@@ -132,12 +156,25 @@ export const createOrder = onCall(async (request) => {
     );
 
     // --- Validate sufficient stock ---
+    const insufficientProductIds = new Set<string>();
     for (const [docId, delta] of inventoryDeltas) {
       const snap = inventorySnapMap.get(docId)!;
       const current = snap.exists ? Number(snap.data()?.quantity ?? 0) : 0;
       if (current + delta < 0) {
-        throw new HttpsError("failed-precondition", "Ανεπαρκές απόθεμα.");
+        for (const productId of inventoryProductIds.get(docId) ?? []) {
+          insufficientProductIds.add(productId);
+        }
       }
+    }
+
+    if (insufficientProductIds.size > 0) {
+      const productNames = [...insufficientProductIds].map(
+        (productId) => productMap.get(productId)?.name ?? productId
+      );
+      throw new HttpsError(
+        "failed-precondition",
+        `Ανεπαρκές απόθεμα για: ${productNames.join(", ")}.`,
+      );
     }
 
     // --- Apply inventory updates ---
@@ -211,10 +248,10 @@ export const createOrder = onCall(async (request) => {
           }
 
           if (Array.isArray(template?.recipeConsumables)) {
-            for (const rc of template.recipeConsumables) {
+            for (const [rcIndex, rc] of template.recipeConsumables.entries()) {
               let cId = rc.consumableId;
               let isSpecialBottle = false;
-              if (item.useSpecialBottle && template?.hasSpecialBottle && template?.specialBottleConsumableId) {
+              if (usesSpecialBottle(item.useSpecialBottle, template, rcIndex)) {
                 cId = template.specialBottleConsumableId;
                 isSpecialBottle = true;
               }
