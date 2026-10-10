@@ -161,9 +161,36 @@
   <summary>Προσωρινά δεδομένα δοκιμής (emulator)</summary>
   <p>Δημιουργία δοκιμαστικού καταλόγου, αποθέματος και πωλήσεων για τοπικές δοκιμές.</p>
 
-  <button type="button" class="seed-button" (click)="seedMockCatalog()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Δημιουργία καταλόγου…' : 'Δημιουργία δοκιμαστικού καταλόγου' }}
-  </button>
+  <div class="seed-groups">
+    <section class="seed-group">
+      <h4>Μάρκες</h4>
+      <button type="button" class="seed-button" (click)="seedMockBrands()" [disabled]="seedLoading()">Δημιουργία μαρκών</button>
+    </section>
+    <section class="seed-group">
+      <h4>Κατηγορίες</h4>
+      <button type="button" class="seed-button" (click)="seedMockCategories()" [disabled]="seedLoading()">Δημιουργία κατηγοριών</button>
+    </section>
+    <section class="seed-group">
+      <h4>Αναλώσιμα</h4>
+      <button type="button" class="seed-button" (click)="seedMockConsumables()" [disabled]="seedLoading()">Δημιουργία αναλωσίμων</button>
+    </section>
+    <section class="seed-group">
+      <h4>Πρότυπα παραλλαγών</h4>
+      <button type="button" class="seed-button" (click)="seedMockVariantTemplates()" [disabled]="seedLoading()">Δημιουργία προτύπων</button>
+    </section>
+  </div>
+
+  <h4 class="seed-products-heading">Προϊόντα ανά κατηγορία</h4>
+  <div class="seed-groups">
+    @for (category of productCategories; track category.code) {
+      <section class="seed-group">
+        <h4>{{ category.name }}</h4>
+        <button type="button" class="seed-button" (click)="seedMockProducts(category.code)" [disabled]="seedLoading()">
+          Δημιουργία προϊόντων
+        </button>
+      </section>
+    }
+  </div>
 
   <button type="button" class="seed-button secondary" (click)="seedMockInventory()" [disabled]="seedLoading()">
     {{ seedLoading() ? 'Καταχώρηση αποθέματος…' : 'Δοκιμαστικό απόθεμα' }}

@@ -62,7 +62,6 @@ export class ProductsService {
       this.tenantContext.setTenant('store001');
     }
 
-    void this.loadAll();
   }
 
   async loadAll(): Promise<void> {

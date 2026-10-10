@@ -5,6 +5,7 @@ import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { InventoryRow, InventoryService } from '../inventory/inventory.service';
 import { SalesHistoryService } from '../sales-history/sales-history.service';
 import { DashboardTempSeedService } from './dashboard-temp-seed.service';
+import { mockCatalogData } from './temp-data/mock-catalog.data';
 
 const LOW_STOCK_LITERS = 5;
 const LOW_STOCK_UNITS = 5;
@@ -23,6 +24,7 @@ export class DashboardPageComponent {
   protected readonly seedLoading = this.tempSeedService.loading;
   protected readonly seedStatus = this.tempSeedService.status;
   protected readonly seedError = this.tempSeedService.error;
+  protected readonly productCategories = mockCatalogData.categories;
   protected readonly inventoryLoading = this.inventoryService.loading;
   protected readonly salesLoading = this.salesHistoryService.loading;
   protected readonly inventoryError = this.inventoryService.error;
@@ -115,8 +117,24 @@ export class DashboardPageComponent {
     year: 'numeric'
   });
 
-  protected async seedMockCatalog(): Promise<void> {
-    await this.tempSeedService.seedMockCatalog();
+  protected async seedMockBrands(): Promise<void> {
+    await this.tempSeedService.seedMockBrands();
+  }
+
+  protected async seedMockCategories(): Promise<void> {
+    await this.tempSeedService.seedMockCategories();
+  }
+
+  protected async seedMockConsumables(): Promise<void> {
+    await this.tempSeedService.seedMockConsumables();
+  }
+
+  protected async seedMockVariantTemplates(): Promise<void> {
+    await this.tempSeedService.seedMockVariantTemplates();
+  }
+
+  protected async seedMockProducts(categoryCode: string): Promise<void> {
+    await this.tempSeedService.seedMockProducts(categoryCode);
   }
 
   protected async seedMockInventory(): Promise<void> {

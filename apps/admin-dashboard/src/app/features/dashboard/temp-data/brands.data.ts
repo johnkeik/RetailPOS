@@ -28,6 +28,8 @@ export const brands: MockBrandSeed[] = [
 	{ code: 'ESC', name: 'Escada' },
 	{ code: 'EST', name: 'Estée Lauder' },
 	{ code: 'GEN', name: 'Generic' },
+	{ code: 'ARABIC', name: 'Αραβικά' },
+	{ code: 'ROOM-FRAGRANCE', name: 'Αρωματικά Χώρου' },
 	{ code: 'GIV', name: 'Givenchy' },
 	{ code: 'GUC', name: 'Gucci' },
 	{ code: 'GUE', name: 'Guerlain' },

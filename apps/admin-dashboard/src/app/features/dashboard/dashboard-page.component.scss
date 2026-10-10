@@ -384,6 +384,33 @@ td {
   font-size: 0.8rem;
 }
 
+.seed-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.seed-group {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--dashboard-line);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.seed-group h4 {
+  margin: 0 0 8px;
+  color: var(--dashboard-ink);
+  font-size: 0.82rem;
+}
+
+.seed-products-heading {
+  margin: 14px 0 8px;
+  color: var(--dashboard-ink);
+  font-size: 0.85rem;
+}
+
 .seed-button {
   margin: 4px 8px 4px 0;
   padding: 8px 10px;
@@ -395,6 +422,12 @@ td {
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.seed-group .seed-button {
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
 }
 
 .seed-button:not(.secondary) {
