@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Timestamp, addDoc, collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
@@ -81,8 +81,6 @@ export class DashboardTempSeedService {
           categoryId,
           productType: 'PERFUME' as ProductType,
           packagingCategory: product.packagingCategory,
-          perfumeBaseCode: product.perfumeBaseCode,
-          essenceCode: product.essenceCode,
           gender: product.gender,
           variantAssignments,
           active: true
@@ -296,10 +294,13 @@ export class DashboardTempSeedService {
         continue;
       }
 
-      const recipeConsumables = seed.recipeConsumables?.map((rc) => ({
-        consumableId: consumableMap?.get(rc.consumableCode) || rc.consumableCode,
-        quantity: rc.quantity
-      }));
+      const recipeConsumables = seed.recipeConsumables?.map((rc) => {
+        const consumableId = consumableMap?.get(rc.consumableCode);
+        if (!consumableId) {
+          throw new Error(`Unknown consumable code "${rc.consumableCode}" in variant template ${seed.code}.`);
+        }
+        return { consumableId, quantity: rc.quantity };
+      });
 
       const result = await createTemplate({
         tenantId,
@@ -434,6 +435,21 @@ export class DashboardTempSeedService {
       const now = Date.now();
       const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
       let created = 0;
+      const orders: Array<{
+        employeeId: string;
+        subtotal: number;
+        discountTotal: number;
+        total: number;
+        createdAt: string;
+        items: Array<{
+          productId: string;
+          variantId: string;
+          variantTemplateId: string;
+          quantity: number;
+          unitPrice: number;
+          lineTotal: number;
+        }>;
+      }> = [];
 
       for (let i = 0; i < 40; i++) {
         // Deterministic pseudo-random based on index
@@ -477,19 +493,18 @@ export class DashboardTempSeedService {
         if (items.length === 0) continue;
 
         const total = items.reduce((s, it) => s + it.lineTotal, 0);
-        await addDoc(ordersRef, {
-          tenantId,
+        orders.push({
           employeeId,
-          status: 'COMPLETED',
           subtotal: total,
           discountTotal: 0,
           total,
           items,
-          createdAt: Timestamp.fromDate(orderDate)
+          createdAt: orderDate.toISOString()
         });
         created++;
       }
 
+      await httpsCallable(this.functions, 'seedMockOrders')({ tenantId, orders });
       this.status.set(`Seeded ${created} mock orders.`);
     } catch (error) {
       console.error(error);
@@ -550,8 +565,6 @@ export class DashboardTempSeedService {
       categoryId: string;
       productType: ProductType;
       packagingCategory: PackagingCategory;
-      perfumeBaseCode?: string;
-      essenceCode?: string;
       gender?: MockProductSeed['gender'];
       variantAssignments: Record<string, ProductVariantAssignment>;
       active: boolean;

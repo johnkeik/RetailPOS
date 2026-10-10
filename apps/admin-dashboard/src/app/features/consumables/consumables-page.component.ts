@@ -2,11 +2,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { ConsumableRow, ConsumablesService } from './consumables.service';
 
 @Component({
   selector: 'app-consumables-page',
-  imports: [ReactiveFormsModule, PageTitleComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
   templateUrl: './consumables-page.component.html',
   styleUrl: './consumables-page.component.scss'
 })
@@ -110,6 +111,31 @@ export class ConsumablesPageComponent implements OnInit {
 
   protected async toggleActive(item: ConsumableRow): Promise<void> {
     await this.consumablesService.toggleConsumableActive(item.id, !item.active);
+  }
+
+  protected async deleteConsumable(item: ConsumableRow): Promise<void> {
+    const confirmed = window.confirm(
+      `Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά το αναλώσιμο "${item.name}";`
+    );
+    if (!confirmed) return;
+    const ok = await this.consumablesService.deleteConsumable(item.id);
+    if (ok && this.editingConsumableId() === item.id) {
+      this.closeDrawer();
+    }
+  }
+
+  protected async deleteCurrentEditingConsumable(): Promise<void> {
+    const id = this.editingConsumableId();
+    if (!id) return;
+    const name = this.consumableForm.controls.name.value;
+    const confirmed = window.confirm(
+      `Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά το αναλώσιμο "${name}";`
+    );
+    if (!confirmed) return;
+    const ok = await this.consumablesService.deleteConsumable(id);
+    if (ok) {
+      this.closeDrawer();
+    }
   }
 
   protected cancelEdit(): void {

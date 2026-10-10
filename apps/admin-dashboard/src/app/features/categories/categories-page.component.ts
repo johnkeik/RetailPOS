@@ -2,11 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { CategoriesService, CategoryRow } from './categories.service';
 
 @Component({
   selector: 'app-categories-page',
-  imports: [ReactiveFormsModule, PageTitleComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
   templateUrl: './categories-page.component.html',
   styleUrl: './categories-page.component.scss'
 })
@@ -91,6 +92,15 @@ export class CategoriesPageComponent {
 
   protected async toggleActive(category: CategoryRow): Promise<void> {
     await this.categoriesService.toggleCategoryActive(category.id, !category.active);
+  }
+
+  protected async deleteCategory(category: CategoryRow): Promise<void> {
+    const confirmed = window.confirm(`Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά την κατηγορία "${category.name}";`);
+    if (!confirmed) return;
+    const ok = await this.categoriesService.deleteCategory(category.id);
+    if (ok && this.editingCategoryId() === category.id) {
+      this.resetForm();
+    }
   }
 
   protected cancelEdit(): void {

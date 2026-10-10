@@ -121,9 +121,24 @@
     background: #f1f5f9;
   }
 
+  &.danger {
+    background: #ffffff;
+    border-color: #fca5a5;
+    color: #dc2626;
+
+    &:hover {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+  }
+
   & + .btn {
     margin-left: 6px;
   }
+}
+
+.drawer-delete-btn {
+  margin-right: auto;
 }
 
 .table-wrap {

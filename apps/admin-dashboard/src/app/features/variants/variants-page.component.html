@@ -100,15 +100,12 @@
                   </span>
                 </td>
                 <td class="actions-col">
-                  <button type="button" class="btn ghost small" (click)="startEdit(variant)">
-                    Επεξεργασία
-                  </button>
-                  <button type="button" class="btn ghost small" (click)="toggleActive(variant)">
-                    {{ variant.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
-                  </button>
-                  <button type="button" class="btn danger small" (click)="deleteVariant(variant)">
-                    Διαγραφή
-                  </button>
+                  <app-entity-actions
+                    [active]="variant.active"
+                    (edit)="startEdit(variant)"
+                    (toggleActive)="toggleActive(variant)"
+                    (delete)="deleteVariant(variant)"
+                  />
                 </td>
               </tr>
             }

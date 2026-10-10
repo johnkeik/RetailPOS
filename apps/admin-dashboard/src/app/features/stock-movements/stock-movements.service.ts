@@ -63,9 +63,7 @@ export class StockMovementsService {
           return [item.id, {
             name: data.name ?? '-',
             code: data.productCode ?? '-',
-            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null,
-            perfumeBaseCode: data.perfumeBaseCode,
-            essenceCode: data.essenceCode
+            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null
           }];
         })
       );
@@ -121,9 +119,7 @@ export class StockMovementsService {
         const productMeta = productsById.get(productId) ?? {
           name: '-',
           code: '-',
-          packagingCategory: null,
-          perfumeBaseCode: undefined,
-          essenceCode: undefined
+          packagingCategory: null
         };
 
         // 2. Perfume Base
@@ -141,7 +137,7 @@ export class StockMovementsService {
             performedByEmployeeId: data.performedByEmployeeId,
             createdAt: this.normalizeTimestamp(data.createdAt),
             productName: productMeta.name,
-            productCode: productMeta.perfumeBaseCode || productMeta.code,
+            productCode: productMeta.code,
             variantTemplateName: 'Άρωμα (Βάση)',
             isBulk: true,
             isConsumable: false,
@@ -164,7 +160,7 @@ export class StockMovementsService {
             performedByEmployeeId: data.performedByEmployeeId,
             createdAt: this.normalizeTimestamp(data.createdAt),
             productName: productMeta.name,
-            productCode: productMeta.essenceCode || productMeta.code,
+            productCode: productMeta.code,
             variantTemplateName: 'Εσάνς',
             isBulk: true,
             isConsumable: false,
@@ -211,6 +207,9 @@ export class StockMovementsService {
     const sign = quantityDelta > 0 ? '+' : '';
     if (!isBulk) {
       return `${sign}${quantityDelta}`;
+    }
+    if (Math.abs(quantityDelta) < 1000) {
+      return `${sign}${quantityDelta} ml`;
     }
     const liters = quantityDelta / 1000;
     return `${sign}${liters.toFixed(3).replace(/\.?0+$/, '') || '0'} L`;

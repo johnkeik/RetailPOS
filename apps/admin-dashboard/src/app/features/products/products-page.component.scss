@@ -29,12 +29,62 @@
   }
 }
 
-.search-bar {
+.product-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
+  align-items: end;
+  gap: 12px;
   margin-bottom: 16px;
 
   .text-input {
     margin: 0;
   }
+}
+
+.bulk-variant-toolbar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.bulk-selection-summary,
+.bulk-variant-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulk-selection-summary {
+  justify-content: space-between;
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.bulk-variant-controls {
+  .field {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .text-input {
+    min-width: 0;
+    flex: 1 1 auto;
+    margin: 0;
+  }
+
+  .btn {
+    flex: 0 0 auto;
+  }
+}
+
+.bulk-variant-result {
+  margin: 0;
+  color: #166534;
+  font-size: 0.85rem;
 }
 
 .sr-only {
@@ -90,9 +140,21 @@
 
 table {
   width: 100%;
-  min-width: 760px;
+  min-width: 810px;
   border-collapse: collapse;
   text-align: left;
+}
+
+.selection-col {
+  width: 42px;
+  text-align: center;
+
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: #0f172a;
+    cursor: pointer;
+  }
 }
 
 th,
@@ -124,22 +186,6 @@ tr:hover td {
 
 .name-col {
   color: #0f172a;
-}
-
-.sub-codes {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.sub-code-badge {
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  background: #f1f5f9;
-  color: #475569;
-  font-family: monospace;
 }
 
 .pkg-chip {
@@ -359,13 +405,6 @@ tr:hover td {
   color: #1e293b;
 }
 
-.subcodes-panel {
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 6px;
-  padding: 12px;
-}
-
 .variants-selection-block {
   border-top: 1px solid #e2e8f0;
   padding-top: 16px;
@@ -384,6 +423,73 @@ tr:hover td {
   background: #f1f5f9;
   padding: 2px 7px;
   border-radius: 4px;
+}
+
+.variant-order-panel {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.variant-order-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 0.82rem;
+  color: #334155;
+
+  span {
+    color: #64748b;
+  }
+}
+
+.variant-order-list {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.variant-order-item {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.variant-order-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+.variant-order-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.variant-order-move {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 
 .variant-template-grid {
@@ -484,7 +590,48 @@ tr:hover td {
   }
 }
 
+.pagination-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  .field-mini {
+    margin: 0;
+  }
+
+  .btn + .btn {
+    margin-left: 0;
+  }
+}
+
+.page-size-select {
+  width: auto;
+  padding: 4px 8px;
+}
+
 @media (max-width: 768px) {
+  .pagination-bar {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .panel {
     padding: 14px;
   }
@@ -519,6 +666,15 @@ tr:hover td {
   .double-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .bulk-variant-controls {
+    align-items: stretch;
+    flex-direction: column;
+
+    .field {
+      margin-bottom: -6px;
+    }
   }
 
   .variant-pricing-row {

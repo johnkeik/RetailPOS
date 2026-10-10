@@ -55,7 +55,7 @@
 // Filters
 .filters {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto;
   gap: 12px;
   margin-bottom: 12px;
   align-items: end;

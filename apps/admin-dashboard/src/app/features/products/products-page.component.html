@@ -15,17 +15,34 @@
       </button>
     </header>
 
-    <div class="search-bar">
-      <label class="field sr-only" for="search">Αναζήτηση</label>
-      <input
-        id="search"
-        type="text"
-        class="text-input"
-        [value]="searchQuery()"
-        (input)="onSearch(search.value)"
-        #search
-        placeholder="Αναζήτηση προϊόντος (π.χ. 310001, Sauvage, Dior)..."
-      />
+    <div class="product-filters">
+      <div>
+        <label class="field sr-only" for="search">Αναζήτηση</label>
+        <input
+          id="search"
+          type="text"
+          class="text-input"
+          [value]="searchQuery()"
+          (input)="onSearch(search.value)"
+          #search
+          placeholder="Αναζήτηση προϊόντος (π.χ. 310001, Sauvage, Dior)..."
+        />
+      </div>
+      <div>
+        <label class="field" for="categoryFilter">Κατηγορία</label>
+        <select
+          id="categoryFilter"
+          class="text-input"
+          [value]="selectedCategoryId()"
+          (change)="onCategoryFilterChange(categoryFilter.value)"
+          #categoryFilter
+        >
+          <option value="">Όλες οι κατηγορίες</option>
+          @for (category of productCategoryOptions(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </div>
     </div>
 
     @if (loading()) {
@@ -36,11 +53,61 @@
       <div class="inline-error">{{ error() }}</div>
     }
 
+    @if (selectedProductIds().length > 0) {
+      <section class="bulk-variant-toolbar" aria-label="Μαζική ανάθεση παραλλαγής">
+        <div class="bulk-selection-summary">
+          <strong>{{ selectedProductIds().length }} επιλεγμένα προϊόντα</strong>
+          <button type="button" class="btn ghost small" (click)="clearProductSelection()">
+            Καθαρισμός επιλογής
+          </button>
+        </div>
+        <div class="bulk-variant-controls">
+          <label class="field" for="bulkVariantTemplate">Παραλλαγή προς ανάθεση</label>
+          <select
+            id="bulkVariantTemplate"
+            class="text-input"
+            [value]="bulkVariantTemplateId()"
+            (change)="bulkVariantTemplateId.set(bulkTemplate.value)"
+            #bulkTemplate
+          >
+            <option value="">Επιλέξτε παραλλαγή...</option>
+            @for (template of variantTemplates(); track template.id) {
+              <option [value]="template.id">
+                {{ template.name }} · {{ template.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΟ' }} · {{ template.sellingPrice }} €
+              </option>
+            }
+          </select>
+          <button
+            type="button"
+            class="btn primary"
+            [disabled]="!bulkVariantTemplateId() || bulkApplying()"
+            (click)="bulkAssignVariant()"
+          >
+            {{ bulkApplying() ? 'Εφαρμογή...' : 'Προσθήκη στα επιλεγμένα' }}
+          </button>
+        </div>
+        @if (bulkMessage()) {
+          <p class="bulk-variant-result" role="status">{{ bulkMessage() }}</p>
+        }
+      </section>
+    }
+
     @if (filteredProducts().length > 0) {
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th class="selection-col">
+                <input
+                  type="checkbox"
+                  aria-label="Επιλογή όλων των ορατών προϊόντων"
+                  [checked]="areAllFilteredProductsSelected()"
+                  [indeterminate]="hasPartialFilteredSelection()"
+                  [disabled]="loading() || bulkApplying()"
+                  (change)="setFilteredProductSelection(selectAll.checked)"
+                  #selectAll
+                />
+              </th>
               <th>Κωδικός</th>
               <th>Όνομα Προϊόντος</th>
               <th>Μάρκα</th>
@@ -52,21 +119,21 @@
             </tr>
           </thead>
           <tbody>
-            @for (product of filteredProducts(); track product.id) {
+            @for (product of pagedProducts(); track product.id) {
               <tr>
+                <td class="selection-col">
+                  <input
+                    type="checkbox"
+                    [attr.aria-label]="'Επιλογή ' + product.name"
+                    [checked]="isProductSelected(product.id)"
+                    [disabled]="loading() || bulkApplying()"
+                    (change)="setProductSelected(product.id, productSelection.checked)"
+                    #productSelection
+                  />
+                </td>
                 <td class="code-col">{{ product.productCode }}</td>
                 <td class="name-col">
                   <strong>{{ product.name }}</strong>
-                  @if (product.packagingCategory === 'BULK' && (product.perfumeBaseCode || product.essenceCode)) {
-                    <div class="sub-codes">
-                      @if (product.perfumeBaseCode) {
-                        <span class="sub-code-badge">Βάση: {{ product.perfumeBaseCode }}</span>
-                      }
-                      @if (product.essenceCode) {
-                        <span class="sub-code-badge">Εσάνς: {{ product.essenceCode }}</span>
-                      }
-                    </div>
-                  }
                 </td>
                 <td>{{ product.brandName }}</td>
                 <td>{{ product.categoryName }}</td>
@@ -86,21 +153,46 @@
                   </span>
                 </td>
                 <td class="actions-col">
-                  <button type="button" class="btn ghost small" (click)="startEdit(product)">
-                    Επεξεργασία
-                  </button>
-                  <button type="button" class="btn ghost small" (click)="toggleActive(product)">
-                    {{ product.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
-                  </button>
-                  <button type="button" class="btn danger small" (click)="deleteProduct(product)">
-                    Διαγραφή
-                  </button>
+                  <app-entity-actions
+                    [active]="product.active"
+                    (edit)="startEdit(product)"
+                    (toggleActive)="toggleActive(product)"
+                    (delete)="deleteProduct(product)"
+                  />
                 </td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+
+      <footer class="pagination-bar">
+        <span class="pagination-info">
+          {{ currentPage() * pageSize() + 1 }}–{{ currentPage() * pageSize() + pagedProducts().length }}
+          από {{ filteredProducts().length }}
+        </span>
+        <div class="pagination-controls">
+          <label class="field-mini" for="pageSize">Ανά σελίδα</label>
+          <select
+            id="pageSize"
+            class="text-input page-size-select"
+            [value]="pageSize()"
+            (change)="onPageSizeChange(pageSizeSelect.value)"
+            #pageSizeSelect
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+          <button type="button" class="btn small" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">
+            Προηγούμενη
+          </button>
+          <span class="pagination-page">{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+          <button type="button" class="btn small" [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+            Επόμενη
+          </button>
+        </div>
+      </footer>
     } @else {
       <div class="empty-state">Δεν βρέθηκαν προϊόντα για τα τρέχοντα κριτήρια.</div>
     }
@@ -207,22 +299,6 @@
       </div>
     </div>
 
-    @if (productForm.controls.packagingCategory.value === 'BULK') {
-      <div class="subcodes-panel">
-        <h4 class="section-title">Κωδικοί Συστατικών (Προαιρετικό)</h4>
-        <div class="double-grid">
-          <div>
-            <label class="field" for="perfumeBaseCode">Κωδικός Αρώματος (Βάσης)</label>
-            <input id="perfumeBaseCode" type="text" class="text-input" formControlName="perfumeBaseCode" placeholder="π.χ. PRF-SAUV" />
-          </div>
-          <div>
-            <label class="field" for="essenceCode">Κωδικός Εσάνς</label>
-            <input id="essenceCode" type="text" class="text-input" formControlName="essenceCode" placeholder="π.χ. ESS-SAUV" />
-          </div>
-        </div>
-      </div>
-    }
-
     <div class="variants-selection-block">
       <div class="variants-header">
         <label class="field">Επιλογή Παραλλαγών για το Προϊόν</label>
@@ -230,6 +306,40 @@
           {{ filteredVariantTemplates().length }} διαθέσιμες
         </span>
       </div>
+
+      @if (orderedAssignedVariants().length > 0) {
+        <div class="variant-order-panel">
+          <div class="variant-order-heading">
+            <strong>Σειρά εμφάνισης στο POS</strong>
+            <span>Η πρώτη παραλλαγή επιλέγεται αυτόματα.</span>
+          </div>
+          <ol class="variant-order-list">
+            @for (template of orderedAssignedVariants(); track template.id; let index = $index) {
+              <li class="variant-order-item">
+                <span class="variant-order-name">{{ template.name }}</span>
+                <div class="variant-order-actions">
+                  <button
+                    type="button"
+                    class="variant-order-move"
+                    [disabled]="index === 0"
+                    (click)="moveVariant(template.id, -1)"
+                    [attr.aria-label]="'Μετακίνηση ' + template.name + ' προς τα πάνω'"
+                    title="Μετακίνηση προς τα πάνω"
+                  >↑</button>
+                  <button
+                    type="button"
+                    class="variant-order-move"
+                    [disabled]="index === orderedAssignedVariants().length - 1"
+                    (click)="moveVariant(template.id, 1)"
+                    [attr.aria-label]="'Μετακίνηση ' + template.name + ' προς τα κάτω'"
+                    title="Μετακίνηση προς τα κάτω"
+                  >↓</button>
+                </div>
+              </li>
+            }
+          </ol>
+        </div>
+      }
 
       @if (hasVariantTemplates()) {
         @if (filteredVariantTemplates().length === 0) {

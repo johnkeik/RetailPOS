@@ -3,12 +3,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PackagingType, VariantRecipeConsumable } from '../../core/types/domain.models';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { ConsumablesService } from '../consumables/consumables.service';
 import { VariantTemplateRow, VariantsService } from './variants.service';
 
 @Component({
   selector: 'app-variants-page',
-  imports: [ReactiveFormsModule, PageTitleComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
   templateUrl: './variants-page.component.html',
   styleUrl: './variants-page.component.scss'
 })

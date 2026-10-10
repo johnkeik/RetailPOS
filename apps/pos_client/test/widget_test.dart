@@ -49,6 +49,63 @@ class _HistoryOrderRepository implements PosOrderRepository {
       ),
     ];
   }
+
+  @override
+  Future<void> cancelOrder({
+    required String tenantId,
+    required String employeeId,
+    required String orderId,
+    required String managerPin,
+    required String reason,
+  }) async {}
+}
+
+class _CancellableHistoryOrderRepository implements PosOrderRepository {
+  PosOrder order = PosOrder(
+    id: 'order-cancel-1',
+    employeeId: 'employee-1',
+    total: 12,
+    createdAt: DateTime(2026, 10, 8, 12),
+    items: const [],
+  );
+  String? cancelledOrderId;
+  String? cancellationReason;
+
+  @override
+  Future<String> submitOrder({
+    required String tenantId,
+    required String employeeId,
+    required List<CartLine> lines,
+  }) async =>
+      'order-cancel-1';
+
+  @override
+  Future<List<PosOrder>> loadRecentOrders({
+    required String tenantId,
+    int limit = 50,
+  }) async =>
+      [order];
+
+  @override
+  Future<void> cancelOrder({
+    required String tenantId,
+    required String employeeId,
+    required String orderId,
+    required String managerPin,
+    required String reason,
+  }) async {
+    cancelledOrderId = orderId;
+    cancellationReason = reason;
+    order = PosOrder(
+      id: order.id,
+      employeeId: order.employeeId,
+      total: order.total,
+      createdAt: order.createdAt,
+      items: order.items,
+      status: 'CANCELLED',
+      cancellationReason: reason,
+    );
+  }
 }
 
 void main() {
@@ -112,6 +169,7 @@ void main() {
                 builder: (_) => const PosOrderHistoryDialog(
                   repository: _HistoryOrderRepository(),
                   tenantId: 'store001',
+                  employeeId: 'employee-1',
                 ),
               ),
               child: const Text('Άνοιγμα ιστορικού'),
@@ -128,5 +186,43 @@ void main() {
     expect(find.textContaining('310047 · Άρωμα δοκιμής'), findsOneWidget);
     expect(find.byTooltip('Εκτύπωση κωδικού BULK-50'), findsOneWidget);
     expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
+  });
+
+  testWidgets('manager PIN cancels an order and hides cancel action',
+      (tester) async {
+    final repository = _CancellableHistoryOrderRepository();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => PosOrderHistoryDialog(
+                  repository: repository,
+                  tenantId: 'store001',
+                  employeeId: 'employee-1',
+                ),
+              ),
+              child: const Text('Άνοιγμα ιστορικού'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Άνοιγμα ιστορικού'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ακύρωση'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).at(0), '123456');
+    await tester.enterText(find.byType(TextField).at(1), 'Λάθος ποσότητα');
+    await tester.tap(find.text('Επιβεβαίωση ακύρωσης'));
+    await tester.pumpAndSettle();
+
+    expect(repository.cancelledOrderId, 'order-cancel-1');
+    expect(repository.cancellationReason, 'Λάθος ποσότητα');
+    expect(find.text('ΑΚΥΡΩΜΕΝΗ'), findsOneWidget);
+    expect(find.text('Ακύρωση'), findsNothing);
   });
 }

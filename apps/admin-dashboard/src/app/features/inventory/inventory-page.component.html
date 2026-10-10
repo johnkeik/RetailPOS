@@ -34,15 +34,30 @@
     </div>
 
     <div>
-      <label class="field" for="threshold">Όριο χαμηλού αποθέματος <small>(τεμ. / λίτρα)</small></label>
+      <label class="field" for="lowStockLiters">Όριο χαμηλού αποθέματος (λίτρα)</label>
       <input
-        id="threshold"
+        id="lowStockLiters"
         class="text-input"
         type="number"
         min="0"
-        [value]="lowStockThreshold()"
-        (input)="onThreshold(threshold.value)"
-        #threshold
+        step="0.1"
+        [value]="lowStockLiters()"
+        (input)="onLitersThreshold(lowStockLitersInput.value)"
+        #lowStockLitersInput
+      />
+    </div>
+
+    <div>
+      <label class="field" for="lowStockUnits">Όριο χαμηλού αποθέματος (τεμάχια)</label>
+      <input
+        id="lowStockUnits"
+        class="text-input"
+        type="number"
+        min="0"
+        step="1"
+        [value]="lowStockUnits()"
+        (input)="onUnitsThreshold(lowStockUnitsInput.value)"
+        #lowStockUnitsInput
       />
     </div>
 

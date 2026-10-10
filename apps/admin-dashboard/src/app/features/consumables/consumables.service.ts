@@ -137,6 +137,28 @@ export class ConsumablesService {
     }
   }
 
+  async deleteConsumable(consumableId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) {
+      this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.');
+      return false;
+    }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteConsumable')({
+        tenantId,
+        consumableId
+      });
+      await this.loadAll();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής αναλωσίμου.';
+      this.error.set(msg);
+      return false;
+    }
+  }
+
   private normalizeTimestamp(value: unknown): string {
     if (typeof value === 'string') return value;
     if (value instanceof Date) return value.toISOString();

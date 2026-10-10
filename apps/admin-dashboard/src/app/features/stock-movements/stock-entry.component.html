@@ -1,0 +1,247 @@
+<section class="entry-panel">
+  <header class="entry-header">
+    <div class="mode-tabs" role="group" aria-label="Τύπος κίνησης">
+      @for (option of modes; track option.value) {
+        <button
+          type="button"
+          class="mode-tab"
+          [class.active]="mode() === option.value"
+          [attr.aria-pressed]="mode() === option.value"
+          (click)="setMode(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </header>
+
+  <p class="entry-hint">{{ currentMode().hint }}</p>
+
+  @if (errorMessage()) {
+    <div class="inline-error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="inline-success" role="status">{{ successMessage() }}</div>
+  }
+
+  <div class="search-row">
+    <div class="search-box">
+      <label class="sr-only" for="stock-search">Αναζήτηση είδους</label>
+      <input
+        id="stock-search"
+        class="text-input"
+        type="text"
+        autocomplete="off"
+        role="combobox"
+        aria-controls="stock-suggestions"
+        [attr.aria-expanded]="suggestions().length > 0"
+        [value]="query()"
+        (input)="onSearchInput(searchInput.value)"
+        (keydown)="onSearchKey($event)"
+        #searchInput
+        placeholder="Κωδικός ή όνομα είδου (π.χ. 226, Sauvage) και Enter"
+      />
+
+      @if (suggestions().length > 0) {
+        <ul id="stock-suggestions" class="suggestions" role="listbox">
+          @for (item of suggestions(); track item.key; let i = $index) {
+            <li
+              role="option"
+              [class.active]="i === highlighted()"
+              [attr.aria-selected]="i === highlighted()"
+              (mousedown)="$event.preventDefault(); addItem(item)"
+              (mouseenter)="highlighted.set(i)"
+            >
+              <span class="s-code">{{ item.code || '–' }}</span>
+              <span class="s-name">{{ item.name }}</span>
+              <span class="s-detail">{{ item.detail }}</span>
+            </li>
+          }
+        </ul>
+      } @else if (query().trim()) {
+        <div class="suggestions empty-suggestions">Δεν βρέθηκε διαθέσιμο είδος.</div>
+      }
+    </div>
+
+    <button type="button" class="btn ghost" (click)="openPicker()">+ Επιλογή αναλωσίμων</button>
+  </div>
+
+  @if (rows().length === 0) {
+    <div class="empty-state">Αναζητήστε ένα είδος για να ξεκινήσετε. Μπορείτε να προσθέσετε πολλά είδη στην ίδια κίνηση.</div>
+  } @else {
+    <div class="table-wrap">
+      <table class="entry-table">
+        <thead>
+          <tr>
+            <th>Είδος</th>
+            <th class="num">Τρέχον</th>
+            <th>{{ currentMode().inputLabel }}</th>
+            <th class="num">Νέο υπόλοιπο</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (view of rowViews(); track view.item.key) {
+            @for (part of view.parts; track part.templateId; let first = $first) {
+              <tr [class.invalid]="part.state === 'invalid'" [class.group-start]="first">
+                @if (first) {
+                  <td class="item-cell" [attr.rowspan]="view.parts.length">
+                    <div class="item-head">
+                      <div class="item-text">
+                        <span class="item-code">{{ view.item.code || '–' }}</span>
+                        <strong>{{ view.item.name }}</strong>
+                        <span class="item-detail">{{ view.item.detail }}</span>
+                      </div>
+                      <button
+                        type="button"
+                        class="remove-btn"
+                        [attr.aria-label]="'Αφαίρεση ' + view.item.name"
+                        (click)="removeRow(view.item.key)"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  </td>
+                }
+                <td class="num">{{ formatQty(part.current, part.volume) }}</td>
+                <td>
+                  <div class="qty-cell">
+                    @if (part.label) {
+                      <span class="part-label">{{ part.label }}</span>
+                    }
+                    <input
+                      class="text-input qty-input"
+                      type="text"
+                      inputmode="decimal"
+                      autocomplete="off"
+                      [id]="(part.field === 'qty' ? 'qty-' : 'essence-') + view.item.key"
+                      [attr.aria-label]="view.item.name + (part.label ? ' – ' + part.label : '')"
+                      [attr.aria-invalid]="part.state === 'invalid'"
+                      [value]="part.raw"
+                      (input)="setQty(view.item.key, part.field, qtyInput.value)"
+                      (keydown.enter)="onQtyEnter($event, view.item.key, part.field)"
+                      #qtyInput
+                      placeholder="0"
+                    />
+                    <span class="unit">{{ part.volume ? 'L' : 'τεμ.' }}</span>
+                  </div>
+                  @if (part.error) {
+                    <small class="row-error">{{ part.error }}</small>
+                  }
+                </td>
+                <td class="num">
+                  @if (part.state === 'ok') {
+                    <strong>{{ formatQty(part.current + part.delta, part.volume) }}</strong>
+                    @if (mode() === 'ADJUSTMENT') {
+                      <small class="delta" [class.positive]="part.delta > 0" [class.negative]="part.delta < 0">
+                        {{ formatDelta(part) }}
+                      </small>
+                    }
+                  } @else {
+                    <span class="muted">–</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="entry-footer">
+      <div class="reason-field">
+        <label class="field" for="entry-reason">
+          Αιτιολογία {{ mode() === 'PURCHASE' ? '(προαιρετικό)' : '(υποχρεωτικό)' }}
+        </label>
+        <input
+          id="entry-reason"
+          class="text-input"
+          type="text"
+          [value]="reason()"
+          (input)="reason.set(reasonInput.value)"
+          #reasonInput
+          [placeholder]="mode() === 'PURCHASE' ? 'π.χ. Τιμολόγιο αγοράς 123' : 'π.χ. Απογραφή Οκτωβρίου, σπάσιμο'"
+        />
+      </div>
+
+      <div class="entry-actions">
+        <span class="summary" [class.has-errors]="invalidCount() > 0">
+          @if (invalidCount() > 0) {
+            Γραμμές προς διόρθωση: {{ invalidCount() }}
+          } @else {
+            Κινήσεις προς καταχώριση: {{ readyCount() }}
+          }
+        </span>
+        <button type="button" class="btn ghost" (click)="clearAll()">Καθαρισμός</button>
+        <button type="button" class="btn primary" [disabled]="!canSubmit() || submitting()" (click)="submit()">
+          {{ submitting() ? 'Καταχώριση...' : 'Καταχώριση' }}
+        </button>
+      </div>
+    </footer>
+  }
+</section>
+
+<dialog class="picker" #picker aria-labelledby="picker-title" (close)="pickerSelected.set([])">
+  <header class="picker-header">
+    <h4 id="picker-title">Επιλογή αναλωσίμων</h4>
+    <button type="button" class="remove-btn" aria-label="Κλείσιμο" (click)="closePicker()">&times;</button>
+  </header>
+
+  <div class="picker-search">
+    <label class="sr-only" for="picker-query">Αναζήτηση αναλώσιμου</label>
+    <input
+      id="picker-query"
+      class="text-input"
+      type="text"
+      autocomplete="off"
+      [value]="pickerQuery()"
+      (input)="pickerQuery.set(pickerInput.value)"
+      #pickerInput
+      placeholder="Αναζήτηση με κωδικό ή όνομα"
+    />
+    <label class="check-row select-all">
+      <input
+        type="checkbox"
+        [checked]="allPickerVisibleSelected()"
+        [disabled]="pickerSelectable().length === 0"
+        (change)="toggleAllPicker(selectAll.checked)"
+        #selectAll
+      />
+      <span>Επιλογή όλων των ορατών ({{ pickerSelectable().length }})</span>
+    </label>
+  </div>
+
+  <ul class="picker-list">
+    @for (item of pickerVisible(); track item.key) {
+      <li>
+        <label class="check-row" [class.is-added]="isAdded(item.key)">
+          <input
+            type="checkbox"
+            [checked]="isAdded(item.key) || isPicked(item.key)"
+            [disabled]="isAdded(item.key)"
+            (change)="togglePicked(item.key, check.checked)"
+            #check
+          />
+          <span class="p-code">{{ item.code || '–' }}</span>
+          <span class="p-name">{{ item.name }}</span>
+          <span class="p-stock">
+            @if (isAdded(item.key)) {
+              Ήδη στη λίστα
+            } @else {
+              Απόθεμα: {{ stockOfItem(item) }}
+            }
+          </span>
+        </label>
+      </li>
+    } @empty {
+      <li class="picker-empty">Δεν βρέθηκαν αναλώσιμα.</li>
+    }
+  </ul>
+
+  <footer class="picker-footer">
+    <button type="button" class="btn ghost" (click)="closePicker()">Άκυρο</button>
+    <button type="button" class="btn primary" [disabled]="pickerSelected().length === 0" (click)="addPicked()">
+      Προσθήκη ({{ pickerSelected().length }})
+    </button>
+  </footer>
+</dialog>

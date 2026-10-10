@@ -41,6 +41,23 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
   }
 
   @override
+  Future<void> cancelOrder({
+    required String tenantId,
+    required String employeeId,
+    required String orderId,
+    required String managerPin,
+    required String reason,
+  }) async {
+    await _functions.httpsCallable('cancelOrder').call({
+      'tenantId': tenantId,
+      'employeeId': employeeId,
+      'orderId': orderId,
+      'managerPin': managerPin,
+      'reason': reason,
+    });
+  }
+
+  @override
   Future<List<PosOrder>> loadRecentOrders(
       {required String tenantId, int limit = 50}) async {
     final snapshot = await _firestore
@@ -79,6 +96,9 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
         total: (data['total'] as num? ?? 0).toDouble(),
         createdAt: createdAt,
         items: items,
+        status: data['status'] as String? ?? 'COMPLETED',
+        cancellationReason: data['cancellationReason'] as String?,
+        isSeeded: data['seededAt'] != null,
       );
     }).toList();
   }

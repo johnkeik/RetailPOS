@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/firebase/firebase_config.dart';
@@ -493,10 +494,43 @@ class _PosHomePageState extends State<PosHomePage> {
 
       setState(() => _submittingOrder = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Η πώληση απέτυχε. Δοκιμάστε ξανά.')),
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          icon: const Icon(Icons.error_outline, color: Colors.red),
+          title: const Text('Δεν ολοκληρώθηκε η παραγγελία'),
+          content: SingleChildScrollView(
+            child: Text(_orderFailureMessage(error)),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Εντάξει'),
+            ),
+          ],
+        ),
       );
     }
+  }
+
+  String _orderFailureMessage(Object error) {
+    if (error is FirebaseFunctionsException) {
+      switch (error.code) {
+        case 'failed-precondition':
+          return error.message ??
+              'Δεν υπάρχει επαρκές απόθεμα για τα προϊόντα της παραγγελίας.';
+        case 'unauthenticated':
+          return 'Η σύνδεσή σας έληξε. Συνδεθείτε ξανά και δοκιμάστε.';
+        case 'permission-denied':
+          return 'Δεν έχετε δικαίωμα να καταχωρήσετε αυτή την παραγγελία.';
+        case 'unavailable':
+          return 'Δεν ήταν δυνατή η σύνδεση με τον server. Ελέγξτε τη σύνδεσή σας.';
+        case 'invalid-argument':
+          return 'Τα στοιχεία της παραγγελίας δεν είναι έγκυρα. Ελέγξτε το καλάθι και δοκιμάστε ξανά.';
+      }
+    }
+
+    return 'Παρουσιάστηκε σφάλμα κατά την καταχώρηση. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.';
   }
 
   Future<void> _showOrderHistory() async {
@@ -505,6 +539,7 @@ class _PosHomePageState extends State<PosHomePage> {
       builder: (_) => PosOrderHistoryDialog(
         repository: widget.orderRepository,
         tenantId: widget.tenantId,
+        employeeId: widget.employeeId,
       ),
     );
   }

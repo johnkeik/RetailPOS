@@ -11,6 +11,7 @@ import { ConsumablesPageComponent } from './features/consumables/consumables-pag
 import { InventoryPageComponent } from './features/inventory/inventory-page.component';
 import { ProductsPageComponent } from './features/products/products-page.component';
 import { SalesHistoryPageComponent } from './features/sales-history/sales-history-page.component';
+import { StockEntryPageComponent } from './features/stock-movements/stock-entry-page.component';
 import { StockMovementsPageComponent } from './features/stock-movements/stock-movements-page.component';
 import { VariantsPageComponent } from './features/variants/variants-page.component';
 
@@ -64,6 +65,10 @@ export const routes: Routes = [
 			{
 				path: 'stock-movements',
 				component: StockMovementsPageComponent
+			},
+			{
+				path: 'stock-movements/new',
+				component: StockEntryPageComponent
 			},
 			{
 				path: 'sales-history',

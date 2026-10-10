@@ -3,10 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { BrandRow, BrandsService } from './brands.service';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 
 @Component({
   selector: 'app-brands-page',
-  imports: [ReactiveFormsModule, PageTitleComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
   templateUrl: './brands-page.component.html',
   styleUrl: './brands-page.component.scss'
 })
@@ -91,6 +92,15 @@ export class BrandsPageComponent {
 
   protected async toggleActive(brand: BrandRow): Promise<void> {
     await this.brandsService.toggleBrandActive(brand.id, !brand.active);
+  }
+
+  protected async deleteBrand(brand: BrandRow): Promise<void> {
+    const confirmed = window.confirm(`Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά τη μάρκα "${brand.name}";`);
+    if (!confirmed) return;
+    const ok = await this.brandsService.deleteBrand(brand.id);
+    if (ok && this.editingBrandId() === brand.id) {
+      this.resetForm();
+    }
   }
 
   protected cancelEdit(): void {

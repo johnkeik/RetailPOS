@@ -62,12 +62,12 @@
                   </span>
                 </td>
                 <td class="actions-col">
-                  <button type="button" class="btn ghost small" (click)="startEdit(item)">
-                    Επεξεργασία
-                  </button>
-                  <button type="button" class="btn ghost small" (click)="toggleActive(item)">
-                    {{ item.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
-                  </button>
+                  <app-entity-actions
+                    [active]="item.active"
+                    (edit)="startEdit(item)"
+                    (toggleActive)="toggleActive(item)"
+                    (delete)="deleteConsumable(item)"
+                  />
                 </td>
               </tr>
             }
@@ -131,6 +131,15 @@
     </label>
 
     <div class="drawer-footer">
+      @if (editingConsumableId()) {
+        <button
+          type="button"
+          class="btn danger drawer-delete-btn"
+          (click)="deleteCurrentEditingConsumable()"
+        >
+          Διαγραφή
+        </button>
+      }
       <button type="button" class="btn ghost" (click)="closeDrawer()">Ακύρωση</button>
       <button type="submit" class="btn primary">
         {{ editingConsumableId() ? 'Αποθήκευση Αλλαγών' : 'Δημιουργία Αναλωσίμου' }}

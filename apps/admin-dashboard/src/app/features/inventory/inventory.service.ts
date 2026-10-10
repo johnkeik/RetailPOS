@@ -72,8 +72,6 @@ export class InventoryService {
         name: string;
         productCode: string;
         packagingCategory: PackagingCategory | null;
-        perfumeBaseCode?: string;
-        essenceCode?: string;
       };
       const productsById = new Map<string, ProductMeta>(
         productsSnapshot.docs.map((item) => {
@@ -81,9 +79,7 @@ export class InventoryService {
           return [item.id, {
             name: data.name ?? '-',
             productCode: data.productCode ?? '-',
-            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null,
-            perfumeBaseCode: data.perfumeBaseCode,
-            essenceCode: data.essenceCode
+            packagingCategory: (data.packagingCategory as PackagingCategory) ?? null
           }];
         })
       );
@@ -157,7 +153,7 @@ export class InventoryService {
             quantity: qty,
             updatedAt,
             productName: productMeta?.name ?? '-',
-            productCode: productMeta?.perfumeBaseCode || productMeta?.productCode || '-',
+            productCode: productMeta?.productCode || '-',
             variantTemplateName: 'Άρωμα (Βάση)',
             packagingType: 'BULK',
             isBulk: true,
@@ -179,7 +175,7 @@ export class InventoryService {
             quantity: qty,
             updatedAt,
             productName: productMeta?.name ?? '-',
-            productCode: productMeta?.essenceCode || productMeta?.productCode || '-',
+            productCode: productMeta?.productCode || '-',
             variantTemplateName: 'Εσάνς',
             packagingType: 'BULK',
             isBulk: true,

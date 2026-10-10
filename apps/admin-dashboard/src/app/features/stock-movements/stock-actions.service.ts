@@ -4,43 +4,24 @@ import { httpsCallable } from 'firebase/functions';
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FUNCTIONS } from '../../core/firebase/firebase.providers';
 
+export type StockMovementLinePayload = {
+  productId: string;
+  variantTemplateId: string;
+  quantity: number;
+};
+
 @Injectable({ providedIn: 'root' })
 export class StockActionsService {
   private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly tenantContext = inject(TenantContextService);
 
-  async receiveStock(input: {
-    productId: string;
-    variantTemplateId: string;
-    quantity: number;
+  async recordMovements(input: {
+    type: 'PURCHASE' | 'ADJUSTMENT' | 'LOSS';
     reason?: string;
+    lines: StockMovementLinePayload[];
   }): Promise<void> {
     const tenantId = this.requireTenant();
-    const callable = httpsCallable(this.functions, 'receiveStock');
-    await callable({
-      tenantId,
-      productId: input.productId,
-      variantTemplateId: input.variantTemplateId,
-      quantity: input.quantity,
-      reason: input.reason
-    });
-  }
-
-  async adjustStock(input: {
-    productId: string;
-    variantTemplateId: string;
-    quantityDelta: number;
-    reason?: string;
-  }): Promise<void> {
-    const tenantId = this.requireTenant();
-    const callable = httpsCallable(this.functions, 'adjustStock');
-    await callable({
-      tenantId,
-      productId: input.productId,
-      variantTemplateId: input.variantTemplateId,
-      quantityDelta: input.quantityDelta,
-      reason: input.reason
-    });
+    await httpsCallable(this.functions, 'recordStockMovements')({ tenantId, ...input });
   }
 
   private requireTenant(): string {

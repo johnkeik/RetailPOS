@@ -11,4 +11,12 @@ abstract class PosOrderRepository {
     required String tenantId,
     int limit = 50,
   });
+
+  Future<void> cancelOrder({
+    required String tenantId,
+    required String employeeId,
+    required String orderId,
+    required String managerPin,
+    required String reason,
+  });
 }

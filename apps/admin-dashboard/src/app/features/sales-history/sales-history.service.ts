@@ -3,11 +3,18 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
-import { Order, OrderItem } from '../../core/types/domain.models';
+import { Employee, Order, OrderItem, Product, VariantTemplate } from '../../core/types/domain.models';
+
+export type SalesHistoryItem = OrderItem & {
+  productName: string;
+  variantName: string;
+};
 
 export type SalesHistoryRow = Order & {
   id: string;
   itemCount: number;
+  employeeName: string;
+  items: SalesHistoryItem[];
 };
 
 @Injectable({ providedIn: 'root' })
@@ -40,16 +47,44 @@ export class SalesHistoryService {
 
     try {
       const ordersRef = collection(this.firestore, `tenants/${tenantId}/orders`);
-      const snapshot = await getDocs(query(ordersRef, orderBy('createdAt', 'desc')));
+      const employeesRef = collection(this.firestore, `tenants/${tenantId}/employees`);
+      const productsRef = collection(this.firestore, `tenants/${tenantId}/products`);
+      const templatesRef = collection(this.firestore, `tenants/${tenantId}/variantTemplates`);
+      const [snapshot, employeesSnapshot, productsSnapshot, templatesSnapshot] = await Promise.all([
+        getDocs(query(ordersRef, orderBy('createdAt', 'desc'))),
+        getDocs(employeesRef),
+        getDocs(productsRef),
+        getDocs(templatesRef)
+      ]);
+
+      const employeeNames = new Map(
+        employeesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Employee>).name ?? ''])
+      );
+      const productNames = new Map(
+        productsSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Product>).name ?? ''])
+      );
+      const variantNames = new Map(
+        templatesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<VariantTemplate>).name ?? ''])
+      );
 
       const rows: SalesHistoryRow[] = snapshot.docs.map((item) => {
         const data = item.data() as Partial<Order>;
-        const items = Array.isArray(data.items) ? (data.items as OrderItem[]) : [];
+        const orderItems = Array.isArray(data.items) ? (data.items as OrderItem[]) : [];
+        const employeeId = data.employeeId ?? '-';
+        const items: SalesHistoryItem[] = orderItems.map((orderItem) => {
+          const templateId = orderItem.variantTemplateId ?? orderItem.variantId;
+          return {
+            ...orderItem,
+            productName: productNames.get(orderItem.productId) || orderItem.productId,
+            variantName: variantNames.get(templateId) || templateId
+          };
+        });
 
         return {
           id: item.id,
           tenantId,
-          employeeId: data.employeeId ?? '-',
+          employeeId,
+          employeeName: employeeNames.get(employeeId) || employeeId,
           status: data.status ?? 'COMPLETED',
           subtotal: typeof data.subtotal === 'number' ? data.subtotal : undefined,
           discountTotal:

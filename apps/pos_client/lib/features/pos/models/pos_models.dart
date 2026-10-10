@@ -129,6 +129,9 @@ class PosOrder {
     required this.total,
     required this.createdAt,
     required this.items,
+    this.status = 'COMPLETED',
+    this.cancellationReason,
+    this.isSeeded = false,
   });
 
   final String id;
@@ -136,4 +139,7 @@ class PosOrder {
   final double total;
   final DateTime? createdAt;
   final List<PosOrderItem> items;
+  final String status;
+  final String? cancellationReason;
+  final bool isSeeded;
 }

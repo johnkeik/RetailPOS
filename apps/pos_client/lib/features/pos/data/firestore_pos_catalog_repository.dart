@@ -66,6 +66,14 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
 
       final variantAssignments =
           (data['variantAssignments'] as Map<Object?, Object?>? ?? const <Object?, Object?>{});
+      final rawVariantOrder = data['variantOrder'];
+      final variantOrder = rawVariantOrder is List
+          ? rawVariantOrder.map((id) => id.toString()).toList()
+          : const <String>[];
+      final variantRank = <String, int>{};
+      for (var index = 0; index < variantOrder.length; index++) {
+        variantRank[variantOrder[index]] = index;
+      }
       final variants = <ProductVariant>[];
 
       for (final entry in variantAssignments.entries) {
@@ -110,7 +118,16 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
         );
       }
 
-      variants.sort(_sortVariants);
+      variants.sort((left, right) {
+        final leftRank = variantRank[left.id];
+        final rightRank = variantRank[right.id];
+        if (leftRank != null && rightRank != null) {
+          return leftRank.compareTo(rightRank);
+        }
+        if (leftRank != null) return -1;
+        if (rightRank != null) return 1;
+        return _sortVariants(left, right);
+      });
 
       products.add(
         ProductItem(

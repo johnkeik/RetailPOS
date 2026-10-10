@@ -97,6 +97,22 @@ export class CategoriesService {
     await this.loadCategories();
   }
 
+  async deleteCategory(categoryId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteCategory')({ tenantId, categoryId });
+      await this.loadCategories();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής κατηγορίας.';
+      this.error.set(msg);
+      return false;
+    }
+  }
+
   private normalizeTimestamp(value: unknown): string {
     if (typeof value === 'string') {
       return value;

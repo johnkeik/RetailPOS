@@ -90,6 +90,30 @@ export class EmployeesService {
     await this.loadEmployees();
   }
 
+  async deleteEmployee(employeeId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteEmployee')({ tenantId, employeeId });
+      await this.loadEmployees();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής υπαλλήλου.';
+      this.error.set(msg);
+      return false;
+    }
+  }
+
+  async setManagerPin(pin: string): Promise<void> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) {
+      throw new Error('Δεν βρέθηκε πλαίσιο καταστήματος.');
+    }
+    await httpsCallable(this.functions, 'setManagerPin')({ tenantId, pin });
+  }
+
   private normalizeTimestamp(value: unknown): string {
     if (typeof value === 'string') {
       return value;

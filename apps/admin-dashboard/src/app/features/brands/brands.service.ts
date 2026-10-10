@@ -94,6 +94,22 @@ export class BrandsService {
     await this.loadBrands();
   }
 
+  async deleteBrand(brandId: string): Promise<boolean> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }
+    this.error.set(null);
+    try {
+      await httpsCallable(this.functions, 'deleteBrand')({ tenantId, brandId });
+      await this.loadBrands();
+      return true;
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : 'Αποτυχία διαγραφής μάρκας.';
+      this.error.set(msg);
+      return false;
+    }
+  }
+
   private normalizeTimestamp(value: unknown): string {
     if (typeof value === 'string') {
       return value;

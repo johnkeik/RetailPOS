@@ -90,7 +90,9 @@ th {
 }
 
 .actions-col {
-  min-width: 180px;
+  width: 120px;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .status-chip {

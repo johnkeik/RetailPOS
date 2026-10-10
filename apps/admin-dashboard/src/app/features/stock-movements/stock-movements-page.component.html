@@ -1,7 +1,18 @@
 <app-page-title
   title="Κινήσεις Αποθέματος"
-  subtitle="Αμετάβλητο ιστορικό κινήσεων για παραλαβές, πωλήσεις και προσαρμογές (Άρωμα, Εσάνς, Αναλώσιμα)."
+  subtitle="Αμετάβλητο ιστορικό κινήσεων για παραλαβές, πωλήσεις, διορθώσεις και απώλειες (Άρωμα, Εσάνς, Αναλώσιμα)."
 />
+
+<div class="page-actions">
+  <a class="new-link" routerLink="/stock-movements/new">+ Νέα κίνηση</a>
+</div>
+
+@if (justSaved()) {
+  <div class="saved-banner" role="status">
+    <span>Η κίνηση αποθέματος καταχωρήθηκε. Η νέα εγγραφή είναι στην κορυφή του ιστορικού.</span>
+    <button type="button" aria-label="Κλείσιμο μηνύματος" (click)="justSaved.set(false)">&times;</button>
+  </div>
+}
 
 <section class="panel">
   <div class="filters">
@@ -14,7 +25,7 @@
         [value]="searchQuery()"
         (input)="onSearch(search.value)"
         #search
-        placeholder="Κωδικός, όνομα προϊόντος, παραλλαγή"
+        placeholder="Κωδικός, προϊόν, παραλλαγή ή ID παραγγελίας"
       />
     </div>
 
@@ -36,7 +47,95 @@
     <div class="inline-error">{{ error() }}</div>
   }
 
-  @if (filteredRows().length > 0) {
+  <div class="history-toolbar">
+    <div class="view-toggle" role="group" aria-label="Τρόπος προβολής κινήσεων">
+      <button type="button" [class.active]="viewMode() === 'events'" (click)="viewMode.set('events')">
+        Συναλλαγές
+      </button>
+      <button type="button" [class.active]="viewMode() === 'movements'" (click)="viewMode.set('movements')">
+        Αναλυτικές κινήσεις
+      </button>
+    </div>
+    <span class="result-count">
+      {{ viewMode() === 'events' ? filteredEvents().length + ' συναλλαγές' : filteredRows().length + ' κινήσεις' }}
+    </span>
+  </div>
+
+  @if (viewMode() === 'events' && filteredEvents().length > 0) {
+    <div class="table-wrap">
+      <table class="event-table">
+        <thead>
+          <tr>
+            <th>Ημερομηνία</th>
+            <th>Συναλλαγή</th>
+            <th>Τύπος</th>
+            <th>Ανάλυση</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (event of filteredEvents(); track event.id) {
+            <tr>
+              <td>{{ event.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                @if (event.orderId) {
+                  <button
+                    class="event-toggle"
+                    type="button"
+                    [attr.aria-expanded]="expandedEventId() === event.id"
+                    [attr.aria-label]="(expandedEventId() === event.id ? 'Απόκρυψη' : 'Ανάλυση') + ' παραγγελίας ' + event.orderId"
+                    (click)="toggleEvent(event.id)"
+                  >
+                    <span class="event-summary">{{ event.summary }}</span>
+                    <span class="event-id">#{{ event.orderId.slice(0, 8) }}</span>
+                  </button>
+                } @else {
+                  <strong class="event-summary">{{ event.summary }}</strong>
+                }
+              </td>
+              <td><span class="status-chip" [class]="'status-chip type-' + event.type.toLowerCase()">{{ formatTypeLabel(event.type) }}</span></td>
+              <td>
+                @if (event.orderId) {
+                  <button class="detail-link" type="button" (click)="toggleEvent(event.id)">
+                    {{ expandedEventId() === event.id ? 'Απόκρυψη' : 'Προβολή' }} · {{ event.movementCount }} κινήσεις
+                  </button>
+                } @else {
+                  <span class="movement-reason">{{ event.rows[0].reason || '1 κίνηση' }}</span>
+                }
+              </td>
+            </tr>
+            @if (event.orderId && expandedEventId() === event.id) {
+              <tr class="event-details-row">
+                <td colspan="4">
+                  <section class="event-details" [attr.aria-label]="'Κινήσεις παραγγελίας ' + event.orderId">
+                    <div class="event-details-heading">
+                      <strong>Επιπτώσεις στο απόθεμα</strong>
+                      <span>{{ event.orderId }}</span>
+                    </div>
+                    <div class="movement-details">
+                      <div class="movement-details-header" aria-hidden="true">
+                        <span>Είδος / προϊόν</span>
+                        <span>Συστατικό</span>
+                        <span>Μεταβολή</span>
+                        <span>Αιτιολογία</span>
+                      </div>
+                      @for (row of event.rows; track row.id) {
+                        <div class="movement-detail-row">
+                          <strong>{{ row.productCode }} · {{ row.productName }}</strong>
+                          <span>{{ row.variantTemplateName }}</span>
+                          <strong [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</strong>
+                          <span>{{ row.reason || '—' }}</span>
+                        </div>
+                      }
+                    </div>
+                  </section>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (viewMode() === 'movements' && filteredRows().length > 0) {
     <div class="table-wrap">
       <table>
         <thead>
@@ -52,7 +151,7 @@
         <tbody>
           @for (row of filteredRows(); track row.id) {
             <tr>
-              <td>{{ row.createdAt }}</td>
+              <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ row.productCode }} - {{ row.productName }}</td>
               <td>{{ row.variantTemplateName }}</td>
               <td>
@@ -68,278 +167,8 @@
       </table>
     </div>
   } @else {
-    <div class="empty-state">Δεν βρέθηκαν κινήσεις αποθέματος για τα επιλεγμένα φίλτρα.</div>
+    <div class="empty-state">
+      {{ loading() ? 'Φόρτωση…' : 'Δεν βρέθηκαν κινήσεις αποθέματος για τα επιλεγμένα φίλτρα.' }}
+    </div>
   }
-</section>
-
-<section class="panel">
-  <header class="actions-header">
-    <h3>Ενέργειες Αποθέματος</h3>
-    <p>Καταχωρίστε παραλαβές ή διορθωτικές προσαρμογές ανά είδος (Άρωμα, Εσάνς, Αναλώσιμα, Συσκευασμένα).</p>
-  </header>
-
-  @if (actionError()) {
-    <div class="inline-error">{{ actionError() }}</div>
-  }
-
-  @if (actionSuccess()) {
-    <div class="inline-success">{{ actionSuccess() }}</div>
-  }
-
-  <div class="action-grid">
-    <article class="action-card">
-      <h4>Παραλαβή Αποθέματος (Αγορά)</h4>
-
-      <label class="field" for="receiveTarget">Είδος προς Παραλαβή</label>
-      <select
-        id="receiveTarget"
-        class="text-input"
-        [value]="receiveTargetType()"
-        (change)="receiveTargetType.set($any(receiveTarget.value))"
-        #receiveTarget
-      >
-        <option value="PERFUME">Άρωμα (Βάση σε Λίτρα)</option>
-        <option value="ESSENCE">Εσάνς (σε Λίτρα)</option>
-        <option value="CONSUMABLE">Αναλώσιμο (σε Τεμάχια)</option>
-        <option value="PACKAGED">Συσκευασμένο Προϊόν (σε Τεμάχια)</option>
-      </select>
-
-      @if (receiveTargetType() === 'PERFUME' || receiveTargetType() === 'ESSENCE') {
-        <label class="field" for="receiveProduct">Προϊόν Αρώματος</label>
-        <select
-          id="receiveProduct"
-          class="text-input"
-          [value]="receiveProductId()"
-          (change)="receiveProductId.set(receiveProduct.value)"
-          #receiveProduct
-        >
-          <option value="">Επιλέξτε προϊόν...</option>
-          @for (product of bulkProducts(); track product.id) {
-            <option [value]="product.id">{{ product.productCode }} – {{ product.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="receiveLiters">Ποσότητα σε Λίτρα (L)</label>
-        <input
-          id="receiveLiters"
-          class="text-input"
-          type="number"
-          min="0.001"
-          step="0.001"
-          [value]="receiveLiters()"
-          (input)="receiveLiters.set(receiveLitersInput.value)"
-          #receiveLitersInput
-          placeholder="π.χ. 0.5 για 500ml ή 5 για 5 λίτρα"
-        />
-        <small class="field-hint">Καταγράφεται στο σύστημα σε ml.</small>
-      } @else if (receiveTargetType() === 'CONSUMABLE') {
-        <label class="field" for="receiveConsumable">Αναλώσιμο</label>
-        <select
-          id="receiveConsumable"
-          class="text-input"
-          [value]="receiveConsumableId()"
-          (change)="receiveConsumableId.set(receiveConsumable.value)"
-          #receiveConsumable
-        >
-          <option value="">Επιλέξτε αναλώσιμο...</option>
-          @for (c of consumables(); track c.id) {
-            <option [value]="c.id">{{ c.name }} ({{ c.unit }})</option>
-          }
-        </select>
-
-        <label class="field" for="receiveUnits">Ποσότητα (Τεμάχια)</label>
-        <input
-          id="receiveUnits"
-          class="text-input"
-          type="number"
-          min="1"
-          step="1"
-          [value]="receiveUnits()"
-          (input)="receiveUnits.set(receiveUnitsInput.value)"
-          #receiveUnitsInput
-          placeholder="π.χ. 100"
-        />
-      } @else {
-        <label class="field" for="receivePackagedProduct">Συσκευασμένο Προϊόν</label>
-        <select
-          id="receivePackagedProduct"
-          class="text-input"
-          [value]="receiveProductId()"
-          (change)="receiveProductId.set(receivePackagedProduct.value)"
-          #receivePackagedProduct
-        >
-          <option value="">Επιλέξτε προϊόν...</option>
-          @for (product of packagedProducts(); track product.id) {
-            <option [value]="product.id">{{ product.productCode }} – {{ product.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="receiveTemplate">Παραλλαγή</label>
-        <select
-          id="receiveTemplate"
-          class="text-input"
-          [value]="receiveTemplateId()"
-          (change)="receiveTemplateId.set(receiveTemplate.value)"
-          #receiveTemplate
-        >
-          <option value="">Επιλέξτε παραλλαγή...</option>
-          @for (template of receiveTemplateOptions(); track template.id) {
-            <option [value]="template.id">{{ template.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="receiveUnits">Ποσότητα (Τεμάχια)</label>
-        <input
-          id="receiveUnits"
-          class="text-input"
-          type="number"
-          min="1"
-          step="1"
-          [value]="receiveUnits()"
-          (input)="receiveUnits.set(receiveUnitsInput.value)"
-          #receiveUnitsInput
-          placeholder="π.χ. 10"
-        />
-      }
-
-      <label class="field" for="receiveReason">Αιτιολογία (προαιρετικό)</label>
-      <input
-        id="receiveReason"
-        class="text-input"
-        type="text"
-        [value]="receiveReason()"
-        (input)="receiveReason.set(receiveReasonInput.value)"
-        #receiveReasonInput
-        placeholder="π.χ. Τιμολόγιο Αγοράς 123"
-      />
-
-      <button type="button" class="btn primary" (click)="submitReceiveStock()">Καταχώριση Παραλαβής</button>
-    </article>
-
-    <article class="action-card">
-      <h4>Προσαρμογή Αποθέματος (Διόρθωση)</h4>
-
-      <label class="field" for="adjustTarget">Είδος προς Προσαρμογή</label>
-      <select
-        id="adjustTarget"
-        class="text-input"
-        [value]="adjustTargetType()"
-        (change)="adjustTargetType.set($any(adjustTarget.value))"
-        #adjustTarget
-      >
-        <option value="PERFUME">Άρωμα (Βάση σε Λίτρα)</option>
-        <option value="ESSENCE">Εσάνς (σε Λίτρα)</option>
-        <option value="CONSUMABLE">Αναλώσιμο (σε Τεμάχια)</option>
-        <option value="PACKAGED">Συσκευασμένο Προϊόν (σε Τεμάχια)</option>
-      </select>
-
-      @if (adjustTargetType() === 'PERFUME' || adjustTargetType() === 'ESSENCE') {
-        <label class="field" for="adjustProduct">Προϊόν Αρώματος</label>
-        <select
-          id="adjustProduct"
-          class="text-input"
-          [value]="adjustProductId()"
-          (change)="adjustProductId.set(adjustProduct.value)"
-          #adjustProduct
-        >
-          <option value="">Επιλέξτε προϊόν...</option>
-          @for (product of bulkProducts(); track product.id) {
-            <option [value]="product.id">{{ product.productCode }} – {{ product.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="adjustLiters">Διαφορά σε Λίτρα (+/- L)</label>
-        <input
-          id="adjustLiters"
-          class="text-input"
-          type="number"
-          step="0.001"
-          [value]="adjustLitersDelta()"
-          (input)="adjustLitersDelta.set(adjustLitersInput.value)"
-          #adjustLitersInput
-          placeholder="π.χ. -0.2 για μείωση 200ml ή +1 για αύξηση"
-        />
-        <small class="field-hint">Χρησιμοποιήστε αρνητικό πρόσημο για μείωση.</small>
-      } @else if (adjustTargetType() === 'CONSUMABLE') {
-        <label class="field" for="adjustConsumable">Αναλώσιμο</label>
-        <select
-          id="adjustConsumable"
-          class="text-input"
-          [value]="adjustConsumableId()"
-          (change)="adjustConsumableId.set(adjustConsumable.value)"
-          #adjustConsumable
-        >
-          <option value="">Επιλέξτε αναλώσιμο...</option>
-          @for (c of consumables(); track c.id) {
-            <option [value]="c.id">{{ c.name }} ({{ c.unit }})</option>
-          }
-        </select>
-
-        <label class="field" for="adjustUnits">Διαφορά (+/- Τεμάχια)</label>
-        <input
-          id="adjustUnits"
-          class="text-input"
-          type="number"
-          step="1"
-          [value]="adjustUnitsDelta()"
-          (input)="adjustUnitsDelta.set(adjustUnitsInput.value)"
-          #adjustUnitsInput
-          placeholder="π.χ. -5 ή +10"
-        />
-      } @else {
-        <label class="field" for="adjustPackagedProduct">Συσκευασμένο Προϊόν</label>
-        <select
-          id="adjustPackagedProduct"
-          class="text-input"
-          [value]="adjustProductId()"
-          (change)="adjustProductId.set(adjustPackagedProduct.value)"
-          #adjustPackagedProduct
-        >
-          <option value="">Επιλέξτε προϊόν...</option>
-          @for (product of packagedProducts(); track product.id) {
-            <option [value]="product.id">{{ product.productCode }} – {{ product.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="adjustTemplate">Παραλλαγή</label>
-        <select
-          id="adjustTemplate"
-          class="text-input"
-          [value]="adjustTemplateId()"
-          (change)="adjustTemplateId.set(adjustTemplate.value)"
-          #adjustTemplate
-        >
-          <option value="">Επιλέξτε παραλλαγή...</option>
-          @for (template of adjustTemplateOptions(); track template.id) {
-            <option [value]="template.id">{{ template.name }}</option>
-          }
-        </select>
-
-        <label class="field" for="adjustUnits">Διαφορά (+/- Τεμάχια)</label>
-        <input
-          id="adjustUnits"
-          class="text-input"
-          type="number"
-          step="1"
-          [value]="adjustUnitsDelta()"
-          (input)="adjustUnitsDelta.set(adjustUnitsInput.value)"
-          #adjustUnitsInput
-          placeholder="π.χ. -1 ή +5"
-        />
-      }
-
-      <label class="field" for="adjustReason">Αιτιολογία (προαιρετικό)</label>
-      <input
-        id="adjustReason"
-        class="text-input"
-        type="text"
-        [value]="adjustReason()"
-        (input)="adjustReason.set(adjustReasonInput.value)"
-        #adjustReasonInput
-        placeholder="π.χ. Απογραφή, φθορά, σπάσιμο"
-      />
-
-      <button type="button" class="btn primary" (click)="submitAdjustStock()">Καταχώριση Προσαρμογής</button>
-    </article>
-  </div>
 </section>

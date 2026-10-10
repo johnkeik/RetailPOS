@@ -1,27 +1,176 @@
 <app-page-title
-  title="Dashboard"
-  subtitle="Operations overview for products, inventory, and sales."
+  title="Επισκόπηση"
+  subtitle="Πωλήσεις, αποθέματα και ενέργειες που χρειάζονται σήμερα."
 />
 
-<section class="dashboard-placeholder" aria-label="Dashboard placeholder">
-  <h3>Admin Dashboard Ready</h3>
-  <p>Next pages will be enabled one-by-one from the execution plan.</p>
+<div class="dashboard-toolbar">
+  <p>{{ currentDate }}</p>
+  <button type="button" class="refresh-button" (click)="refresh()" [disabled]="loading()">
+    <span aria-hidden="true">↻</span>
+    {{ loading() ? 'Ανανέωση…' : 'Ανανέωση' }}
+  </button>
+</div>
+
+@if (inventoryError()) {
+  <div class="inline-error">{{ inventoryError() }}</div>
+}
+@if (salesError()) {
+  <div class="inline-error">{{ salesError() }}</div>
+}
+
+<section class="metric-grid" aria-label="Σημερινά στοιχεία">
+  <article class="metric-card sales-metric">
+    <span class="metric-label">Πωλήσεις σήμερα</span>
+    <strong>{{ formatCurrency(todaySales()) }}</strong>
+    <span class="metric-note">Σύνολο ολοκληρωμένων παραγγελιών</span>
+  </article>
+  <article class="metric-card">
+    <span class="metric-label">Παραγγελίες σήμερα</span>
+    <strong>{{ todayOrders().length }}</strong>
+    <span class="metric-note">Ολοκληρωμένες συναλλαγές</span>
+  </article>
+  <article class="metric-card">
+    <span class="metric-label">Μέση απόδειξη</span>
+    <strong>{{ formatCurrency(averageOrder()) }}</strong>
+    <span class="metric-note">Μέσο ποσό ανά παραγγελία σήμερα</span>
+  </article>
+  <article class="metric-card stock-metric" [class.stock-alert]="stockSummary().needsAttention > 0">
+    <span class="metric-label">Αποθέματα για έλεγχο</span>
+    <strong>{{ stockSummary().needsAttention }}</strong>
+    <span class="metric-note">
+      {{ stockSummary().outOfStock }} εξαντλημένα · {{ stockSummary().lowStock }} χαμηλά
+    </span>
+  </article>
 </section>
 
-<section class="dashboard-seed" aria-label="Temporary emulator data seeding">
-  <h3>Temporary Emulator Seed</h3>
-  <p>Create 50 mock perfume products, brands, categories, and variant templates for local emulator testing.</p>
+<nav class="quick-actions" aria-label="Γρήγορες ενέργειες">
+  <a routerLink="/stock-movements/new"><span aria-hidden="true">＋</span> Παραλαβή αποθέματος</a>
+  <a routerLink="/products"><span aria-hidden="true">▦</span> Διαχείριση προϊόντων</a>
+  <a routerLink="/sales-history"><span aria-hidden="true">↗</span> Ιστορικό πωλήσεων</a>
+</nav>
+
+<div class="dashboard-columns">
+  <section class="dashboard-panel trend-panel">
+    <header class="section-heading">
+      <div>
+        <h3>Πωλήσεις 7 ημερών</h3>
+        <p>Ημερήσιος τζίρος</p>
+      </div>
+      <strong>{{ formatCurrency(todaySales()) }}</strong>
+    </header>
+
+    @if (salesLoading()) {
+      <div class="panel-state">Φόρτωση πωλήσεων…</div>
+    } @else if (orders().length === 0) {
+      <div class="panel-state">Δεν υπάρχουν καταχωρημένες πωλήσεις.</div>
+    } @else {
+      <div class="sales-chart" role="img" aria-label="Τζίρος ανά ημέρα τις τελευταίες 7 ημέρες">
+        @for (day of weeklySales(); track day.label; let index = $index) {
+          <div class="chart-day" [attr.aria-label]="day.label + ': ' + formatCurrency(day.amount)">
+            <span class="chart-value">{{ day.amount ? formatCurrency(day.amount) : '—' }}</span>
+            <div class="chart-track">
+              <div class="chart-bar" [class.today-bar]="index === 6" [style.height.%]="day.barPercent"></div>
+            </div>
+            <span class="chart-label">{{ day.label }}</span>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="dashboard-panel stock-panel">
+    <header class="section-heading">
+      <div>
+        <h3>Αποθέματα προς έλεγχο</h3>
+        <p>Όριο: 5 λίτρα ή 5 τεμάχια</p>
+      </div>
+      <a routerLink="/inventory">Όλο το απόθεμα</a>
+    </header>
+
+    @if (inventoryLoading()) {
+      <div class="panel-state">Φόρτωση αποθέματος…</div>
+    } @else if (attentionRows().length === 0) {
+      <div class="panel-state stock-clear">
+        <span aria-hidden="true">✓</span>
+        Δεν υπάρχουν αποθέματα κάτω από το όριο.
+      </div>
+    } @else {
+      <ul class="stock-list">
+        @for (row of attentionRows(); track row.id) {
+          <li [class.out-of-stock]="row.quantity <= 0">
+            <div class="stock-item-name">
+              <strong>{{ row.productName }}</strong>
+              <span>{{ row.productCode }} · {{ row.variantTemplateName }}</span>
+            </div>
+            <div class="stock-item-value">
+              <strong>{{ row.displayQty }}</strong>
+              <span>{{ row.quantity <= 0 ? 'Εξαντλημένο' : 'Χαμηλό' }}</span>
+            </div>
+          </li>
+        }
+      </ul>
+      @if (stockSummary().needsAttention > attentionRows().length) {
+        <a class="more-link" routerLink="/inventory">+{{ stockSummary().needsAttention - attentionRows().length }} ακόμη προς έλεγχο</a>
+      }
+    }
+  </section>
+</div>
+
+<section class="dashboard-panel recent-panel">
+  <header class="section-heading">
+    <div>
+      <h3>Πρόσφατες παραγγελίες</h3>
+      <p>Οι τελευταίες καταχωρημένες πωλήσεις</p>
+    </div>
+    <a routerLink="/sales-history">Όλο το ιστορικό</a>
+  </header>
+
+  @if (salesLoading()) {
+    <div class="panel-state">Φόρτωση παραγγελιών…</div>
+  } @else if (recentOrders().length === 0) {
+    <div class="panel-state">Δεν υπάρχουν πρόσφατες παραγγελίες.</div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ώρα</th>
+            <th>Παραγγελία</th>
+            <th>Υπάλληλος</th>
+            <th>Είδη</th>
+            <th>Σύνολο</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of recentOrders(); track order.id) {
+            <tr>
+              <td>{{ formatOrderDate(order.createdAt) }}</td>
+              <td><a class="order-link" routerLink="/sales-history">{{ order.id.slice(0, 8) }}</a></td>
+              <td>{{ order.employeeName }}</td>
+              <td>{{ order.itemCount }}</td>
+              <td class="order-total">{{ formatCurrency(order.total) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+<details class="dashboard-seed">
+  <summary>Προσωρινά δεδομένα δοκιμής (emulator)</summary>
+  <p>Δημιουργία δοκιμαστικού καταλόγου, αποθέματος και πωλήσεων για τοπικές δοκιμές.</p>
 
   <button type="button" class="seed-button" (click)="seedMockCatalog()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Creating mock catalog...' : 'Create Mock Catalog' }}
+    {{ seedLoading() ? 'Δημιουργία καταλόγου…' : 'Δημιουργία δοκιμαστικού καταλόγου' }}
   </button>
 
   <button type="button" class="seed-button secondary" (click)="seedMockInventory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Seeding inventory...' : 'Seed Mock Inventory' }}
+    {{ seedLoading() ? 'Καταχώρηση αποθέματος…' : 'Δοκιμαστικό απόθεμα' }}
   </button>
 
   <button type="button" class="seed-button secondary" (click)="seedMockSalesHistory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Seeding sales...' : 'Seed Sales History (40 orders)' }}
+    {{ seedLoading() ? 'Καταχώρηση πωλήσεων…' : 'Δοκιμαστικές πωλήσεις (40)' }}
   </button>
 
   @if (seedStatus()) {
@@ -31,4 +180,4 @@
   @if (seedError()) {
     <p class="seed-error">{{ seedError() }}</p>
   }
-</section>
+</details>

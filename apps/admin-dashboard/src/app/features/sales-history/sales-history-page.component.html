@@ -41,13 +41,67 @@
         <tbody>
           @for (row of filteredRows(); track row.id) {
             <tr>
-              <td>{{ row.createdAt }}</td>
-              <td>{{ row.id }}</td>
-              <td>{{ row.employeeId }}</td>
+              <td class="date-cell">{{ formatDate(row.createdAt) }}</td>
+              <td>
+                <button
+                  class="details-toggle"
+                  type="button"
+                  [attr.aria-expanded]="expandedOrderId() === row.id"
+                  [attr.aria-label]="(expandedOrderId() === row.id ? 'Απόκρυψη' : 'Προβολή') + ' παραγγελίας ' + row.id"
+                  (click)="toggleDetails(row.id)"
+                >
+                  <span class="order-id">{{ row.id.slice(0, 8) }}</span>
+                  <span class="details-toggle-label">{{ expandedOrderId() === row.id ? 'Απόκρυψη' : 'Αναλυτικά' }}</span>
+                </button>
+              </td>
+              <td>{{ row.employeeName }}</td>
               <td>{{ row.itemCount }}</td>
-              <td>{{ row.total }}</td>
-              <td>{{ row.status === 'COMPLETED' ? 'ΟΛΟΚΛΗΡΩΜΕΝΗ' : row.status === 'CANCELLED' ? 'ΑΚΥΡΩΜΕΝΗ' : row.status }}</td>
+              <td class="total-cell">{{ formatCurrency(row.total) }}</td>
+              <td>
+                <span class="status-badge" [class.status-cancelled]="row.status === 'CANCELLED'">
+                  {{ row.status === 'COMPLETED' ? 'ΟΛΟΚΛΗΡΩΜΕΝΗ' : 'ΑΚΥΡΩΜΕΝΗ' }}
+                </span>
+              </td>
             </tr>
+            @if (expandedOrderId() === row.id) {
+              <tr class="details-row">
+                <td colspan="6">
+                  <section class="order-details" [attr.aria-label]="'Λεπτομέρειες παραγγελίας ' + row.id">
+                    <div class="details-heading">
+                      <h3>Είδη παραγγελίας</h3>
+                      <span>{{ row.items.length }} {{ row.items.length === 1 ? 'γραμμή' : 'γραμμές' }}</span>
+                    </div>
+                    @if (row.items.length > 0) {
+                      <div class="order-items">
+                        <div class="order-items-header" aria-hidden="true">
+                          <span>Προϊόν</span>
+                          <span>Παραλλαγή</span>
+                          <span>Ποσότητα</span>
+                          <span>Τιμή μονάδας</span>
+                          <span>Σύνολο</span>
+                        </div>
+                        @for (orderItem of row.items; track $index) {
+                          <div class="order-item">
+                            <strong class="order-item-product">{{ orderItem.productName }}</strong>
+                            <span class="order-item-variant">
+                              {{ orderItem.variantName }}
+                              @if (orderItem.useSpecialBottle) {
+                                <small>Ειδικό μπουκάλι</small>
+                              }
+                            </span>
+                            <span class="order-item-value"><small>Ποσότητα</small>{{ orderItem.quantity }}</span>
+                            <span class="order-item-value"><small>Τιμή μονάδας</small>{{ formatCurrency(orderItem.unitPrice) }}</span>
+                            <strong class="order-item-total"><small>Σύνολο</small>{{ formatCurrency(orderItem.lineTotal) }}</strong>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <p class="empty-details">Δεν υπάρχουν διαθέσιμες γραμμές για αυτή την παραγγελία.</p>
+                    }
+                  </section>
+                </td>
+              </tr>
+            }
           }
         </tbody>
       </table>

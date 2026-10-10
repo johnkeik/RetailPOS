@@ -18,4 +18,13 @@ class MockPosOrderRepository implements PosOrderRepository {
       {required String tenantId, int limit = 50}) async {
     return const [];
   }
+
+  @override
+  Future<void> cancelOrder({
+    required String tenantId,
+    required String employeeId,
+    required String orderId,
+    required String managerPin,
+    required String reason,
+  }) async {}
 }

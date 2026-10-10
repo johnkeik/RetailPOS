@@ -1,6 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
 import {
-  addDoc,
   collection,
   getDocs,
   orderBy,
@@ -36,6 +35,13 @@ export type ProductRow = Product & {
 
 export type VariantTemplateOption = VariantTemplate & {
   id: string;
+};
+
+export type BulkVariantAssignmentResult = {
+  assignedCount: number;
+  alreadyAssignedCount: number;
+  incompatibleCount: number;
+  missingCount: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -144,9 +150,8 @@ export class ProductsService {
           productType: (data.productType as ProductType) ?? 'PERFUME',
           packagingCategory: (data.packagingCategory as PackagingCategory) ?? 'PACKAGED',
           gender: data.gender as ProductGender | undefined,
-          perfumeBaseCode: data.perfumeBaseCode,
-          essenceCode: data.essenceCode,
           variantAssignments: (data.variantAssignments as Record<string, ProductVariantAssignment>) ?? {},
+          variantOrder: data.variantOrder ?? [],
           active: data.active ?? true,
           createdAt: this.normalizeTimestamp(data.createdAt),
           updatedAt: this.normalizeTimestamp(data.updatedAt),
@@ -174,10 +179,9 @@ export class ProductsService {
     categoryId: string;
     productType: ProductType;
     packagingCategory: PackagingCategory;
-    perfumeBaseCode?: string;
-    essenceCode?: string;
     gender?: ProductGender;
     variantAssignments: Record<string, ProductVariantAssignment>;
+    variantOrder: string[];
     active: boolean;
   }): Promise<void> {
     const tenantId = this.tenantContext.tenantId();
@@ -201,10 +205,9 @@ export class ProductsService {
       categoryId: string;
       productType: ProductType;
       packagingCategory: PackagingCategory;
-      perfumeBaseCode?: string;
-      essenceCode?: string;
       gender?: ProductGender;
       variantAssignments: Record<string, ProductVariantAssignment>;
+      variantOrder: string[];
       active: boolean;
     }
   ): Promise<void> {
@@ -217,6 +220,32 @@ export class ProductsService {
     } catch (err) {
       console.error(err);
       this.error.set('Αποτυχία ενημέρωσης προϊόντος.');
+    }
+  }
+
+  async assignVariantToProducts(
+    productIds: string[],
+    variantTemplateId: string
+  ): Promise<BulkVariantAssignmentResult | null> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) {
+      this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.');
+      return null;
+    }
+
+    this.error.set(null);
+    try {
+      const response = await httpsCallable(this.functions, 'assignVariantToProducts')({
+        tenantId,
+        productIds,
+        variantTemplateId
+      });
+      await this.loadAll();
+      return response.data as BulkVariantAssignmentResult;
+    } catch (err) {
+      console.error(err);
+      this.error.set('Αποτυχία μαζικής ανάθεσης παραλλαγής.');
+      return null;
     }
   }
 
@@ -289,7 +318,17 @@ export class ProductsService {
       }
     ];
 
-    await Promise.all(defaults.map((item) => addDoc(templatesRef, item)));
+    await Promise.all(defaults.map((item) => httpsCallable(this.functions, 'createVariantTemplate')({
+      tenantId,
+      name: item.name,
+      code: item.code,
+      size: item.size,
+      unit: item.unit,
+      packagingType: item.packagingType,
+      costPrice: item.costPrice,
+      sellingPrice: item.sellingPrice,
+      active: item.active
+    })));
     await this.loadAll();
   }
 

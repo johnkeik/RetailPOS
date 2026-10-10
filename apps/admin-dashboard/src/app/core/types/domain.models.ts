@@ -11,7 +11,7 @@ export type StockMovementType =
   | 'ADJUSTMENT'
   | 'RETURN'
   | 'LOSS';
-export type OrderStatus = 'COMPLETED';
+export type OrderStatus = 'COMPLETED' | 'CANCELLED';
 
 // Firestore: tenants/{tenantId}
 export type Tenant = {
@@ -84,10 +84,9 @@ export type Product = {
   categoryId: string;
   productType: ProductType;
   packagingCategory: PackagingCategory;
-  perfumeBaseCode?: string;
-  essenceCode?: string;
   // templateId → per-product pricing
   variantAssignments?: Record<string, ProductVariantAssignment>;
+  variantOrder?: string[];
   isPremium?: boolean;
   active: boolean;
   createdAt: FirestoreTimestampLike;
@@ -164,10 +163,12 @@ export type StockMovement = {
 
 export type OrderItem = {
   variantId: string;
+  variantTemplateId?: string;
   productId: string;
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  useSpecialBottle?: boolean;
 };
 
 // Firestore: tenants/{tenantId}/orders/{orderId}

@@ -51,12 +51,12 @@
                   </span>
                 </td>
                 <td class="actions-col">
-                  <button type="button" class="btn ghost" (click)="startEdit(category)">
-                    {{ isEditing(category) ? 'Επεξεργασία' : 'Επεξεργασία' }}
-                  </button>
-                  <button type="button" class="btn ghost" (click)="toggleActive(category)">
-                    {{ category.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
-                  </button>
+                  <app-entity-actions
+                    [active]="category.active"
+                    (edit)="startEdit(category)"
+                    (toggleActive)="toggleActive(category)"
+                    (delete)="deleteCategory(category)"
+                  />
                 </td>
               </tr>
             }

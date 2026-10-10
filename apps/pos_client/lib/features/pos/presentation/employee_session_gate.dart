@@ -122,22 +122,26 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
       if (snapshot.docs.isEmpty) {
         setState(() {
           _checking = false;
-          _error = 'Ο κωδικος δεν βρεθηκε ή ο υπαλληλος ειναι ανενεργος.';
+          _error = 'Ο κωδικός δεν βρέθηκε ή ο υπάλληλος είναι ανενεργός.';
         });
         return;
       }
 
-      final doc = snapshot.docs.first;
-      final name = (doc.data()['name'] as String? ?? '').trim();
-      widget.onSuccess(_EmployeeIdentity(id: doc.id, name: name.isEmpty ? employeeCode : name));
+      final employee = snapshot.docs.first;
+      final name = (employee.data()['name'] as String? ?? '').trim();
+      widget.onSuccess(_EmployeeIdentity(
+        id: employee.id,
+        name: name.isEmpty ? employeeCode : name,
+      ));
     } catch (error) {
       if (!mounted) {
         return;
       }
 
+      debugPrint('POS employee validation failed: ${error.runtimeType}');
       setState(() {
         _checking = false;
-        _error = 'Αποτυχια ελεγχου κωδικου. Δοκιμαστε ξανα.';
+        _error = 'Αποτυχία ελέγχου κωδικού υπαλλήλου. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.';
       });
     }
   }
@@ -184,13 +188,21 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                         enabled: !_checking,
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Κωδικος υπαλληλου',
-                          errorText: _error,
-                          border: const OutlineInputBorder(),
+                          border: OutlineInputBorder(),
                         ),
                         onSubmitted: (_) => _submit(),
                       ),
+                      if (_error != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _error!,
+                          maxLines: 4,
+                          overflow: TextOverflow.visible,
+                          style: TextStyle(color: colors.error),
+                        ),
+                      ],
                       const SizedBox(height: 20),
                       SizedBox(
                         height: 58,

@@ -42,7 +42,7 @@ export class AdminShellComponent implements OnInit {
   }
 
   protected async signOut(): Promise<void> {
-    this.authService.signOut();
+    await this.authService.signOut();
     await this.router.navigate(['/login']);
   }
 }
