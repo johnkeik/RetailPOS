@@ -84,6 +84,7 @@ export type Product = {
   categoryId: string;
   productType: ProductType;
   packagingCategory: PackagingCategory;
+  ingredients?: string;
   // templateId → per-product pricing
   variantAssignments?: Record<string, ProductVariantAssignment>;
   variantOrder?: string[];

@@ -58,6 +58,7 @@ type MockProductSeed = {
   categoryCode: string;
   gender: ProductGender;
   packagingCategory: PackagingCategory;
+  ingredients?: string;
   variantAssignments: MockVariantAssignmentSeed[];
 };
 

@@ -4,6 +4,7 @@ import { MockProductSeed } from "./mock-catalog.data";
 export const unisexCatalog: MockProductSeed[] = [
   {
     productCode: '419',
+    ingredients: 'ΝΕΡΆΤΖΙ, ΛΕΒΆΝΤΑ, ΜΈΝΤΑ, ΦΑΣΚΌΜΗΛΟ, ΦΥΤΙΚΌΣ ΜΌΣΧΟΣ, ΑΜΠΡΑΞΆΝ',
     name: 'LUNA ROSSA',
     brandCode: 'PRADA',
     categoryCode: 'UNX',
@@ -13,6 +14,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '420',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΑΓΓΕΛΙΚΗ, ΠΑΤΣΟΥΛΙ, ΚΕΧΡΙΜΠΑΡΙ, ΚΟΥΜΑΡΙΝΙ, ΜΟΣΧΟΣ',
     name: 'LUNA ROSSA BLACK',
     brandCode: 'PRADA',
     categoryCode: 'UNX',
@@ -22,6 +24,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '421',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΠΙΠΕΡΙ, ΛΕΒΑΝΤΑ, ΒΑΜΜΑ ΤΟΥ ΕΔΑΦΟΥΣ, ΥΔΑΤΙΝΕΣ ΝΟΤΕΣ, ΝΟΤΕΣ ΜΕΤΑΛΛΩΝ, ΚΑΡΒΟΥΝΟ, ΠΑΤΣΟΥΛΙ, ΑΜΠΡΟΞΑΝ',
     name: 'LUNA ROSSA CARBON',
     brandCode: 'PRADA',
     categoryCode: 'UNX',
@@ -31,6 +34,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '422',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΛΕΒΑΝΤΑ ΚΑΣΤΟΡΙ ΣΟΥΕΤ, ΣΑΦΡΑΝ, ΜΟΣΧΟΣ, ΒΕΤΙΒΕΡ ΠΑΤΣΟΥΛΙ, ΚΑΡΑΜΕΛΑ',
     name: 'OCEAN',
     brandCode: 'PRADA',
     categoryCode: 'UNX',
@@ -40,6 +44,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '426',
+    ingredients: 'ΚΟΛΙΑΝΔΡΟΣ, ΕΣΤΡΑΓΚΟΝ, ΜΠΑΜΠΟΥ, ΠΙΠΈΡΙ ΛΕΥΚΌ, ΛΕΒΆΝΤΑ, ΓΕΡΆΝΙ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ',
     name: 'BLACK',
     brandCode: 'RC',
     categoryCode: 'UNX',
@@ -49,6 +54,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '446',
+    ingredients: 'ΚΟΝΙΑΚ, ΡΟΥΜΙ, ΓΙΑΣΕΜΙ, ΒΑΝΙΛΙΑ, ΡΟΔΑΚΙΝΟ, ΣΑΓΚΟΥΙΝΙ, ΣΑΝΔΑΛΟΞΥΛΟ, ΛΑΒΔΑΝΟ',
     name: 'BITTER PEACH',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -58,6 +64,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '447',
+    ingredients: 'ΓΙΑΣΕΜΙ, ΓΑΡΔΕΝΙΑ, ΠΕΡΓΑΜΟΝΤΟ, ΑΜΑΛΦΙ, ΛΕΜΟΝΙ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΚΑΡΙΚΕΥΜΑΤΑ ΤΡΟΥΦΑ, ΝΟΤΕΣ ΦΡΟΥΤΩΝ, ΛΩΤΟΣ, ΟΡΧΙΔΕΑ ΓΙΑΣΕΜΙ, ΣΑΝΔΑΛΟΞΥΛΟ, ΠΑΤΣΟΥΛΙ, ΚΕΧΡΙΜΠΑΡΙ ΘΥΜΙΑΜΑ ΒΑΝΙΛΙΑ, ΜΕΞΙΚΑΝΙΚΗ ΣΟΚΟΛΑΤΑ',
     name: 'BLACK ORCHID',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -67,6 +74,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '448',
+    ingredients: 'ΒΥΣΣΙΝΟ, ΚΕΡΑΣΙ, ΔΕΡΜΑ, ΒΕΡΙΚΟΚΟ, ΚΑΠΝΟΣ, ΝΟΤΕΣ ΞΥΛΟΥ',
     name: 'CHERRY SMOKE',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -76,6 +84,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '449',
+    ingredients: 'ΛΕΜΟΝΙ, ΞΥΛΟ, ΚΑΡΔΑΜΟ, ΜΑΝΤΑΡΙΝΙ, ΛΕΒΑΝΤΑ, ΒΈΤΙΒΕΡ',
     name: 'COSTA AZZURRA',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -85,6 +94,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '450',
+    ingredients: 'ΦΑΣΚΟΜΗΛΟ ΛΕΒΑΝΤΑ ΠΙΚΡΑΜΥΓΔΑΛΟ, ΔΕΡΜΑ ΒΑΝΙΛΙΑ ΡΙΖΩΜΑ ΙΡΙΣ, ΣΠΟΡΟΣ ΤΟΝΚΑ ΔΕΡΜΑ ΚΑΣΜΗΡΙ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΑ ΞΥΛΑ',
     name: 'FUCKING FABULOUS',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -94,6 +104,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '451',
+    ingredients: 'ΠΕΤΡΟΚΕΡΑΣΟ, ΛΙΚΕΡ, ΠΙΚΡΑΜΥΓΔΑΛΟ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΤΟΥΡΚΙΑΣ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ, ΔΑΜΑΣΚΗΝΟ, ΒΑΛΣΑΜΟ ΑΠΟ ΤΟ ΠΕΡΟΥ, ΣΠΟΡΟΣ ΤΟΝΚΑ, ΣΑΝΔΑΛΟΞΥΛΟ, ΒΕΤΙΒΕΡ, ΚΕΔΡΟΣ, ΒΕΝΖΟΗ, ΚΑΝΕΛΛΑ ΓΑΡΥΦΑΛΛΟ, ΠΑΤΣΟΥΛΙ ΒΑΝΙΛΙΑ',
     name: 'LOST CHERRY',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -103,6 +114,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '452',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΜΑΝΤΑΡΊΝΙ, ΚΙΤΡΟ, ΜΕΝΤΑ, ΒΑΣΙΛΙΚΟΣ, ΚΟΛΙΑΝΔΡΟΣ, ΠΙΠΕΡΙ, ΜΌΣΧΟΣ, ΓΚΡΕΙΦΡΟΥΤ',
     name: 'MANDARINO DI AMALFI',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -112,6 +124,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '454',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΛΕΒΆΝΤΑ, ΜΎΡΤΙΛΟ, ΔΕΝΤΡΟΛΊΒΑΝΟ, ΝΕΡΆΤΖΙ, ΑΝΘΌΣ ΠΟΡΤΟΚΑΛΙΟΎ, ΓΙΑΣΕΜΊ, ΝΕΡΌΛΙ, ΚΕΧΡΙΜΠΆΡΙ, ΑΓΓΕΛΙΚΉ',
     name: 'NEROLI PORTOFINO',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -121,6 +134,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '455',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΒΕΡΒΈΝΑ, ΚΎΜΙΝΟ, ΡΟΖ ΠΙΠΈΡΙ, ΒΙΟΛΈΤΑ, ΠΙΠΈΡΙ ΜΑΥΡΟ, ΜΟΣΧΟΚΆΡΥΔΟ, ΓΕΡΆΝΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΒΟΥΛΓΑΡΊΑΣ, ΒΕΤΙΒΈΡ, ΦΑΣΚΌΜΗΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ',
     name: 'NOIR',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -130,6 +144,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '456',
+    ingredients: 'ΚΑΡΔΑΜΟ, ΓΙΑΣΕΜΙ, ΣΑΜΠΑΚ, ΔΕΡΜΑ, ΠΑΤΣΟΥΛΙ, ΚΕΧΡΙΜΠΑΡΙ, ΒΡΥΑ',
     name: 'OMBRE LEATHER',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -139,6 +154,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '457',
+    ingredients: 'ΣΑΝΔΑΛΟΞΥΛΟ, ΚΑΡΔΑΜΟ, ΠΙΠΕΡΙ, ΒΕΤΙΒΕΡ',
     name: 'OUD WOOD',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -148,6 +164,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '459',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΚΆΡΔΑΜΟ, ΡΌΖ ΠΙΠΈΡΙ, ΦΥΣΤΊΚΙ ΑΙΓΊΝΗΣ, ΓΙΑΣΕΜΊ, ΤΟΥΜΠΕΡΌΖΑ, ΥΛΆΓΚ ΥΛΑΓΚ, ΚΕΧΡΙΜΠΆΡΙ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΒΕΝΖΌΗ, ΚΑΡΎΔΑ',
     name: 'SOLEIL BLANC',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -157,6 +174,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '460',
+    ingredients: 'ΦΎΛΛΟ ΤΑΜΠΆΚΟ, ΝΌΤΕΣ ΜΠΑΧΑΡΙΚΏΝ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΆΝΘΗ ΤΑΜΠΆΚΟΥ, ΒΑΝΊΛΙΑ, ΚΑΚΆΟ, ΑΠΟΞΗΡΑΜΈΝΑ ΦΡΟΎΤΑ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'TOBACCO VANILLE',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -166,6 +184,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '462',
+    ingredients: 'ΠΙΚΡΑΜΥΓΔΑΛΟ, ΒΑΝΙΛΙΑ, ΤΟΝΚΑ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'VANILLA SEX EDP',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -175,6 +194,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '440',
+    ingredients: 'ΚΌΛΙΑΝΔΡΟΣ, ΛΕΒΆΝΤΑ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΠΙΚΆΝΤΙΚΕΣ ΚΑΙ ΦΡΟΥΤΕΝΙΕΣ ΝΌΤΕΣ, ΜΈΝΤΑ, ΠΕΡΓΑΜΌΝΤΟ, ΠΑΤΣΟΥΛΊ, ΓΙΑΣΕΜΙ, ΚΑΡΑΜΈΛΑ, ΚΈΔΡΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΠΑΤΣΟΥΛΙ, ΒΑΝΊΛΙΑ, ΚΑΦΕΣ ΜΌΣΧΟΣ',
     name: 'ANGEL',
     brandCode: 'MUG',
     categoryCode: 'UNX',
@@ -184,6 +204,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '463',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΚΌΛΙΑΝΔΡΟΣ, ΠΑΙΏΝΙΑ, ΛΕΥΚΆ ΆΝΘΗ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΙΑΣΕΜΊ, ΜΟΛΌΧΑ, ΠΑΤΣΟΥΛΙ, ΘΥΜΊΑΜΑ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'WHITE PATCHOULI',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -193,6 +214,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '467',
+    ingredients: 'ALCOHOL.ΠΕΡΓΑΜΟΝΤΟ, ΠΡΑΣΙΝΟ ΜΑΝΤΑΡΙΝΙ, ΛΕΒΑΝΤΑ, ΒΙΟΛΕΤΑ, ΚΑΛΟΝΗ, ΔΕΡΜΑ, ΒΕΤΙΒΕΡ, ΣΠΟΡΟΣ ΤΟΝΚΑ, ΞΥΛΟ, ΚΑΣΜΙΡΙ',
     name: 'MY LAND',
     brandCode: 'TRU',
     categoryCode: 'UNX',
@@ -202,6 +224,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '469',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΜΎΡΤΙΛΟ, ΚΌΚΚΟΙ ΨΗΜΕΝΟΥ ΚΑΦΈ, ΣΟΚΟΛΆΤΑ, ΦΟΥΝΤΟΎΚΙ, ΔΈΡΜΑ, ΚΈΔΡΟΣ',
     name: 'UOMO',
     brandCode: 'VALENTINO',
     categoryCode: 'UNX',
@@ -211,6 +234,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '474',
+    ingredients: 'ΜΈΝΤΑ, ΠΡΆΣΙΝΟ ΜΗΛΟ, ΛΕΜΌΝΙ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΓΕΡΆΝΙ, ΑΜΠΡΟΞΆΝ, ΒΑΝΊΛΙΑ ΜΑΓΑΔΑΣΚΆΡΗΣ, ΒΕΤΙΒΈΡ, ΒΡΎΑ ΔΡΥΌΣ, ΚΈΔΡΟΣ',
     name: 'EROS',
     brandCode: 'VERSACE',
     categoryCode: 'UNX',
@@ -220,6 +244,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '491',
+    ingredients: 'ALCOHOL, ΕΥΚΆΛΥΠΤΟΣ, ΘΥΜΊΑΜΑ, ΚΈΔΡΟΣ ΚΊΝΑΣ, ΦΑΣΚΌΜΗΛΟ, ΒΕΝΖΌΗ',
     name: 'BODY KOUROS',
     brandCode: 'YSL',
     categoryCode: 'UNX',
@@ -229,6 +254,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '501',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΑΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΥ, ΠΑΤΣΟΥΛΙ, AMBROFIX',
     name: 'MY SELF',
     brandCode: 'YSL',
     categoryCode: 'UNX',
@@ -238,6 +264,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '504',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΑΛΔΕΥΔΕΣ, ΤΖΊΝΤΖΕΡ, ΛΕΜΌΝΙ, ΜΈΝΤΑ, ΦΎΛΛΟ ΒΙΟΛΈΤΑΣ, ΓΕΡΆΝΙ, ΜΉΛΟ, ΑΝΑΝΆΣ, ΦΑΣΚΌΜΗΛΟ, ΜΌΣΧΟΣ, ΘΥΜΊΑΜΑ, ΡΗΤΊΝΗ ΕΛΆΤΗΣ, ΚΈΔΡΟΣ, ΒΈΤΙΒΕΡ',
     name: 'Y',
     brandCode: 'YSL',
     categoryCode: 'UNX',
@@ -247,6 +274,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '506',
+    ingredients: 'ΓΡΕΙΠΦΡΟΥΤ ΠΙΠΕΡΙ, ΜΑΥΡΟ ΘΥΜΙΑΜΑ, ΒΑΝΙΛΙΑ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'THIS IS HIM',
     brandCode: 'ZAD',
     categoryCode: 'UNX',
@@ -256,6 +284,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '514',
+    ingredients: 'ΥΒΙΣΚΟΣ, ΔΑΜΑΣΚΗΝΟ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΔΕΡΜΑ, ΚΑΝΕΛΑ, ΒΑΝΙΛΙΑ, ΜΟΛΟΧΑ, ΜΕΝΤΑ',
     name: 'HIBISCUS MAHAJAD',
     brandCode: 'MAISON CRIVELLI',
     categoryCode: 'UNX',
@@ -265,6 +294,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '532',
+    ingredients: 'ΜΑΝΤΑΡΙΝΙ, ΠΙΠΕΡΙ, ΜΑΔΑΓΑΣΚΑΡΗΣ, ΛΕΜΟΝΙ, ΤΣΙΝΟΤΟ, ΔΕΝΤΡΟΛΙΒΑΝΟ, ΓΕΡΑΝΙ, ΤΡΙΑΝΤΑΦΥΛΛΟ, PEPPERWOOD, BANΙΛΙΑ, ΤΟΝΚΑΑ, ΣΑΝΔΑΛΟΞΥΛΟ, ΚΕΔΡΟ ΤΟΥ ΤΕΞΑΣ, ΠΑΤΣΟΥΛΙ, ΒΡΥΑ ΔΡΥΟΣ',
     name: 'EROS FLAME',
     brandCode: 'VERSACE',
     categoryCode: 'UNX',
@@ -274,6 +304,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '533',
+    ingredients: 'ΦΥΛΛΑ ΒΙΟΛΕΤΑΣ, ΒΕΤΙΒΕΡΙΑ, ΘΑΛΑΣΣΙΝΟ ΑΛΑΤΙ, ΦΑΣΚΟΜΗΛΟ, ΞΥΛΟ, ΤΖΙΝΖΕΡ',
     name: 'BORN IN ROMA',
     brandCode: 'VALENTINO',
     categoryCode: 'UNX',
@@ -283,6 +314,7 @@ export const unisexCatalog: MockProductSeed[] = [
   },
   {
     productCode: '534',
+    ingredients: 'ΚΑΡΔΑΜΟ, ΜΟΣΧΟΚΑΡΥΔΟ, ΝΕΡΑΤΖΙΑ, ΣΑΦΡΑΝ, ΓΙΑΣΕΜΙ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ, KULFI, ΣΧΙΝΑ, ΚΕΧΡΙΜΠΑΡΙ, ΣΑΝΔΑΛΟΞΥΛΟ, ΒΑΝΙΛΙΑ, ΞΥΛΙΝΕΣ ΝΟΤΕΣ',
     name: 'NOIR EXTREME',
     brandCode: 'TOM FORD',
     categoryCode: 'UNX',
@@ -296,6 +328,7 @@ export const unisexCatalog: MockProductSeed[] = [
 export const arabicCatalog: MockProductSeed[] = [
   {
     productCode: '515',
+    ingredients: 'ΣΜΥΡΝΑ, ΜΥΡΟ, ΒΑΝΙΛΙΑ, ΣΑΝΔΑΛΟΞΥΛΟ, ΔΕΡΜΑ, ΑΨΕΝΤΙ, ΓΙΑΣΕΜΙ',
     name: 'MISRIME',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -305,6 +338,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '516',
+    ingredients: 'ΜΕΛΑΝΙ, ΒΥΝΙΛΙΟ, ΜΑΥΡΟ ΠΙΠΕΡΙ, ΡΟΥΜΙ, ΛΙΒΑΝΙ, ΠΑΙΩΝΙΑ, ΕΛΕΜΙ, ΒΕΡΙΚΟΚΟ',
     name: 'ASWAD',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -314,6 +348,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '517',
+    ingredients: 'ΣΑΦΡΑΝ, ΑΝΘΟΣ ΜΗΛΙΑΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΓΑΡΥΦΑΛΛΟ, ΜΑΝΟΛΙΑΣ, ΞΥΛΟ ΟΥΝΤ, ΠΑΤΣΟΥΛΙ, ΒΑΝΙΛΙΑ, ΣΑΝΔΑΛΟΞΥΛΟ, ΜΟΣΧΟΣ',
     name: 'LAYALI',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -323,6 +358,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '518',
+    ingredients: 'ΜΑΝΤΑΡΙΝΙ, ΤΖΙΝΤΖΕΡ, ΜΑΥΡΟ, ΚΑΡΔΑΜΟ, ΙΒΙΣΚΟΣ, ΜΑΥΡΗ ΟΡΧΙΔΕΑ, ΓΙΑΣΕΜΙ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΝΟΥΦΑΡΟ, ΒΑΝΙΛΙΑ, ΘΥΜΙΑΜΑ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'AHMAR',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -332,6 +368,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '519',
+    ingredients: 'ΟΡΧΙΔΕΑ, ΗΛΙΟΤΡΟΠΙΟ, ΜΑΝΤΑΡΙΝΙ, ΣΥΜΦΩΝΙΑ ΓΚΟΥΡΜΕ, ΤΡΟΠΙΚΑ ΦΡΟΥΤΑ, ΒΑΝΙΛΙΑ, ΜΟΣΧΟΣ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'ZAHRA',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -341,6 +378,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '520',
+    ingredients: 'ΙΣΠΑΝΙΚΟ ΛΑΒΔΑΝΟ, ΠΟΡΤΟΚΑΛΙ, ΛΕΒΑΝΤΑ, ΒΕΝΖΟΗ, ΚΕΧΡΙΜΠΑΡΙ, ΒΑΝΙΛΙΑ, ΣΠΟΡΟΣ ΤΟΝΚΑ, ΚΕΔΡΟΣ',
     name: 'ASRAR',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -350,6 +388,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '521',
+    ingredients: 'ΦΡΟΥΤΑ ΠΑΘΟΥΣ, ΣΑΦΡΑΝ, ΤΡΙΑΝΡΑΦΥΛΛΟ, ΞΥΛΑΛΟΗ, ΦΥΛΛΟ ΠΑΤΣΟΥΛΙ ΙΝΔΟΝΗΣΙΑΣ, ΔΕΡΜΑ, ΞΥΛΟ, ΑΚΙΓΚΑΛΑ, ΒΑΝΙΛΙΑ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'AMBER OUD',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -359,6 +398,7 @@ export const arabicCatalog: MockProductSeed[] = [
   },
   {
     productCode: '522',
+    ingredients: 'ΓΛΥΚΕΣ ΝΟΤΕΣ, ΛΟΥΛΟΥΔΕΝΙΕΣ, ΝΟΤΕΣ, ΕΣΠΕΡΙΔΟΕΙΔΗ, ΡΟΖ, ΓΚΡΕΙΠΦΡΟΥΤ, ΜΟΣΧΟΣ',
     name: 'HAYAT',
     brandCode: 'ARABIC',
     categoryCode: 'ARB',
@@ -372,6 +412,7 @@ export const arabicCatalog: MockProductSeed[] = [
 export const roomFragranceCatalog: MockProductSeed[] = [
   {
     productCode: '86',
+    ingredients: '',
     name: 'ΒΑΜΒΑΚΙ',
     brandCode: 'ROOM-FRAGRANCE',
     categoryCode: 'RMF',
@@ -381,6 +422,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
   },
   {
     productCode: '89',
+    ingredients: '',
     name: 'ΓΙΑΣΕΜΙ',
     brandCode: 'ROOM-FRAGRANCE',
     categoryCode: 'RMF',
@@ -390,6 +432,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
   },
   {
     productCode: '94',
+    ingredients: '',
     name: 'ΠΟΡΤΟΚΑΛΙ',
     brandCode: 'ROOM-FRAGRANCE',
     categoryCode: 'RMF',
@@ -399,6 +442,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
   },
   {
     productCode: '97',
+    ingredients: '',
     name: 'ΣΑΝΔΑΛΟΞΥΛΟ',
     brandCode: 'ROOM-FRAGRANCE',
     categoryCode: 'RMF',
@@ -408,6 +452,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
   },
   {
     productCode: '100',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ',
     name: 'ΜΠΙΣΚΟΤΟ',
     brandCode: 'ROOM-FRAGRANCE',
     categoryCode: 'RMF',

@@ -130,6 +130,15 @@
   }
 }
 
+.ingredients-block {
+  margin-top: 12px;
+
+  textarea {
+    resize: vertical;
+    font-family: inherit;
+  }
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid #e2e8f0;

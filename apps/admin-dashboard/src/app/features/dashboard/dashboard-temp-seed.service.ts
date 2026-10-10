@@ -82,6 +82,7 @@ export class DashboardTempSeedService {
           productType: 'PERFUME' as ProductType,
           packagingCategory: product.packagingCategory,
           gender: product.gender,
+          ingredients: product.ingredients ?? '',
           variantAssignments,
           active: true
         });
@@ -566,6 +567,7 @@ export class DashboardTempSeedService {
       productType: ProductType;
       packagingCategory: PackagingCategory;
       gender?: MockProductSeed['gender'];
+      ingredients?: string;
       variantAssignments: Record<string, ProductVariantAssignment>;
       active: boolean;
     }, CreateProductResponse>(this.functions, 'createProduct');

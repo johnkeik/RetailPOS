@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/firebase/firebase_config.dart';
+import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
@@ -17,6 +18,7 @@ class PosHomePage extends StatefulWidget {
     required this.employeeName,
     this.tenantId = kPosTenantId,
     this.onEndSession,
+    this.labelPrintService,
   });
 
   final PosCatalogRepository catalogRepository;
@@ -25,12 +27,15 @@ class PosHomePage extends StatefulWidget {
   final String employeeId;
   final String employeeName;
   final VoidCallback? onEndSession;
+  final LabelPrintService? labelPrintService;
 
   @override
   State<PosHomePage> createState() => _PosHomePageState();
 }
 
 class _PosHomePageState extends State<PosHomePage> {
+  late final LabelPrintService _labelPrinter =
+      widget.labelPrintService ?? LabelPrintService();
   final List<CartLine> _cartLines = <CartLine>[];
   final TextEditingController _searchController = TextEditingController();
   List<String> _categories = const ['All'];
@@ -477,6 +482,10 @@ class _PosHomePageState extends State<PosHomePage> {
         return;
       }
 
+      final printItems = _cartLines.map((line) => line.toPrintItem()).toList();
+      final printFuture =
+          _labelPrinter.printItems(orderId: orderId, items: printItems);
+
       setState(() {
         _cartLines.clear();
         _submittingOrder = false;
@@ -485,7 +494,10 @@ class _PosHomePageState extends State<PosHomePage> {
       await showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (_) => PosOrderCompletionDialog(orderId: orderId),
+        builder: (_) => PosOrderCompletionDialog(
+          orderId: orderId,
+          printFuture: printFuture,
+        ),
       );
     } catch (error) {
       if (!mounted) {
@@ -540,6 +552,8 @@ class _PosHomePageState extends State<PosHomePage> {
         repository: widget.orderRepository,
         tenantId: widget.tenantId,
         employeeId: widget.employeeId,
+        labelPrinter: _labelPrinter,
+        products: _products,
       ),
     );
   }

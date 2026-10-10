@@ -1,60 +1,59 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-class PosOrderCompletionDialog extends StatefulWidget {
-  const PosOrderCompletionDialog({super.key, required this.orderId});
+import '../data/label_print_service.dart';
+
+class PosOrderCompletionDialog extends StatelessWidget {
+  const PosOrderCompletionDialog({
+    super.key,
+    required this.orderId,
+    required this.printFuture,
+  });
 
   final String orderId;
-
-  @override
-  State<PosOrderCompletionDialog> createState() =>
-      _PosOrderCompletionDialogState();
-}
-
-class _PosOrderCompletionDialogState extends State<PosOrderCompletionDialog> {
-  bool _printing = true;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_finishDummyPrint());
-  }
-
-  Future<void> _finishDummyPrint() async {
-    await Future<void>.delayed(const Duration(seconds: 5));
-    if (mounted) setState(() => _printing = false);
-  }
+  final Future<LabelPrintResult> printFuture;
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Η παραγγελία ολοκληρώθηκε'),
-      content: Row(
-        children: [
-          if (_printing)
-            const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 3))
-          else
-            const Icon(Icons.check_circle, color: Colors.green),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              _printing
-                  ? 'Εκτύπωση ετικετών…'
-                  : 'Η δοκιμαστική εκτύπωση ολοκληρώθηκε. Αρ. παραγγελίας: ${widget.orderId}',
-            ),
+    return FutureBuilder<LabelPrintResult>(
+      future: printFuture,
+      builder: (context, snapshot) {
+        final printing = snapshot.connectionState != ConnectionState.done;
+        final result = snapshot.data;
+        final failed = result != null && !result.ok;
+
+        return AlertDialog(
+          title: const Text('Η παραγγελία ολοκληρώθηκε'),
+          content: Row(
+            children: [
+              if (printing)
+                const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3))
+              else if (failed)
+                const Icon(Icons.warning_amber, color: Colors.orange)
+              else
+                const Icon(Icons.check_circle, color: Colors.green),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  printing
+                      ? 'Εκτύπωση ετικετών…'
+                      : failed
+                          ? 'Η παραγγελία καταχωρήθηκε αλλά η εκτύπωση απέτυχε: ${result.message}\nΑρ. παραγγελίας: $orderId\nΜπορείτε να επαναλάβετε την εκτύπωση από το Ιστορικό.'
+                          : '${result?.message ?? ''}\nΑρ. παραγγελίας: $orderId',
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      actions: [
-        FilledButton(
-          onPressed: _printing ? null : () => Navigator.of(context).pop(),
-          child: const Text('Συνέχεια'),
-        ),
-      ],
+          actions: [
+            FilledButton(
+              onPressed: printing ? null : () => Navigator.of(context).pop(),
+              child: const Text('Συνέχεια'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

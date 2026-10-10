@@ -58,6 +58,7 @@ class ProductItem {
     required this.name,
     required this.category,
     required this.variants,
+    this.ingredients = '',
   });
 
   final String id;
@@ -65,6 +66,7 @@ class ProductItem {
   final String name;
   final String category;
   final List<ProductVariant> variants;
+  final String ingredients;
 }
 
 class PosCatalog {

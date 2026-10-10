@@ -50,6 +50,19 @@ If the objects have other names, the `template_error` response lists the names f
 
 `Templates/*.dymo` is copied to build and publish output.
 
+## Shipping with the POS (single exe for the user)
+
+The POS starts the service itself (`lib/core/print_service_launcher.dart`): on launch, if nothing answers on `/health`, it runs `print-service\MiniPOS.PrintService.exe` from its own folder, and stops it on exit. The service is built as a windowed app, so no console appears.
+
+Layout on the customer PC:
+
+```
+pos_client.exe  (+ Flutter files)
+print-service\MiniPOS.PrintService.exe  (+ the whole publish output, incl. Templates\label.dymo)
+```
+
+Build: `flutter build windows`, then copy the `publish` folder to `build\windows\x64\runner\Release\print-service`. If the service folder is missing, the POS still works and printing reports "service not found". Console logs are no longer visible; run the exe by hand to see them.
+
 ## Build, test, publish
 
 ```

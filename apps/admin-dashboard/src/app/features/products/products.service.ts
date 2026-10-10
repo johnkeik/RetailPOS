@@ -150,6 +150,7 @@ export class ProductsService {
           productType: (data.productType as ProductType) ?? 'PERFUME',
           packagingCategory: (data.packagingCategory as PackagingCategory) ?? 'PACKAGED',
           gender: data.gender as ProductGender | undefined,
+          ingredients: data.ingredients ?? '',
           variantAssignments: (data.variantAssignments as Record<string, ProductVariantAssignment>) ?? {},
           variantOrder: data.variantOrder ?? [],
           active: data.active ?? true,
@@ -180,6 +181,7 @@ export class ProductsService {
     productType: ProductType;
     packagingCategory: PackagingCategory;
     gender?: ProductGender;
+    ingredients?: string;
     variantAssignments: Record<string, ProductVariantAssignment>;
     variantOrder: string[];
     active: boolean;
@@ -206,6 +208,7 @@ export class ProductsService {
       productType: ProductType;
       packagingCategory: PackagingCategory;
       gender?: ProductGender;
+      ingredients?: string;
       variantAssignments: Record<string, ProductVariantAssignment>;
       variantOrder: string[];
       active: boolean;

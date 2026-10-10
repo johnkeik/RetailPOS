@@ -203,6 +203,7 @@ export type CreateProductInput = {
   productType: ProductType;
   packagingCategory: PackagingCategory;
   gender?: ProductGender;
+  ingredients?: string;
   variantAssignments?: Record<string, ProductVariantAssignment>;
   variantOrder?: string[];
   active?: boolean;
@@ -218,6 +219,7 @@ export type UpdateProductInput = {
   productType: ProductType;
   packagingCategory: PackagingCategory;
   gender?: ProductGender;
+  ingredients?: string;
   variantAssignments?: Record<string, ProductVariantAssignment>;
   variantOrder?: string[];
   active: boolean;

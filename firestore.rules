@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     function isBuiltInPosTenant(tenantId) {
-      return tenantId.matches('store[0-9]+');
+      return tenantId.matches('store[0-9]+') || tenantId == 'AromataZoisAgiouDimitriou';
     }
 
     match /tenants/{tenantId}/{collectionName}/{document=**} {

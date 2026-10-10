@@ -11,15 +11,17 @@ class PosFirebaseConfig {
   const PosFirebaseConfig._();
 
   static const FirebaseOptions options = FirebaseOptions(
-    apiKey: 'demo-api-key',
-    appId: '1:1234567890:ios:321abc456def7890',
-    messagingSenderId: '1234567890',
+    apiKey: 'AIzaSyA5fgbHc2iHMMuQTKqM2sbztAHEqLa0skw',
+    appId: '1:675049225203:web:7a89428072bc814671b086',
+    messagingSenderId: '675049225203',
     projectId: 'pos-inventorysaas',
-    storageBucket: 'pos-inventorysaas.appspot.com',
+    storageBucket: 'pos-inventorysaas.firebasestorage.app',
     authDomain: 'pos-inventorysaas.firebaseapp.com',
   );
 
-  static const bool useEmulators = true;
+  // Production by default; local dev: --dart-define=POS_USE_EMULATORS=true
+  static const bool useEmulators =
+      bool.fromEnvironment('POS_USE_EMULATORS', defaultValue: false);
   static const String emulatorHost = '127.0.0.1';
   static const int firestorePort = 8080;
   static const int functionsPort = 5001;

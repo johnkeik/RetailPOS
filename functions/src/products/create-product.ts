@@ -34,6 +34,7 @@ export const createProduct = onCall(async (request) => {
     categoryId: data.categoryId,
     productType: data.productType,
     packagingCategory: data.packagingCategory ?? "PACKAGED",
+    ingredients: (data.ingredients ?? "").trim(),
     variantAssignments: data.variantAssignments ?? {},
     variantOrder: data.variantOrder ?? Object.keys(data.variantAssignments ?? {}),
     active: data.active ?? true,

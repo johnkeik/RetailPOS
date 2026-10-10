@@ -5,6 +5,7 @@ import { MockProductSeed } from "./mock-catalog.data";
 export const menCatalog: MockProductSeed[] = [
   {
     productCode: '103',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΠΕΡΓΑΜΟΝΤΟ ΠΙΓΑΝΗ ΠΙΠΕΡΙ, ΚΕΧΡΙΜΠΑΡΙ ΛΑΒΔΑΝΟ ΟΠΟΠΟΝΑΞ, ΔΕΡΜΑ ΠΑΤΣΟΥΛΙ, ΟΥΝΤ ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Interlude Man',
     brandCode: 'AMO',
     categoryCode: 'MEN',
@@ -14,6 +15,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '106',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΛΆΙΜ, ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΓΙΑΣΕΜΊ ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΝΕΡΟΛΙ, ΚΥΚΛΆΜΙΝΟ, ΜΟΣΧΟΚΆΡΥΔΟ, ΡΕΖΕΝΤΆ, ΚΟΛΊΑΝΔΡΟΣ, ΒΙΟΛΈΤΑ, ΦΡΈΖΙΑ, ΘΑΛΑΣΣΙΝΈΣ ΝΌΤΕΣ, ΡΟΔΆΚΙΝΟ ΥΆΚΙΝΘΟΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΙΑΣΕΜΊ, ΔΕΝΤΡΟΛΊΒΑΝΟ, ΚΑΛΌΝΗ, ΚΕΧΡΙΜΠΆΡΙ, ΚΈΔΡΟΣ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ',
     name: 'Acqua Di Gio',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -23,6 +25,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '110',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΑΣΤΕΡΟΕΙΔΉΣ ΓΛΥΚΆΝΙΣΟΣ, ΆΝΘΗ ΕΛΙΆΣ, ΞΎΛΟ ΓΚΟΥΑΙΑΚ, ΔΈΡΜΑ, ΤΑΜΠΆΚΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ',
     name: 'Armani Code',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -32,6 +35,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '111',
+    ingredients: 'ΠΡΆΣΙΝΟ ΜΑΝΤΑΡΊΝΙ, ΠΡΆΣΙΝΟ ΜΉΛΟ, ΚΆΡΔΑΜΟ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΛΕΒΆΝΤΑ, ΜΟΣΧΟΚΆΡΥΔΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΚΕΧΡΙΜΠΆΡΙ, ΔΈΡΜΑ',
     name: 'Armani Code Profumo',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -41,6 +45,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '120',
+    ingredients: 'ΡΟΖ ΠΙΠΕΡΙ, ΜΑΥΡΟ ΠΙΠΕΡΙ, ΚΑΡΔΑΜΟ, ΦΑΣΚΟΜΗΛΟ, ΤΑΜΠΑΚΟ, ΚΑΝΕΛΑ, ΚΑΣΤΑΝΟ, ΤΣΙΛΙ, ΒΑΝΙΛΙΑ, ΚΑΣΜΙΡ',
     name: 'Stronger With You Tobacco',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -50,6 +55,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '121',
+    ingredients: 'ΚΆΡΔΑΜΟ, ΡΟΖ ΠΙΠΈΡΙ, ΒΙΟΛΈΤΑ, ΜΈΝΤΑ, ΦΑΣΚΌΜΗΛΟ, ΠΕΠΌΝΙ, ΑΝΑΝΆΣ, ΒΑΝΊΛΙΑ, ΚΆΡΔΑΜΟ, ΚΈΔΡΟΣ, ΑΜΠΕΡΌΞΥΛΟ',
     name: 'Stronger With You',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -59,6 +65,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '122',
+    ingredients: 'ΡΟΥΜΙ, ΛΕΒΑΝΤΑ, ΠΑΤΣΟΥΛΙ, ΚΑΣΤΑΝΟ, ΒΑΝΊΛΙΑ',
     name: 'Stronger With You Absolutely',
     brandCode: 'ARM',
     categoryCode: 'MEN',
@@ -68,6 +75,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '123',
+    ingredients: 'ΔΕΝΤΡΟΛΊΒΑΝΟ, ΑΝΑΝΆΣ, ΝΕΡΌΛΙ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΚΥΚΛΆΜΙΝΟ, ΚΌΛΙΑΝΔΡΟΣ, ΓΙΑΣΕΜΊ, ΒΡΥΆ ΔΡΥΌΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ, ΤΌΝΚΑ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ, ΡΟΔΌΞΥΛΟΒΡΑΖΙΛΊΑΣ, ΚΆΡΔΑΜΟ',
     name: 'Chrome',
     brandCode: 'AZZ',
     categoryCode: 'MEN',
@@ -77,6 +85,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '124',
+    ingredients: 'ΛΕΜΌΝΙ, ΤΖΊΝΤΖΕΡ, ΛΕΒΆΝΤΑ, ΜΈΝΤΑ, ΚΆΡΔΑΜΟ ΤΗΣ ΓΟΥΑΤΕΜΆΛΑΣ, ΆΡΚΕΥΘΟΣ, ΜΉΛΟ, ΓΕΡΆΝΙ, ΒΈΤΙΒΕΡ ΑΙΤΉΣ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΑΜΠΕΡΌΞΥΛΟ',
     name: 'Wanted',
     brandCode: 'AZZ',
     categoryCode: 'MEN',
@@ -86,6 +95,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '134',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΑΡΚΕΝΘΟΣ, ΜΑΥΡΟ ΠΙΠΕΡΙ, ΚΕΔΡΟΣ ΑΤΛΑΣ, ΒΙΡΤΖΙΝΙΑΣ ΚΑΙ ΙΜΑΛΑΙΩΝ',
     name: 'Hero',
     brandCode: 'BUR',
     categoryCode: 'MEN',
@@ -95,6 +105,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '135',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΠΕΡΓΑΜΌΝΤΟ, ΚΑΝΈΛΑ, ΜΙΜΌΖΑ, ΔΈΡΜΑ, ΟΠΟΠΌΝΑΞ, ΦΎΛΛΟ ΤΑΜΠΑΚΟ, ΞΎΛΟ ΓΚΟΥΑΙΚ, ΒΡΎΑ ΔΡΙΌΣ',
     name: 'London',
     brandCode: 'BUR',
     categoryCode: 'MEN',
@@ -104,6 +115,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '137',
+    ingredients: 'ΓΚΡΕΙΠΦΡΟΥΤ, ΚΆΡΔΑΜΟ, ΜΈΝΤΑ, ΕΣΤΡΑΓΚΌΝ, ΦΎΛΛΟ ΣΗΜΎΔΑΣ, ΜΟΣΧΟΚΆΡΥΔΟ, ΛΕΒΆΝΤΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΕΤΙΒΈΡ, ΑΜΠΕΡΌΞΥΛΟ, ΒΕΝΖΌΗ, ΒΡΎΑ ΔΡΥΌΣ',
     name: 'Mr Burberry',
     brandCode: 'BUR',
     categoryCode: 'MEN',
@@ -113,6 +125,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '142',
+    ingredients: 'ΠΕΤΙΓΚΡΑΊΝ, ΠΟΡΤΟΚΆΛΙ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΦΎΚΙΑ, ΛΕΒΆΝΤΑ, ΆΝΘΟΣ ΒΑΜΒΑΚΙΟΎ, ΠΑΤΣΟΥΛΊ, ΚΈΔΡΟΣ ΒΙΡΤΖΊΝΙΑΣ, ΝΌΤΕΣ ΞΎΛΩΝ, ΚΕΧΡΙΜΠΆΡΙ, ΦΑΣΚΌΜΗΛΟ',
     name: 'Aqua',
     brandCode: 'BVG',
     categoryCode: 'MEN',
@@ -122,6 +135,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '145',
+    ingredients: 'ΛΩΤΌΣ, ΠΕΡΓΑΜΌΝΤΟ, ΦΎΛΛΟ ΒΙΟΛΈΤΑΣ, ΒΈΤΙΒΕΡ, ΛΕΥΚΌ ΑΧΛΆΔΙ, ΝΌΤΕΣ ΞΎΛΩΝ, ΣΑΝΔΑΛΟΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΞΎΛΟ ΚΑΣΜΉΡΙ, ΈΛΑΙΟ ΚΥΠΡΙΌΛΗΣ, ΒΕΝΖΌΗ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΜΌΣΧΟΣ, ΛΕΥΚΌΜΕΛΟ',
     name: 'Bvlgari',
     brandCode: 'BVG',
     categoryCode: 'MEN',
@@ -131,6 +145,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '160',
+    ingredients: 'ΑΝΑΝΆΣ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΠΕΡΓΑΜΌΝΤΟ, ΚΆΡΔΑΜΟ, ΛΕΜΌΝΙ, ΜΟΣΧΟΚΆΡΥΔΟ, ΒΙΟΛΈΤΑ, ΓΙΑΣΕΜΊ, ΚΡΙΝΟΣ ΚΟΙΛΆΔΑΣ, ΤΡΙΑΝΤΑΦ., ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ, ΒΡΥΑ ΔΡΙΌΣ',
     name: 'CK One',
     brandCode: 'CK',
     categoryCode: 'MEN',
@@ -140,6 +155,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '161',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΚΡΊΝΟΣ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΚΟΛΙΑΝΔΡΟΣ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΒΑΣΙΛΙΚΌΣ, ΓΙΑΣΕΜΊ, ΦΑΣΚΌΜΗΛΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΓΕΡΆΝΙ, ΚΕΧΡΙΜΠΆΡΙ, ΜΟΣΧΟΣ, ΒΕΤΙΒΕΡ',
     name: 'Eternity',
     brandCode: 'CK',
     categoryCode: 'MEN',
@@ -149,6 +165,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '164',
+    ingredients: 'ΜΑΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΠΕΡΓΑΜΌΝΤΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΚΆΡΔΑΜΟ, ΛΟΥΛΟΥΔΙΑ, ΠΙΠΕΡΙ, ΒΑΝΊΛΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΞΎΛΟ ΓΚΟΥΑΙΚ, ΜΌΣΧΟΣ, ΚΕΧΡΙΜΠΆΡΙ',
     name: '212 Sexy',
     brandCode: 'CH',
     categoryCode: 'MEN',
@@ -158,6 +175,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '169',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΠΙΠΈΡΙ ΜΑΎΡΟ, ΠΙΠΈΡΙ ΛΕΥΚΌ, ΚΈΔΡΟΣ, ΦΑΣΚΌΜΗΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΑΜΠΕΡΌΞΥΛΟ, ΚΑΚΆΟ',
     name: 'Bad Boy',
     brandCode: 'CH',
     categoryCode: 'MEN',
@@ -167,6 +185,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '178',
+    ingredients: 'ΛΆΒΔΑΝΟ, ΜΟΣΧΟΚΆΡΥΔΟ, ΤΖΊΝΤΖΕΡ, ΣΑΝΔΑΛΌΞΥΛΟ, ΠΑΤΣΟΥΛΊ, ΜΈΝΤΑ, ΓΙΑΣΕΜΊ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΕΜΌΝΙ, ΒΕΤΙΒΈΡ, ΘΥΜΊΑΜΑ, ΡΟΖ ΠΙΠΕΡΙ',
     name: 'Bleu De Chanel',
     brandCode: 'CHA',
     categoryCode: 'MEN',
@@ -176,6 +195,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '182',
+    ingredients: 'ΜΑΝΤΑΡΊΝΙ ΣΙΚΕΛΊΑΣ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ, ΚΟΛΊΑΝΔΡΟΣ, ΓΑΡΎΦΑΛΟ, ΚΑΝΈΛΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΤΑΜΠΆΚΟ, ΚΕΧΡΙΜΠΆΡΙ, ΔΕΡΜΑ',
     name: 'Egoiste',
     brandCode: 'CHA',
     categoryCode: 'MEN',
@@ -185,6 +205,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '183',
+    ingredients: 'ΔΕΝΤΡΟΛΙΒΑΝΟ, ΛΕΒΑΝΤΑ, ΝΕΡΌΛΙ, ΓΙΑΣΕΜΙ, ΠΕΤΙΓΚΡΑΊΝ, ΓΆΛΒΑΝΟ, ΓΙΑΣΕΜΊ, ΓΕΡΆΝΙ, ΦΑΣΚΟΜΗΛΟ, ΣΑΝΔΑΛΟΞΥΛΟ, ΒΡΥΑ, ΔΡΥΟΣ, ΒΕΤΙΒΕΡ, ΚΕΔΡΟΣ',
     name: 'Egoiste Platinum',
     brandCode: 'CHA',
     categoryCode: 'MEN',
@@ -194,6 +215,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '205',
+    ingredients: 'ΘΑΛΑΣΣΙΝΌ ΝΕΡΌ, ΜΈΝΤΑ, ΛΕΒΆΝΤΑ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΚΟΛΙΑΝΔΡΟΣ, ΔΕΝΤΡΟΛΊΒΑΝΟ, ΚΑΛΌΝΗ, ΣΑΝΔΑΛΌΞΥΛΟ, ΓΙΑΣΕΜΊ, ΜΌΣΧΟΣ, ΝΕΡΟΛΊ, ΓΕΡΆΝΙ, ΒΡΎΑ ΔΡΥΌΣ, ΚΈΔΡΟΣ, ΤΑΜΠΆΚΟ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Cool Water',
     brandCode: 'DAV',
     categoryCode: 'MEN',
@@ -203,6 +225,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '207',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ ΛΕΒΑΝΤΑ ΚΑΡΔΑΜΟ, ΦΥΛΛΟ ΒΙΟΛΕΤΑΣ ΧΑΒΙΑΡΙ ΡΙΖΩΜΑ, ΙΡΙΣ ΦΑΣΚΟΜΗΛΟ ΤΑΜΠΑΚΟ ΝΟΤΕΣ ΞΥΛΩΝ, ΣΠΟΡΟΣ ΤΟΝΚΑ, ΑΜΠΡΟΞΑΝ, ΠΑΤΣΟΥΛΙ',
     name: 'Bad',
     brandCode: 'DIE',
     categoryCode: 'MEN',
@@ -212,6 +235,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '208',
+    ingredients: 'ΑΜΆΛΦΙ, ΛΕΜΌΝΙ, ΜΑΝΤΑΡΙΝ ΟΡΆΝΖ, ΚΈΔΡΟΣ ΤΗΣ ΒΙΡΤΖΊΝΙΑΣ, ΚΟΛΙΆΝΔΡΟΣ, ΒΙΟΛΈΤΑ, ΛΆΒΔΑΝΟ ΓΑΛΛΊΑΣ, ΚΕΧΡΙΜΠΆΡΙ ΣΤΊΡΑΞ, ΒΕΝΖΌΗ, ΔΈΡΜΑ',
     name: 'Only The Brave',
     brandCode: 'DIE',
     categoryCode: 'MEN',
@@ -221,6 +245,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '212',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΦΑΣΚΌΜΗΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΊΡΙΔΑ, ΚΕΧΡΙΜΠΆΡΙ, ΚΑΚΆΟ, ΒΕΤΙΒΈΡ, ΠΑΤΣΟΥΛΊ, ΔΈΡΜΑ',
     name: 'Dior Homme',
     brandCode: 'DIO',
     categoryCode: 'MEN',
@@ -230,6 +255,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '215',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΜΠΟΥΜΠΟΥΡΝΤΖΕΛΊΑ ΚΈΔΡΟΣ, ΆΝΘΗ ΜΟΣΧΟΚΆΡΥΔΟΥ, ΠΕΡΓΑΜΌΝΤΟ, ΧΑΜΟΜΉΛΙ, ΛΕΜΌΝΙ, ΜΟΣΧΟΚΆΡΥΔΟ, ΑΓΙΟΚΛΗΜΑ, ΓΑΡΎΦΑΛΟ, ΣΑΝΔΑΛΟΞΥΛΟΓΙΑΣΕΜΊ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΠΑΤΣΟΥΛΊ, ΒΕΤΙΒΕΡ, ΜΌΣΧΟΣ, ΠΑΤΣΟΥΛΊ',
     name: 'Fahrenheit',
     brandCode: 'DIO',
     categoryCode: 'MEN',
@@ -239,6 +265,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '225',
+    ingredients: 'ΚΑΝΕΛΑ, ΜΟΣΧΟΚΑΡΥΔΟ, ΓΚΡΕΙΤ ΦΡΟΥΤ, ΚΑΡΔΑΜΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΛΕΒΑΝΤΑ, ΠΑΤΣΟΥΛΙ, ΚΕΧΡΙΜΠΑΡΙ, ΒΕΤΙΒΕΡ',
     name: 'Sauvage Elixir',
     brandCode: 'DIO',
     categoryCode: 'MEN',
@@ -248,6 +275,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '226',
+    ingredients: 'ΠΙΠΈΡΙ, ΠΕΡΓΑΜΌΝΤΟ, ΚΑΛΑΒΡΊΑΣ, ΓΕΡΆΝΙ, ΛΕΒΆΝΤΑ, ΈΛΕΜΙ, ΡΟΖ ΠΙΠΈΡΙ, ΠΙΠΈΡΙ ΣΙΤΣΟΥΆΝ, ΒΕΤΙΒΈΡ, ΠΑΤΣΟΥΛΊ, ΚΈΔΡΟΣ, ΛΑΒΔΑΝΟ, ΑΜΠΡΟΞΑΝ',
     name: 'Sauvage',
     brandCode: 'DIO',
     categoryCode: 'MEN',
@@ -257,6 +285,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '234',
+    ingredients: 'ΛΊΤΣΙ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΓΙΑΣΕΜΙ, ΡΟΔΆΚΙΝΟ, ΠΕΡΓΑΜΌΝΤΟ, ΚΡΊΝΟΣ, ΔΑΜΆΣΚΗΝΟ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ, ΒΕΤΙΒΕΡ',
     name: 'King',
     brandCode: 'DGA',
     categoryCode: 'MEN',
@@ -266,6 +295,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '235',
+    ingredients: 'ΜΑΝΤΑΡΊΝΙ ΣΙΚΕΛΊΑΣ, ΆΡΚΕΥΘΟΣ, ΓΚΡΕΙΠ ΦΡΟΥΤ, ΠΕΡΓΑΜΌΝΤΟ, ΔΕΝΤΡΟΛΊΒΑΝΟ, ΡΟΔΌΞΥΛΟ, ΒΡΑΖΙΛΊΑΣ ΠΙΠΈΡΙ, ΒΆΣΗΣ ΜΌΣΧΟΣ, ΒΡΎΑ ΔΡΙΌΣ ΘΥΜΊΑΜΑ.',
     name: 'Light Blue',
     brandCode: 'DGA',
     categoryCode: 'MEN',
@@ -275,6 +305,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '242',
+    ingredients: 'ΚΟΛΙΑΝΔΡΟΣ, ΒΑΣΙΛΙΚΌΣ, ΤΖΊΝΤΖΕΡ, ΓΚΡΕΙΠΦΡΟΥΤ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΚΆΡΔΑΜΟ, ΚΕΧΡΙΜΠΆΡΙ, ΚΈΔΡΟΣ, ΤΑΜΠΑΚΟ',
     name: 'The One',
     brandCode: 'DGA',
     categoryCode: 'MEN',
@@ -284,6 +315,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '246',
+    ingredients: 'ΒΙΟΛΈΤΑ, ΦΎΛΛΟ ΒΙΟΛΈΤΑΣ, ΒΕΤΙΒΈΡ, ΚΈΔΡΟΣ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΈΛΑΤΟ',
     name: 'He Wood',
     brandCode: 'DSQ',
     categoryCode: 'MEN',
@@ -293,6 +325,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '295',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΠΕΛΑΡΓΌΝΙΟ, ΠΙΠΈΡΙ, ΠΑΤΣΟΥΛΊ, ΒΈΤΙΒΕΡ, ΒΕΝΖΌΗ, ΚΈΔΡΟΣ',
     name: 'Terre D Hermes',
     brandCode: 'HER',
     categoryCode: 'MEN',
@@ -302,6 +335,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '302',
+    ingredients: 'ΤΖΊΝΤΖΕΡ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΒΆΝΤΑ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΔΈΡΜΑ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'Boss The Scent',
     brandCode: 'HBS',
     categoryCode: 'MEN',
@@ -311,6 +345,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '303',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΠΡΆΣΙΝΟ ΜΉΛΟ, ΜΈΝΤΑ, ΓΚΡΕΙΠΦΡΟΥΤ, ΒΑΣΙΛΙΚΌΣ, ΓΑΡΎΦΑΛΟ, ΦΑΣΚΌΜΗΛΟ, ΓΕΡΆΝΙ, ΓΙΑΣΕΜΊ, ΠΑΤΣΟΥΛΊ, ΈΛΑΤΟ, ΚΈΔΡΟΣ',
     name: 'Hugo',
     brandCode: 'HBS',
     categoryCode: 'MEN',
@@ -320,6 +355,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '304',
+    ingredients: 'ΜΉΛΟ ΓΚΌΛΝΤΕΝ, ΜΈΝΤΑ, ΦΡΈΖΙΑ, ΒΑΣΙΛΙΚΌΣ, ΚΟΛΙΑΝΔΡΟΣ, ΚΑΣΜΉΡΙ, ΠΑΤΣΟΥΛΊ, ΛΆΒΔΑΝΟ, ΛΙΒΆΝΙ',
     name: 'Just Different',
     brandCode: 'HBS',
     categoryCode: 'MEN',
@@ -329,6 +365,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '309',
+    ingredients: 'ΚΟΛΙΑΝΔΡΟΣ, ΚΥΠΑΡΙΣΣΙ, ΕΣΤΡΑΓΚΟΝ, ΦΑΣΚΌΜΗΛΟ, ΠΕΡΓΑΜΆΝΤΟ, ΛΕΜΌΝΙ, ΜΟΣΧΟΚΆΡΥΔΟ, ΚΑΝΈΛΑ, ΒΕΤΙΒΈΡ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΈΔΡΟΣ, ΚΕΧΡΙΜΠΆΡΙ',
     name: "L'Eau D'Issey",
     brandCode: 'ISM',
     categoryCode: 'MEN',
@@ -338,6 +375,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '315',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΚΑΡΥΔΑ, ΤΟΝΚΑ',
     name: 'Le Beau',
     brandCode: 'JPG',
     categoryCode: 'MEN',
@@ -347,6 +385,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '316',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΛΕΒΑΝΤΑ, ΜΕΝΤΑ, ΒΑΝΙΛΙΑ, ΒΕΝΖΟΗ, ΜΕΛΙ, ΤΟΝΚΑ, ΤΑΜΠΑΚΟ',
     name: 'Le Male Elixir',
     brandCode: 'JPG',
     categoryCode: 'MEN',
@@ -356,6 +395,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '317',
+    ingredients: 'ΑΡΤΕΜΙΣΊΑ, ΛΕΒΆΝΤΑ, ΜΈΝΤΑ, ΚΆΡΔΑΜΟ, ΠΕΡΓΑΜΌΝΤΟ, ΚΎΜΙΝΟ, ΚΑΝΈΛΑ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ',
     name: 'Le Male',
     brandCode: 'JPG',
     categoryCode: 'MEN',
@@ -365,6 +405,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '319',
+    ingredients: 'ΦΑΣΚΟΜΗΛΟ, ΜΑΝΤΑΡΙΝΙ, ΚΑΡΑΜΕΛΑ, ΣΠΟΡΟΥΣ ΤΟΓΝΚΑ, ΒΕΤΙΒΕΡ',
     name: 'Scandal Men',
     brandCode: 'JPG',
     categoryCode: 'MEN',
@@ -374,6 +415,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '321',
+    ingredients: 'ΑΧΛΑΔΙ, ΜΑΥΡΗ ΒΑΝΙΛΙΑ, ΠΕΡΓΑΜΟΝΤΟ, ΜΕΝΤΑ, KAΝΕΛΑ, ΚΥΜΙΝΟ, KEΧΡΙΜΠΑΡΙ',
     name: 'Ultra Male',
     brandCode: 'JPG',
     categoryCode: 'MEN',
@@ -383,6 +425,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '332',
+    ingredients: 'ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΜΑΝΤΑΡΙΝ ΟΡΆΝΖ, ΠΕΡΓΑΜΌΝΤΟ, ΑΜΆΛΦΙ, ΛΕΜΌΝΙ, ΓΙΑΣΕΜΊ, ΗΛΙΟΤΡΌΠΙΟ, ΚΆΡΔΑΜΟ, ΚΑΝΈΛΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΠΑΤΣΟΥΛΊ, ΒΑΝΊΛΙΑ',
     name: 'Homme',
     brandCode: 'JOO',
     categoryCode: 'MEN',
@@ -392,6 +435,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '333',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΚΆΡΔΑΜΟ, ΦΎΛΛΟ ΒΙΟΛΈΤΑΣ, ΓΕΡΆΝΙ, ΡΗΤΊΝΗ, ΕΛΆΤΗΣ, ΒΈΤΙΒΕΡ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΒΑΝΊΛΙΑ, ΞΎΛΟ ΚΑΣΜΉΡΙ',
     name: 'Wow',
     brandCode: 'JOO',
     categoryCode: 'MEN',
@@ -401,6 +445,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '340',
+    ingredients: 'ΘΑΛΑΣΣΙΝΕΣ ΝΟΤΕΣ, ΣΑΝΔΑΛΟΞΥΛΟ, ΠΕΥΚΟ, ΦΑΣΚΟΜΗΛΟ, ΚΕΔΡΟΣ',
     name: 'Pour Homme',
     brandCode: 'KEN',
     categoryCode: 'MEN',
@@ -410,6 +455,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '380',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΡΟΖ ΠΙΠΕΡΙ, ΦΑΣΚΟΜΗΛΟ, ΒΕΤΙΒΕΡ, ΔΕΡΜΑ, ΑΜΠΡΟΞΑΝ, ΞΥΛΟ ΑΚΙΓΚΆΛΑ, ΦΥΛΛΟ ΠΑΤΣΟΥΛΙ ΙΝΔΟΝΗΣΙΑΣ, ΚΟΚΚΟΣ ΚΑΚΑΟ',
     name: 'Explorer',
     brandCode: 'MON',
     categoryCode: 'MEN',
@@ -419,6 +465,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '382',
+    ingredients: 'ΛΕΒΆΝΤΑ, ΒΕΡΒΈΝΑ ΛΕΜΌΝ, ΑΝΑΝΆΣ, ΠΕΡΓΑΜΌΝΤΟ, ΚΟΥΜΑΡΊΝΗ, ΒΡΥΆ ΔΡΥΌΣ, ΓΕΡΆΝΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΚΟΚΚΙΝΟ, ΜΉΛΟ, ΑΠΟΞΗΡΑΜΈΝΑ ΦΡΟΎΤΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ',
     name: 'Legend',
     brandCode: 'MON',
     categoryCode: 'MEN',
@@ -428,6 +475,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '387',
+    ingredients: 'ΚΟΛΊΑΝΔΡΟΣ, ΚΟΥΜ ΚΟΥΑΤ, ΑΛΔΕΥΔΕΣ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ, ΚΥΚΛΆΜΙΝΟ, ΚΑΝΈΛΑ, ΦΑΣΚΌΜΗΛΟ, ΛΆΒΔΑΝΟ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ, ΑΨΙΘΙΆ, ΓΚΡΊΖΑ ΆΜΒΡΑ',
     name: 'Uomo',
     brandCode: 'MOS',
     categoryCode: 'MEN',
@@ -437,6 +485,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '397',
+    ingredients: 'ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΓΙΑΣΕΜΊ, ΚΡΊΝΟ ΤΗΣ, ΚΟΙΛΆΔΑΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΕΡΆΝΙ, ΣΠΌΡΟΣ, ΤΟΝΚΑ, ΚΕΧΡΙΜΠΆΡΙ, ΒΕΝΖΌΗ, ΚΈΔΡΟΣ',
     name: 'Sculpture',
     brandCode: 'NAP',
     categoryCode: 'MEN',
@@ -446,6 +495,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '402',
+    ingredients: 'ΦΑΣΚΌΜΗΛΟ, ΛΕΜΌΝΙ, ΒΆΛΣΑΜΟ, ΜΑΎΡΟ ΚΆΡΔΑΜΟ, ΚΑΝΈΛΑ, ΠΡΑΛΊΝΑ, ΠΑΤΣΟΥΛΊ, ΜΑΎΡΟ ΆΜΠΕΡ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ',
     name: 'Black XS',
     brandCode: 'PRA',
     categoryCode: 'MEN',
@@ -455,6 +505,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '404',
+    ingredients: 'ΓΚΡΕΙΠ ΦΡΟΥΤ, ΘΑΛΑΣΣΙΝΈΣ ΝΟΤΕΣ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΔΆΦΝΗ, ΓΙΑΣΕΜΊ, ΞΎΛΟ ΓΚΟΥΑΙΑΚ, ΠΑΤΣΟΥΛΙ',
     name: 'Invictus',
     brandCode: 'PRA',
     categoryCode: 'MEN',
@@ -464,6 +515,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '408',
+    ingredients: 'ΓΚΡΕΙΠ ΦΡΟΥΤ, ΜΕΝΤΑ, ΚΑΝΈΛΑ, ΚΟΚΚΙΝΟ ΜΑΝΤΑΡΊΝΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΝΌΤΕΣ ΜΠΑΧΑΡΙΚΏΝ, ΔΕΡΜΑ, ΝΌΤΕΣ, ΞΎΛΩΝ, ΚΕΧΡΙΜΠΆΡΙ, ΠΑΤΣΟΥΛΊ',
     name: 'One Million',
     brandCode: 'PRA',
     categoryCode: 'MEN',
@@ -473,6 +525,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '409',
+    ingredients: 'ΠΟΛΤΟΣ ΛΕΜΟΝΙΟΥ, ΑΜΑΛΦΙ ΛΕΜΟΝΙ, ΜΗΛΟ, ΚΑΠΝΟΣ, ΓΗΙΝΕΣ ΝΟΤΕΣ, ΛΕΒΑΝΤΑ, ΒΑΝΙΛΙΑ, ΒΕΤΙΒΕΡ',
     name: 'Phantom',
     brandCode: 'PRA',
     categoryCode: 'MEN',
@@ -482,6 +535,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '415',
+    ingredients: 'ΚΑΝΕΛΑ, ΚΟΚΚΙΝΟ ΜΑΝΤΙΡΙΝΙ, ΤΑΜΠΑΚΟ, ΜΥΡΟ, ΣΠΟΡΟΣ ΤΟΝΚΑ, ΠΑΤΣΟΥΛΙ',
     name: 'One Million Prive',
     brandCode: 'PRA',
     categoryCode: 'MEN',
@@ -491,6 +545,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '513',
+    ingredients: 'ΚΑΡΔΑΜΟ, ΚΑΡΑΜΕΛΑ, ΑΜΠΕΡΟΞΥΛΟ',
     name: 'Most Wanted',
     brandCode: 'AZZ',
     categoryCode: 'MEN',
@@ -500,6 +555,7 @@ export const menCatalog: MockProductSeed[] = [
   },
   {
     productCode: '528',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ ΚΑΛΑΒΡΙΑΣ, ΜΟΣΧΟΣ, ΓΕΡΑΝΙ, ΜΠΕΡΜΟΝ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΒΕΝΖΟΗ, ΒΑΛΣΑΜΟ ΠΕΡΟΥ, ΞΥΛΟ ΓΚΟΥΑΙΑΚ',
     name: 'Paradigme',
     brandCode: 'PRA',
     categoryCode: 'MEN',

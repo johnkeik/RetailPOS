@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
+import '../data/label_print_service.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
 
@@ -103,11 +104,15 @@ class PosOrderHistoryDialog extends StatefulWidget {
     required this.repository,
     required this.tenantId,
     required this.employeeId,
+    required this.labelPrinter,
+    required this.products,
   });
 
   final PosOrderRepository repository;
   final String tenantId;
   final String employeeId;
+  final LabelPrintService labelPrinter;
+  final List<ProductItem> products;
 
   @override
   State<PosOrderHistoryDialog> createState() => _PosOrderHistoryDialogState();
@@ -132,16 +137,40 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
     });
   }
 
-  Future<void> _simulatePrint(String key, String target) async {
+  Future<void> _print(
+      String key, String orderId, List<PosOrderItem> items, String target) async {
     if (_printingKey != null) return;
     setState(() => _printingKey = key);
-    await Future<void>.delayed(const Duration(seconds: 5));
+
+    // Ingredients are not stored on orders; use the current catalog.
+    final ingredientsByCode = {
+      for (final product in widget.products) product.code: product.ingredients,
+    };
+    final result = await widget.labelPrinter.printItems(
+      orderId: orderId,
+      items: [
+        for (final item in items)
+          LabelPrintItem(
+            productCode: item.productCode,
+            ingredients: ingredientsByCode[item.productCode] ?? '',
+            quantity: item.quantity,
+          ),
+      ],
+    );
+
     if (!mounted) return;
     setState(() => _printingKey = null);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ολοκληρώθηκε η δοκιμαστική εκτύπωση: $target')),
+      SnackBar(
+        content: Text(result.ok
+            ? '$target: ${result.message}'
+            : 'Αποτυχία εκτύπωσης ($target): ${result.message}'),
+      ),
     );
   }
+
+  String _itemKey(PosOrder order, PosOrderItem item) =>
+      'item-${order.id}-${item.productCode}-${item.variantCode}-${item.useSpecialBottle}';
 
   Future<({String managerPin, String reason})?> _requestCancellationDetails(
       PosOrder order) async {
@@ -315,8 +344,10 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                       ),
                                       FilledButton.tonalIcon(
                                         onPressed: _printingKey == null
-                                            ? () => _simulatePrint(
+                                            ? () => _print(
                                                 orderPrintKey,
+                                                order.id,
+                                                order.items,
                                                 'παραγγελία ${order.id}')
                                             : null,
                                         icon: _printingKey == orderPrintKey
@@ -380,15 +411,17 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                           ),
                                           IconButton(
                                             tooltip:
-                                                'Εκτύπωση κωδικού ${item.variantCode}',
+                                                'Εκτύπωση ${item.productCode}',
                                             onPressed: _printingKey == null
-                                                ? () => _simulatePrint(
-                                                      'item-${order.id}-${item.variantCode}',
-                                                      'κωδικός ${item.variantCode}',
+                                                ? () => _print(
+                                                      _itemKey(order, item),
+                                                      order.id,
+                                                      [item],
+                                                      'προϊόν ${item.productCode}',
                                                     )
                                                 : null,
                                             icon: _printingKey ==
-                                                    'item-${order.id}-${item.variantCode}'
+                                                    _itemKey(order, item)
                                                 ? const SizedBox(
                                                     width: 20,
                                                     height: 20,

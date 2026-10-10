@@ -5,9 +5,14 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:pos_client/app/app.dart';
+import 'package:pos_client/features/pos/data/label_print_service.dart';
 import 'package:pos_client/features/pos/data/mock_pos_catalog_repository.dart';
 import 'package:pos_client/features/pos/data/mock_pos_order_repository.dart';
 import 'package:pos_client/features/pos/data/pos_order_repository.dart';
@@ -166,10 +171,12 @@ void main() {
             body: TextButton(
               onPressed: () => showDialog<void>(
                 context: context,
-                builder: (_) => const PosOrderHistoryDialog(
-                  repository: _HistoryOrderRepository(),
+                builder: (_) => PosOrderHistoryDialog(
+                  repository: const _HistoryOrderRepository(),
                   tenantId: 'store001',
                   employeeId: 'employee-1',
+                  labelPrinter: LabelPrintService(),
+                  products: const [],
                 ),
               ),
               child: const Text('Άνοιγμα ιστορικού'),
@@ -184,8 +191,60 @@ void main() {
 
     expect(find.text('Παραγγελία order-1'), findsOneWidget);
     expect(find.textContaining('310047 · Άρωμα δοκιμής'), findsOneWidget);
-    expect(find.byTooltip('Εκτύπωση κωδικού BULK-50'), findsOneWidget);
+    expect(find.byTooltip('Εκτύπωση 310047'), findsOneWidget);
     expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
+  });
+
+  testWidgets('order history reprints a single item with catalog ingredients',
+      (tester) async {
+    Map<String, dynamic>? sent;
+    final client = MockClient((request) async {
+      sent = jsonDecode(utf8.decode(request.bodyBytes)) as Map<String, dynamic>;
+      return http.Response(
+          jsonEncode({'success': true, 'labelsSubmitted': 4}), 200);
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => PosOrderHistoryDialog(
+                  repository: const _HistoryOrderRepository(),
+                  tenantId: 'store001',
+                  employeeId: 'employee-1',
+                  labelPrinter:
+                      LabelPrintService(client: client, baseUrl: 'http://print'),
+                  products: const [
+                    ProductItem(
+                      id: 'p1',
+                      code: '310047',
+                      name: 'Test',
+                      category: 'All',
+                      variants: [],
+                      ingredients: 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ',
+                    ),
+                  ],
+                ),
+              ),
+              child: const Text('Άνοιγμα ιστορικού'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Άνοιγμα ιστορικού'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Εκτύπωση 310047'));
+    await tester.pumpAndSettle();
+
+    expect(sent?['orderId'], 'order-1');
+    expect(sent?['items'], [
+      {'productCode': '310047', 'ingredients': 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ', 'quantity': 2},
+    ]);
   });
 
   testWidgets('manager PIN cancels an order and hides cancel action',
@@ -202,6 +261,8 @@ void main() {
                   repository: repository,
                   tenantId: 'store001',
                   employeeId: 'employee-1',
+                  labelPrinter: LabelPrintService(),
+                  products: const [],
                 ),
               ),
               child: const Text('Άνοιγμα ιστορικού'),

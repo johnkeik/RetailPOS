@@ -5,6 +5,7 @@ import { MockProductSeed } from "./mock-catalog.data";
 export const priveCatalog: MockProductSeed[] = [
   {
     productCode: '115',
+    ingredients: 'ΤΟΥΜΠΕΡΟΖΑ, ΦΑΣΚΟΜΗΛΟ, ΡΟΖ ΠΙΠΕΡΙ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ, ΚΑΣΜΗΡΙ, ΒΕΝΖΟΗ, ΤΟΥΜΠΕΡΟΖΑ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'ROUGE MALACHITE',
     brandCode: 'ARM',
     categoryCode: 'PRV',
@@ -14,6 +15,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '116',
+    ingredients: 'ΠΑΤΣΟΥΛΙ ΒΑΝΙΛΙΑ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΞΥΛΑΛΟΗ, ΟΥΝΤ',
     name: 'ROSE ARABIE',
     brandCode: 'ARM',
     categoryCode: 'PRV',
@@ -23,6 +25,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '198',
+    ingredients: 'ΓΚΡΕΙΦΡΟΥΤ, ΠΕΡΓΑΜΟΝΤΟ, ΜΟΣΧΟΚΑΡΥΔΟ, ΤΖΙΝΤΖΕΡ, ΚΑΝΕΛΑ, ΚΙΤΡΟ, ΣΑΝΔΑΛΟΞΥΛΟ, ΤΟΝΚΑ, ΚΑΡΔΑΜΟ',
     name: 'AVENTUS ABSOLUTE',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -32,6 +35,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '199',
+    ingredients: 'ΠΑΤΣΟΥΛΊ, ΠΡΆΣΙΝΟ ΜΉΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΡΟΔΆΚΙΝΟ, ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΜΌΣΧΟΣ, ΡΟΖ ΠΙΠΈΡΙ, ΠΑΣΧΑΛΙΆ, ΒΙΟΛΈΤΑ ΣΑΝΔΑΛΌΞΥΛΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΤΊΡΑΞ, ΥΛΆΝΓΚ ΥΛΆΝΓΚ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'AVENTUS FOR HER',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -41,6 +45,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '200',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΑΝΑΝΆΣ, ΜΉΛΟ, ΣΥΜΉΔΑ, ΠΑΤΣΟΥΛΊ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΜΑΡΟΚΙΝΌ ΓΙΑΣΕΜΊ, ΜΌΣΧΟΣ, ΒΡΥΆ ΔΡΥΌΣ, ΒΑΝΊΛΙΑ, ΓΚΡΊΖΑ ΑΜΒΡΑ',
     name: 'AVENTUS',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -50,6 +55,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '201',
+    ingredients: 'ΒΙΟΛΕΤΑ, ΓΙΑΣΕΜΙ, ΠΟΡΤΟΚΑΛΙ, ΤΡΙΑΝΤΑΦΥΛΛΟ',
     name: 'IMALAYHA',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -59,6 +65,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '202',
+    ingredients: '',
     name: 'SILVER MOUNTAIN WATER',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -68,6 +75,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '203',
+    ingredients: 'ΡΟΖ ΠΙΠΕΡΙ ΠΕΡΓΑΜΟΝΤΟ ΚΑΛΑΜΒΡΙΑΣ, ΛΕΜΟΝΙ ΣΙΚΕΛΙΑΣ ΤΡΙΑΝΤΑΦΥΛΛΟΒΟΥΛΓΑΡΙΑΣ, ΣΠΑΙΣΙ ΜΕΝΤΑ ΣΑΝΔΑΛΟΞΥΛΟ, ΒΕΤΙΒΕΡ ΑΙΤΗΣ ΙΝΔΙΚΟ ΠΑΤΣΟΥΛΙ, ΛΕΒΑΝΤΑ',
     name: 'VIKING',
     brandCode: 'CREED',
     categoryCode: 'PRV',
@@ -77,6 +85,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '372',
+    ingredients: 'ΜΟΣΧΟΚΑΡΥΔΟ, ΚΟΛΙΑΝΔΡΟΣ, ΒΑΝΙΛΙΑ, ΚΑΡΑΜΕΛΑ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'GENTLE FLUIDITY GOLD',
     brandCode: 'MAISON FRANCIS',
     categoryCode: 'PRV',
@@ -86,6 +95,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '373',
+    ingredients: 'ΣΑΦΡΑΝ, ΓΙΑΣΕΜΙ, ΑΜΠΕΡΟΞΥΛΟ, ΓΚΡΙΖΑ ΑΜΒΡΑ, ΡΕΤΣΙΝΙ ΕΛΑΤΗΣ, ΚΕΔΡΟΣ',
     name: 'BACCARAT ROUGE',
     brandCode: 'MAISON FRANCIS',
     categoryCode: 'PRV',
@@ -95,6 +105,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '482',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΛΕΒΑΝΤΑ ΠΑΛΛΙΣΑΝΔΡΟΣ ΚΑΝΕΛΑ, ΜΗΛΟ ΚΡΙΝΟ ΚΟΙΛΑΔΑΣ ΤΡΙΑΝΤΑΦΥΛΛΟ, ΚΕΔΡΟΣ ΚΕΧΡΙΜΠΑΡΙ ΜΟΣΧΟΣ, ΞΥΛΑΛΟΗ ΒΑΝΙΛΙΑ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'ALEXANDRIA II',
     brandCode: 'XERJOFF',
     categoryCode: 'PRV',
@@ -104,6 +115,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '483',
+    ingredients: 'ΣΑΓΚΟΥΙΝΙ, ΠΕΡΓΑΜΟΝΤΟ, ΠΟΥΔΡΑ, ΚΑΝΕΛΑ, ΓΙΑΣΕΜΙ, ΚΑΡΑΜΕΛΑ, ΒΑΝΙΛΙΑ, ΜΟΣΧΟΣ',
     name: 'CASA MORATI 1888 LIRA',
     brandCode: 'XERJOFF',
     categoryCode: 'PRV',
@@ -113,6 +125,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '484',
+    ingredients: 'ΠΟΡΤΟΚΑΛΙ ΣΙΚΕΛΙΑΣ, ΛΕΜΟΝΙ, ΠΕΡΓΑΜΟΝΤΟ, ΒΑΝΙΛΙΑ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'ERBA POURA',
     brandCode: 'XERJOFF',
     categoryCode: 'PRV',
@@ -122,6 +135,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '486',
+    ingredients: 'ΛΕΒΑΝΤΑ, ΠΕΡΓΑΜΟΝΤΟ, ΒΑΝΙΛΙΑ, ΜΕΛΙ, ΓΙΑΣΕΜΙ, ΚΑΣΜΗΡΙ, ΤΟΝΚΑ',
     name: 'NAXOS',
     brandCode: 'XERJOFF',
     categoryCode: 'PRV',
@@ -131,6 +145,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '509',
+    ingredients: 'ΑΝΘΗ ΠΟΤΟΚΑΛΙΑΣ, ΛΕΒΑΝΤΑ, ΣΙΡΟΠΙ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΒΑΝΙΛΙΑ, ΛΕΥΚΟ ΜΟΣΧΟ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'APOM',
     brandCode: 'MAISON FRANCIS',
     categoryCode: 'PRV',
@@ -140,6 +155,7 @@ export const priveCatalog: MockProductSeed[] = [
   },
   {
     productCode: '535',
+    ingredients: 'ΒΑΣΙΛΙΚΟΣ, ΛΕΜΟΝΙ, ΜΕΝΤΑ, ΘΥΜΑΡΙ, ΜΑΥΡΟ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΓΙΑΣΕΜΙ, ΛΕΒΑΝΤΑ, ΔΕΝΤΡΟΛΙΒΑΝΟ, ΛΟΥΙΖΑ, ΜΟΣΧΟ',
     name: 'TORINO 21',
     brandCode: 'XERJOFF',
     categoryCode: 'PRV',

@@ -5,6 +5,7 @@ import { MockProductSeed } from "./mock-catalog.data";
 export const womenCatalog: MockProductSeed[] = [
   {
     productCode: '87',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ',
     name: 'Vanilla',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -14,6 +15,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '95',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ',
     name: 'Powder',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -23,6 +25,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '102',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΠΕΡΓΑΜΟΝΤΟ ΠΟΡΤΟΚΑΛΙ, ΠΕΤΙΓΚΡΑΙΝ ΝΟΤΕΣ ΟΖΟΝΤΟΣ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ ΝΑΡΚΙΣΣΟ, ΚΟΛΙΑΝΔΡΟ, ΠΑΤΣΟΥΛΙ ΚΕΔΡΟ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ',
     name: 'Pura Colonia',
     brandCode: 'ADP',
     categoryCode: 'WMN',
@@ -32,6 +35,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '105',
+    ingredients: 'ΛΕΒΑΝΤΑ, ΑΧΛΑΔΙ, ΠΕΡΓΑΜΟΝΤΟ, ΣΑΝΤΙΓΥ, ΠΡΑΛΙΝΑ, ΚΑΡΥΔΑ, ΒΑΝΙΛΙΑ',
     name: 'Cloud',
     brandCode: 'AGR',
     categoryCode: 'WMN',
@@ -41,6 +45,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '108',
+    ingredients: 'AΜΑΛΦΙ, ΛΕΜΟΝΙ, ΜΕΝΤΑ, ΓΙΑΣΕΜΙ, ΠΑΙΩΝΙΑ, ΡΟΖ ΠΙΠΕΡΙ, ΛΑΒΔΑΝΟ ΓΑΛΛΙΑΣ, ΚΕΔΡΟΣ ΒΙΡΤΖΙΝΙΑΣ, ΖΑΧΑΡΗ ΚΑΣΤΑΝΗ',
     name: 'Aqua Di Gioya',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -50,6 +55,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '109',
+    ingredients: 'ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ, ΗΛΙΟΤΡΟΠΙΟ, ΓΑΛΑ ΑΜΥΓΔΑΛΟΥ, ΙΡΙΔΑ, ΚΑΣΤΟΡΙ, ΣΟΥΕΤ, ΘΥΜΙΑΜΑ, ΔΕΡΜΑ, ΠΑΤΣΟΥΛΙ',
     name: 'Armani Code Casmire',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -59,6 +65,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '112',
+    ingredients: 'ΓΙΑΣΕΜΊ, ΠΟΡΤΟΚΆΛΙ ΙΤΑΛΊΑΣ, ΝΕΡΆΝΤΖΙ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΤΖΊΝΤΖΕΡ, ΜΈΛΙ, ΒΑΝΊΛΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Armani Code',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -68,6 +75,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '113',
+    ingredients: 'ΒΑΤΌΜΟΥΡΟ, ΝΕΡΌΛΙ, ΛΕΜΌΝΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΒΑΝΊΛΙΑ, ΜΌΣΧΟΣ, ΑΜΠΕΡΌΞΥΛΟ',
     name: 'Because Its You',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -77,6 +85,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '114',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΤΟΥΜΠΕΡΟΖΑ, ΙΝΔΙΚΟ ΓΙΑΣΕΜΙ, ΒΑΝΙΛΙΑ ΜΑΓΑΔΑΣΚΑΡΗΣ ΛΕΥΚΟΣ ΜΟΣΧΟΣ, ΚΕΔΡΟΣ ΤΗΣ ΒΙΡΤΖΙΝΙΑΣ',
     name: 'My Way',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -86,6 +95,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '118',
+    ingredients: 'ΡΟΖ ΠΙΠΕΡΙ ΑΧΛΑΔΙ ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΓΚΡΕΙΠΦΡΟΥΤ ΤΡΙΑΝΤΑΦΥΛΛΟ, ΓΙΑΣΕΜΙ ΗΛΙΟΤΡΟΠΙΟ ΑΝΑΝΑΣ, ΚΕΔΡΟΣ ΒΑΝΙΛΙΑ',
     name: 'Si Passione',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -95,6 +105,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '119',
+    ingredients: 'KΑΣΣΊΑ, ΦΡΈΖΙΑ, ΜΑΓΙΆΤΙΚΟ ΤΡΙΑΝΤΆΦΥΛΛΟ, ΒΑΝΊΛΙΑ, ΠΑΤΣΟΥΛΊ, ΑΜΠΡΟΞΆΝ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'Si',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -104,6 +115,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '129',
+    ingredients: 'AΨΙΘΙΑ, ΡΟΔΆΚΙΝΟ, ΦΡΈΖΙΑ, ΊΡΙΔΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΌΣΧΟΣ, ΞΥΛΟ ΚΑΣΜΊΡΙ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ',
     name: 'Burberry Body',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -113,6 +125,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '132',
+    ingredients: 'ΒΑΝΙΛΙΑ, ΚΑΚΑΟ, ΛΕΒΑΝΤΑ, ΤΖΙΝΤΖΕΡ, ΧΑΒΙΑΡΙ ΒΑΝΙΛΙΑΣ, ABSOLUTELY ΒΑΝΙΛΙΑ',
     name: 'Goddess',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -122,6 +135,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '133',
+    ingredients: 'ΒΑΤΟΜΟΥΡΟ ΦΡΑΟΥΛΑ ΛΕΜΟΝΙ, ΠΕΤΡΟΚΕΡΑΣΟ ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΓΙΑΣΕΜΙ ΒΙΟΛΕΤΑ ΚΕΧΡΙΜΠΑΡΙ, ΝΟΤΕΣ ΞΥΛΩΝ ΒΡΥΑ ΔΡΥΟΣ, ΒΑΝΙΛΙΑ ΠΑΤΣΟΥΛΙ, ΚΑΣΜΙΡ',
     name: 'Her',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -131,6 +145,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '136',
+    ingredients: 'ΤΡΙΑΝΤΆΦΥΛΛΟ, ΑΓΙΟΚΛΗΜΑ, ΓΙΑΣΕΜΙ, ΠΑΙΏΝΙΑ, ΚΛΗΜΕΝΤΊΝΗ, ΜΌΣΧΟΣ, ΛΟΥΛΟΎΔΙ ΤΙΑΡΈ, ΠΑΤΣΟΥΛΊ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'London',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -140,6 +155,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '138',
+    ingredients: 'ΓΛΥΚΟΜΠΊΖΕΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΦΡΈΖΙΑ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΕΜΌΝΙ, ΓΕΡΆΝΙ, ΚΥΔΏΝΙ, ΦΡΟΥΤΟ ΤΟΥ ΠΆΘΟΥΣ, ΡΟΔΆΚΙΝΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΓΑΡΔΈΝΙΑ, ΠΑΤΣΟΥΛΊ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΜΌΣΧΟΣ',
     name: 'My Burberry',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -149,6 +165,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '140',
+    ingredients: 'ΡΌΖ ΠΙΠΈΡΙ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΠΕΡΓΑΜΌΝΤΟ, ΚΆΡΔΑΜΟ, ΊΡΙΔΑ, ΤΣΆΙ, ΛΟΥΛΟΎΔΙ ΜΠΈΛ, ΒΈΤΙΒΕΡ, ΚΈΔΡΟΣ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ',
     name: 'The Beat',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -158,6 +175,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '141',
+    ingredients: 'ΡΕΖΕΝΤΆ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΦΑΣΚΌΜΗΛΟ, ΡΊΖΑ ΒΙΟΛΈΤΑΣ, ΊΡΙΔΑ, ΝΕΚΤΑΡΊΝΙ, ΆΝΘΗ ΡΟΔΑΚΙΝΙΆΣ, ΣΥΓΚΆΡΠΙΟ ΤΡΙΑΝΤΑΦΥΛΛΙΆΣ, ΜΠΛΈ ΥΑΚΥΝΘΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΟΣΧΟΣ, ΚΈΔΡΟΣ',
     name: 'Weekend',
     brandCode: 'BUR',
     categoryCode: 'WMN',
@@ -167,6 +185,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '146',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΓΚΌΤΖΙ ΜΠΈΡΙ, ΝΟΎΦΑΡΟ, ΙΒΊΣΚΟΣ, ΜΌΣΧΟΣ, ΡΌΔΙ, ΚΈΔΡΟΣ ΤΗΣ ΒΙΡΤΖΊΝΙΑΣ',
     name: 'Coral Omnia',
     brandCode: 'BVG',
     categoryCode: 'WMN',
@@ -176,6 +195,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '148',
+    ingredients: 'ΡΟΖ ΓΚΡΕΙΠΦΡΟΥΤ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΊΡΙΔΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΒΟΥΛΓΑΡΊΑΣ, ΝΌΤΕΣ ΞΎΛΩΝ, ΗΛΙΟΤΡΌΠΙΟ',
     name: 'Omnia Amethyste',
     brandCode: 'BVG',
     categoryCode: 'WMN',
@@ -185,6 +205,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '149',
+    ingredients: 'MΠΑΜΠΟΥ, ΑΧΛΆΔΙ, ΛΩΤΌΣ, ΦΥΛΛΑ ΦΡΑΓΚΟΣΤΑΦΥΛΛΙΆΣ, ΤΣΑΙ, ΜΌΣΧΟΣ, ΒΡΎΑ ΔΡΥΌΣ, ΞΎΛΟ ΓΚΟΥΑΙΑΚ',
     name: 'Omnia Crystalline',
     brandCode: 'BVG',
     categoryCode: 'WMN',
@@ -194,6 +215,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '152',
+    ingredients: 'ΑΜΑΛΦΙ, ΛΕΜΟΝΙ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΠΕΡΓΑΜΟΝΤΟ, ΒΙΟΛΕΤΑ, ΓΙΑΣΕΜΙ, ΒΕΤΙΒΕΡ, ΜΟΣΧΟΣ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'Bal D Afrique',
     brandCode: 'BYR',
     categoryCode: 'WMN',
@@ -203,6 +225,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '153',
+    ingredients: 'ΣΑΠΟΔΙΛΑ, ΣΑΝΔΑΛΟΞΥΛΟ, ΜΟΣΧΟΣ, ΒΙΟΛΕΤΑ, ΜΑΝΟΛΙΑ, ΚΈΔΡΟΣ',
     name: 'Mojave Ghost',
     brandCode: 'BYR',
     categoryCode: 'WMN',
@@ -212,6 +235,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '154',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΒΕΡΊΚΟΚΟ, ΚΡΊΝΟΣ, ΓΙΑΣΕΜΊ, ΚΡΊΝΟΣ, ΚΟΙΛΆΔΑΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΚΕΡΙΜΠΆΡΙ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΒΑΝΊΛΙΑ, ΚΕΔΡΟΣ ΒΙΡΤΖΙΝΙΑΣ, ΜΟΣΧΟΣ',
     name: 'Amor Amor',
     brandCode: 'CAC',
     categoryCode: 'WMN',
@@ -221,6 +245,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '155',
+    ingredients: 'AΝΘΗ ΠΟΡΤΟΚΑΛΊΑΣ, ΛΕΒΆΝΤΑ, ΛΕΜΟΝΙ, ΑΓΙΟΚΛΗΜΑ, ΓΑΛΒΑΝΟ, ΠΕΡΓΑΜΌΝΤΟ, ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΛΕΥΚΌΣ ΚΡΙΝΟΣ, ΑΓΙΟΚΛΗΜΑ, ΓΑΡΎΦΑΛΟ, ΤΟΥΜΠΕΡΌΖΑ, ΥΛΆΝΓΚ ΥΛΆΝΓΚ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ',
     name: 'Anais Anais',
     brandCode: 'CAC',
     categoryCode: 'WMN',
@@ -230,6 +255,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '158',
+    ingredients: 'ΔΑΜΆΣΚΗΝΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΦΡΈΖΙΑ, ΡΟΔΆΚΙΝΟ, ΠΑΙΏΝΙΑ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ, ΚΡΊΝΟΣ ΓΙΑΣΕΜΊ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΚΟΛΙΑΝΔΡΟΣ, ΒΑΝΊΛΙΑ, ΚΑΦΈΣ, ΘΥΜΊΑΜΑ, ΣΠΌΡΟΣ ΤΟΝΚΑ',
     name: 'Noa',
     brandCode: 'CAC',
     categoryCode: 'WMN',
@@ -239,6 +265,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '159',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΒΑΤΟΜΟΥΡΟ ΓΑΡΔΕΝΙΑ ΜΑΝΤΑΡΙΝ, ΟΡΑΝΤΖ ΛΕΜΟΝΙ ΒΑΝΙΛΙΑ ΚΟΥΜΑΡΙΝΗ ΤΖΙΝΤΖΕΡ, ΓΙΑΣΕΜΙ ΓΛΥΚΟΡΙΖΑ ΠΕΡΓΑΜΟΝΤΟΚΕΧΡΙΜΠΑΡΙ, ΓΑΛΑ ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ ΚΑΡΔΑΜΟ, ΚΑΡΑΜΕΛΑ ΣΑΝΔΑΛΟΞΥΛΟ, ΑΜΠΕΡΟΞΥΛΟ ΒΕΝΖΟΗ',
     name: 'Yes I Am',
     brandCode: 'CAC',
     categoryCode: 'WMN',
@@ -248,6 +275,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '162',
+    ingredients: 'EΣΠΕΡΙΔΟΕΙΔΗ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΦΡΈΖΙΑ, ΒΙΟΛΈΤΑ, ΦΑΣΚΌΜΗΛΟ, ΚΑΤΙΦΕΣ, ΚΕΧΡΙΜΠΆΡΙ, ΝΑΡΚΙΣΣΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΌΣΧΟΣ, ΠΑΤΣΟΥΛΊ, ΗΛΙΟΤΡΌΠΙΟ',
     name: 'Eternity',
     brandCode: 'CK',
     categoryCode: 'WMN',
@@ -257,6 +285,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '163',
+    ingredients: 'ΡΌΔΙ, ΛΩΤΌΣ, ΟΡΧΙΔΈΑ, ΒΙΟΛΈΤΑ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΜΑΧΌΓΚΑΝΙ',
     name: 'Euphoria',
     brandCode: 'CK',
     categoryCode: 'WMN',
@@ -266,6 +295,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '165',
+    ingredients: 'ΡΟΖ ΠΙΠΕΡΙ ΜΑΝΤΑΡΙΝ ΟΡΑΝΤΖ, ΠΕΡΓΑΜΟΝΤΟ ΓΑΡΔΕΝΙΑ ΜΟΣΧΟΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ ΒΑΝΙΛΙΑ ΣΑΝΔΑΛΟΞΥΛΟ, ΠΑΤΣΟΥΛΙ ΚΑΡΑΜΕΛΑ, ΒΙΟΛΕΤΑ',
     name: '212 Sexy',
     brandCode: 'CH',
     categoryCode: 'WMN',
@@ -275,6 +305,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '171',
+    ingredients: 'ΑΜΎΓΔΑΛΟ, ΚΑΦΈΣ, ΓΙΑΣΕΜΊ, ΣΑΜΠΑΚ, ΤΟΥΜΠΕΡΌΖΑ, ΊΡΙΔΑ, ΚΑΚΑΟ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ',
     name: 'Good Girl',
     brandCode: 'CH',
     categoryCode: 'WMN',
@@ -284,6 +315,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '174',
+    ingredients: 'ΡΑΒΈΝΤΙ, ΦΡΑΟΥΛΑ, ΑΠΟΞΗΡΑΜΈΝΑ, ΦΡΟΥΤΑ, ΠΕΡΓΑΜΌΝΤΟ, ΓΛΥΚΆΝΙΣΟ, ΓΑΡΔΈΝΙΑ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΑΧΛΆΔΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΥΛΑΝΓΚ, ΥΛΑΝΓΚ, ΜΌΣΧΟΣ ΠΑΤΣΟΥΛΊ',
     name: 'La Panthere',
     brandCode: 'CAR',
     categoryCode: 'WMN',
@@ -293,6 +325,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '179',
+    ingredients: 'ΛΕΜΌΝΙ, ΚΈΔΡΟΣ, ΡΟΖ ΠΙΠΈΡΙ, ΥΑΚΙΝΘΟΣ ΤΟΥ ΝΕΡΟΥ, ΓΙΑΣΕΜΊ, ΞΥΛΟ ΤΙΚ, ΊΡΙΔΑ, ΚΕΧΡΙΜΠΆΡΙ, ΠΑΤΣΟΥΛΊ, ΒΕΤΙΒΕΡ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ',
     name: 'Chance Eau Fraiche',
     brandCode: 'CHA',
     categoryCode: 'WMN',
@@ -302,6 +335,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '180',
+    ingredients: 'ΓΚΡΕΙΠΦΡΟΥΤ, ΚΥΔΏΝΙ, ΓΙΑΣΕΜΙ, ΥΆΚΙΝΘΟΣ, ΜΌΣΧΟΣ, ΊΡΙΔΑ, ΚΈΔΡΟΣ ΤΗΣ ΒΙΡΤΖΊΝΙΑΣ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Chance Eau Tendre',
     brandCode: 'CHA',
     categoryCode: 'WMN',
@@ -311,6 +345,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '181',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΠΕΡΓΑΜΌΝΤΟ, ΜΙΜΌΖΑ, ΓΙΑΣΕΜΊ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΤΟΥΡΚ, ΥΛΆΝΓΚ ΥΛΆΝΓΚ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΠΑΤΣΟΥΛΊ, ΟΠΟΠΌΝΑΞ, ΒΑΝΊΛΙΑ, ΒΕΤΙΒΕΡ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ',
     name: 'Coco Mademoiselle',
     brandCode: 'CHA',
     categoryCode: 'WMN',
@@ -320,6 +355,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '185',
+    ingredients: 'ΜΟΣΧΟΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΠΟΡΤΟΚΑΛΙ, ΓΙΑΣΕΜΙ, ΙΡΙΔΑ',
     name: 'No 1',
     brandCode: 'CHA',
     categoryCode: 'WMN',
@@ -329,6 +365,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '186',
+    ingredients: 'ΑΛΔΕΥΔΕΣ, ΝΕΡΌΛΙ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΒΕΤΙΒΕΡ, ΓΙΑΣΕΜΙ, ΊΡΙΔΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΚΡΙΝΟ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΜΌΣΧΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΠΑΤΣΟΥΛΙ',
     name: 'No 5',
     brandCode: 'CHA',
     categoryCode: 'WMN',
@@ -338,6 +375,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '187',
+    ingredients: 'ΠΑΙΏΝΙΑ, ΦΡΈΖΙΑ, ΛΊΤΣΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΜΑΝΌΛΙΑ, ΚΕΧΡΙΜΠΆΡΙ, ΚΈΔΡΟΣ ΤΗΣ ΒΙΡΤΖΊΝΙΑΣ',
     name: 'Chloe',
     brandCode: 'CHL',
     categoryCode: 'WMN',
@@ -347,6 +385,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '188',
+    ingredients: 'ΓΚΡΈΙΠ ΦΡΟΥΤ, ΚΊΤΡΟ, ΡΟΔΆΚΙΝΟ, ΠΕΡΓΑΜΌΝΤΟ ΑΛΔΕΎΔΕΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΡΌΔΟ ΤΟΥ ΝΕΡΟΎ, ΒΙΟΛΈΤΑ, ΦΡΈΖΙΑ, ΓΙΑΣΕΜΊ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΜΑΝΌΛΙΑ, ΠΑΙΏΝΙΑ, ΠΑΤΣΟΥΛΊ, ΚΈΡΔΡΟΣ, ΚΕΧΡΙΜΠΆΡΙ, ΛΑΒΔΑΝΟ, ΒΡΥΆ ΔΡΥΌΣ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ',
     name: "L'Eau De Chloe",
     brandCode: 'CHL',
     categoryCode: 'WMN',
@@ -356,6 +395,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '190',
+    ingredients: 'ΆΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΎ ΑΦΡΙΚΉΣ, ΡΟΖ ΠΙΠΈΡΙ, ΊΡΙΔΑ, ΥΆΚΥΝΘΟΣ, ΗΛΙΟΤΡΌΠΙΟ, ΠΑΣΧΑΛΙΆ, ΟΥΙΣΤΕΡΊΑ ΓΛΥΣΊΝΑ, ΜΌΣΧΟΣ, ΡΎΖΙ, ΠΟΥΔΡΈΝΙΕΣ ΝΌΤΕΣ',
     name: 'Love',
     brandCode: 'CHL',
     categoryCode: 'WMN',
@@ -365,6 +405,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '191',
+    ingredients: 'ΜΙΡΑΜΠΕΛ ΠΕΡΓΑΜΟΝΤΟ ΛΕΜΟΝΙ, ΠΟΡΤΟΚΑΛΙ ΦΡΕΖΙΑ ΡΟΔΑΚΙΝΟ, ΤΡΙΑΝΤΑΦΥΛΛΟ ΒΡΥΑ ΔΡΥΟΣ, ΑΜΠΕΡΟΞΥΛΟ [ΠΑΤΣΠΟΥΛΙ, ΣΑΝΔΑΛΟΞΥΛΟ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ',
     name: 'Nomade',
     brandCode: 'CHL',
     categoryCode: 'WMN',
@@ -374,6 +415,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '195',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΜΑΝΤΑΡΊΝΙ ΙΝΔΊΑΣ, ΔΑΜΆΣΚΗΝΟ, ΚΌΚΚΙΝΟ ΓΚΡΕΙΠΦΡΟΥΤ, ΜΉΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΟΡΧΙΔΈΑ, ΦΡΈΖΙΑ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΜΙΜΌΖΑ, ΜΑΝΌΛΙΑ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ',
     name: 'Happy',
     brandCode: 'CLI',
     categoryCode: 'WMN',
@@ -383,6 +425,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '209',
+    ingredients: 'ΒΑΤΌΜΟΥΡΟ, ΦΎΛΛΑ ΜΑΝΤΑΡΙΝΙΆΣ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΝΥΧΤΟΛΟΥΛΟΥΔΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΓΙΑΣΕΜΊ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΒΑΝΊΛΙΑ',
     name: 'Addict',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -392,6 +435,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '211',
+    ingredients: 'ΜΑΝΤΑΡΙΝΙ, ΠΑΙΩΝΙΑ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΜΟΣΧΟΣ, ΒΕΡΙΚΟΚΟ, ΡΟΔΑΚΙΝΟ',
     name: 'Blooming Bouquet',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -401,6 +445,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '216',
+    ingredients: 'ΒΕΡΊΚΟΚΟ, ΔΑΜΆΣΚΗΝΟ, ΚΑΡΎΔΑ, ΤΟΥΜΠΕΡΟΖΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΙΑΣΕΜΊ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ, ΚΎΜΙΝΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΑΜΎΓΔΑΛΟ, ΜΌΣΧΟΣ',
     name: 'Hypnotic Poison',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -410,6 +455,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '218',
+    ingredients: 'ΣΑΓΚΟΥΊΝΙ, ΛΕΜΌΝΙ, ΜΑΝΟΛΙΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΔΑΜΑΣΚΟΎ, ΝΕΡΟΛΙ, ΒΑΝΊΛΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Jadore Lumiere',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -419,6 +465,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '219',
+    ingredients: 'ΜΑΝΌΛΙΑ, ΠΕΠΌΝΙ, ΡΟΔΆΚΙΝΟ, ΑΧΛΆΔΙ, ΠΕΡΓΑΜΌΝΤΟ, ΤΟΥΜΠΕΡΟΖΑ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΔΑΜΆΣΚΗΝΟ, ΦΡΕΖΙΑ, ΒΙΟΛΈΤΑ, ΟΡΧΙΔΈΑ, ΓΙΑΣΕΜΊ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ, ΚΈΔΡΟΣ, ΒΑΤΌΜΟΥΡΟ',
     name: 'Jadore',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -428,6 +475,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '220',
+    ingredients: 'ΜΑΝΤΑΡΙΝ ΟΡΑΝΤΖ ΡΟΔΟ ΓΑΛΛΙΑΣ ΓΙΑΣΕΜΙ, ΚΑΣΣΙΑ ΡΟΔΑΚΙΝΟ ΣΑΝΔΑΛΟΞΥΛΟ, ΚΕΔΡΟΣ ΛΕΥΚΟΣ ΜΟΣΧΟΣ, ΠΑΤΣΟΥΛΙ, ΒΕΝΖΟΗ',
     name: 'Joy',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -437,6 +485,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '221',
+    ingredients: 'ΡΟΖ ΠΙΠΕΡΙ, ΣΑΓΚΟΥΙΝΙ, ΡΟΔΟ ΓΑΛΛΙΑΣ, ΤΡΙΑΝΤΑΦΥΛΛΟ ΔΑΜΑΣΚΟΥ, ΓΙΑΣΕΜΙ, ΠΑΤΣΟΥΛΙ',
     name: 'Miss Dior',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -446,6 +495,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '223',
+    ingredients: 'ΝΕΡΆΤΖΙ, ΛΕΜΌΝΙ, ΡΌΔΟ ΓΑΛΛΊΑΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΔΑΜΑΣΚΟΎ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΣΠΟΡΟΣ, ΤΌΝΚΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΑΜΎΓΔΑΛΟ, ΚΑΣΜΉΡΙ, ΒΆΛΣΑΜΟ ΤΟΛΟΎ, ΗΛΙΟΤΡΌΠΙΟ',
     name: 'Poison Girl',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -455,6 +505,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '224',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΜΑΝΤΑΡΊΝΙ ΣΙΚΕΛΊΑΣ, ΠΕΡΓΑΜΌΝΤΟ, ΓΙΑΣΕΜΊ, ΚΈΔΡΟΣ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΓΑΡΔΈΝΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΛΕΥΚΟ ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Pure Poison',
     brandCode: 'DIO',
     categoryCode: 'WMN',
@@ -464,6 +515,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '227',
+    ingredients: '',
     name: 'Philosykos',
     brandCode: 'DIP',
     categoryCode: 'WMN',
@@ -473,6 +525,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '228',
+    ingredients: 'ΓΚΡΕΙΠ ΦΡΟΥΤ, ΑΓΓΟΎΡΙ, ΜΑΝΌΛΙΑ, ΤΟΥΜΠΕΡΌΖΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΚΡΊΝΟ ΚΟΙΛΆΔΑΣ, ΒΙΟΛΈΤΑ, ΠΡΆΣΙΝΟ ΜΉΛΟ, ΝΌΤΕΣ ΞΎΛΩΝ, ΚΕΧΡΙΜΠΆΡΙ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Be Delicious',
     brandCode: 'DKN',
     categoryCode: 'WMN',
@@ -482,6 +535,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '229',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΓΙΑΣΕΜΊ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΚΑΣΤΌΡΙ ΣΟΥΕΤ, ΜΌΣΧΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΞΎΛΟ ΚΑΣΜΊΡΙ, ΒΑΝΊΛΙΑ',
     name: 'Cashmere Mist',
     brandCode: 'DKN',
     categoryCode: 'WMN',
@@ -491,6 +545,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '231',
+    ingredients: 'ΆΛΔΕΥΔΕΣ, ΕΣΠΕΡΙΔΟΕΙΔΗ, ΦΡΈΖΙΑ, ΚΙΣΣΌΣ, ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΒΑΣΙΛΙΚΌΣ, ΠΕΡΓΑΜΌΝΤΟ, ΚΟΛΙΑΝΔΡΟΣ, ΦΑΡΎΦΑΛΟ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΚΡΊΝΟΣ, ΓΙΑΣΕΜΊ, ΚΑΤΙΦΈΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΜΌΣΧΟΣ, ΚΡΊΝΟΣ ΤΗΣ ΚΟΙΛΆΔΑΣ',
     name: 'Classic',
     brandCode: 'DGA',
     categoryCode: 'WMN',
@@ -500,6 +555,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '232',
+    ingredients: 'ΛΕΜΟΝΙ, ΖΑΧΑΡΗ, ΠΟΡΤΟΚΑΛΙ, ΠΑΝΑΚΟΤΑ, ΡΟΥΜΙ, ΒΑΝΙΛΙΑ',
     name: 'Devotion',
     brandCode: 'DGA',
     categoryCode: 'WMN',
@@ -509,6 +565,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '236',
+    ingredients: 'ΜΉΛΟ, ΚΈΔΡΟΣ, ΛΟΥΛΟΎΔΙ ΜΠΕΛ, ΛΕΜΌΝΙ ΣΙΚΕΛΊΑΣ, ΛΕΥΚΌ ΤΡΙΑΝΤΆΦΥΛΛΟ, ΜΠΑΜΠΟΎ ΓΙΑΣΕΜΊ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ ΚΈΔΡΟΣ.',
     name: 'Light Blue',
     brandCode: 'DGA',
     categoryCode: 'WMN',
@@ -518,6 +575,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '241',
+    ingredients: 'AΓΙΌΚΛΗΜΑ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΠΕΡΓΑΜΌΝΤΟ, ΜΟΣΧΟΚΆΡΥΔΟ, ΓΙΑΣΕΜΊ, ΙΒΊΣΚΟΣ, ΥΆΚΥΝΘΟΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΌΣΧΟΣ, ΗΛΙΌΤΡΟΠΙΟ',
     name: 'Sicily',
     brandCode: 'DGA',
     categoryCode: 'WMN',
@@ -527,6 +585,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '245',
+    ingredients: '',
     name: 'Dove',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -536,6 +595,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '243',
+    ingredients: 'ΛΊΤΣΙ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΓΙΑΣΕΜΙ, ΡΟΔΆΚΙΝΟ, ΠΕΡΓΑΜΌΝΤΟ, ΚΡΊΝΟΣ, ΔΑΜΆΣΚΗΝΟ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ, ΒΕΤΙΒΕΡ',
     name: 'The One',
     brandCode: 'DGA',
     categoryCode: 'WMN',
@@ -545,6 +605,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '247',
+    ingredients: 'ΛΕΜΌΝΙ, ΓΙΑΣΕΜΊ, ΝΕΡΟΛΊ, ΒΙΟΛΈΤΑ, ΗΛΙΟΤΡΌΠΙΟ, ΜΌΣΧΟΣ, ΒΈΤΙΒΕΡ, ΚΈΔΡΟΣ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'She Wood',
     brandCode: 'DSQ',
     categoryCode: 'WMN',
@@ -554,6 +615,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '248',
+    ingredients: 'ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΤΖΊΝΤΖΕΡ, ΡΟΖ ΠΙΠΈΡΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΔΑΜΑΣΚΟΎ, ΗΛΙΟΤΡΌΠΙΟ, ΝΕΡΟΛΊ, ΒΑΝΊΛΙΑ ΜΑΓΑΔΑΣΚΆΡΗΣ, ΑΠΌΛΥΤΗ ΒΑΝΊΛΙΑ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'Want',
     brandCode: 'DSQ',
     categoryCode: 'WMN',
@@ -563,6 +625,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '255',
+    ingredients: 'ΑΝΑΝΆΣ, ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΠΕΠΌΝΙ, ΚΌΚΚΙΝΑ ΜΟΎΡΑ, ΛΊΤΣΙ, ΜΑΝΌΛΙΑ, ΊΡΙΔΑ, ΦΡΈΖΙΑ, ΒΑΣΙΛΙΚΌΣ, ΓΙΑΣΕΜΊ, ΚΎΜΙΝΟ, ΗΛΙΟΤΡΌΠΙΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΠΑΤΣΟΥΛΊ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΑΡΑΜΈΛΑ, ΒΑΝΊΛΙΑ',
     name: 'Magnetism',
     brandCode: 'ESC',
     categoryCode: 'WMN',
@@ -572,6 +635,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '257',
+    ingredients: 'ΛΊΤΣΙ, ΔΑΜΆΣΚΗΝΟ, ΦΡΆΟΥΛΑ, ΆΧΛΑΔΙ, ΒΙΟΛΈΤΑ, ΜΙΜΌΖΑ, ΓΙΑΣΕΜΊ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ, ΞΎΛΟ ΤΙΚ',
     name: 'Ocean Lounge',
     brandCode: 'ESC',
     categoryCode: 'WMN',
@@ -581,6 +645,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '258',
+    ingredients: 'ΛΑΙΜ, ΜΠΑΝΆΝΑ, ΚΑΡΎΔΑ, ΜΉΛΟ, ΛΕΜΌΝΙ, ΗΛΊΑΝΘΟΣ, ΚΑΛΑΜΟΣΆΚΧΑΡΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ',
     name: 'Pacific Paradise',
     brandCode: 'ESC',
     categoryCode: 'WMN',
@@ -590,6 +655,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '261',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΝΌΤΕΣ ΦΡΟΎΤΩΝ, ΓΆΛΒΑΝΟ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΜΙΜΌΖΑ, ΜΑΝΌΛΙΑ, ΓΑΡΎΦΑΛΟ, ΤΟΥΜΠΕΡΟΖΑ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΧΑΜΟΜΉΛΙ, ΓΙΑΣΕΜΙ, ΠΑΣΧΑΛΙΆ, ΡΟΖ ΒΙΟΛΈΤΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ, ΒΕΤΙΒΈΡ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Beautiful',
     brandCode: 'EST',
     categoryCode: 'WMN',
@@ -599,6 +665,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '263',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΓΙΑΣΕΜΙ, ΑΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΥ ΑΦΡΙΚΉΣ, ΜΎΡΟ, ΜΑΝΌΛΙΑ, ΛΟΥΛΟΎΔΙ ΠΑΡΕ, ΒΕΤΙΒΕΡ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΚΑΡΎΔΑ, ΚΑΡΑΜΈΛΑ',
     name: 'Bronze Goddess',
     brandCode: 'EST',
     categoryCode: 'WMN',
@@ -608,6 +675,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '265',
+    ingredients: 'TΟΥΜΠΕΡΌΖΑ, ΡΟΖ ΠΙΠΈΡΙ, ΒΙΟΛΈΤΑ, ΦΡΈΖΙΑ, ΚΌΚΚΙΝΑ ΜΟΎΡΑ, ΦΎΛΛΟ ΒΙΟΛΈΤΑΣ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΠΑΙΏΝΙΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΚΡΊΝΟΣ, ΠΑΣΧΑΛΙΆ, ΓΙΑΣΕΜΊ, ΚΡΊΝΟΣ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΓΕΡΆΝΙ, ΣΑΝΔΑΛΌΞΥΛΟ, ΠΑΤΣΟΥΛΊ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ',
     name: 'Pleasures',
     brandCode: 'EST',
     categoryCode: 'WMN',
@@ -617,6 +685,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '267',
+    ingredients: 'ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΣΑΦΡΆΝ, ΘΥΜΆΡΙ, ΚΡΊΝΟΣ, ΟΡΧΙΔΈΑ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΒΑΝΊΛΙΑ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ, ΒΡΎΑ ΔΡΥΌΣ',
     name: 'Ange Ou Demon',
     brandCode: 'GIV',
     categoryCode: 'WMN',
@@ -626,6 +695,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '270',
+    ingredients: 'ΒΑΝΙΛΙΑ, ΣΟΥΣΑΜΙ, ΠΟΡΤΟΚΑΛΙ, ΠΙΠΕΡΙ',
     name: "L'Interdit",
     brandCode: 'GIV',
     categoryCode: 'WMN',
@@ -635,6 +705,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '271',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΆΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΎ ΑΦΡΙΚΉΣ, ΓΑΡΔΈΝΙΑ, ΜΟΣΧΟΚΆΡΥΔΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΑΓΙΌΚΛΗΜΑ, ΤΟΥΜΠΕΡΌΖΑ, ΓΙΑΣΕΜΊ, ΊΡΙΔΑ, ΚΑΡΎΔΙΑ, ΠΑΙΏΝΙΑ, ΒΑΝΊΛΙΑ, ΚΕΚΧΡΙΜΠΆΡΙ, ΞΎΛΟ ΓΚΟΥΆΙΑΚ, ΝΌΤΕΣ ΞΎΛΩΝ',
     name: 'Organza',
     brandCode: 'GIV',
     categoryCode: 'WMN',
@@ -644,6 +715,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '274',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΥΛΆΓΚ ΥΛΑΓΚ, ΚΡΊΝΟΣ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΚΕΧΡΙΜΠΆΡΙ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ ΤΑΙΤΉΣ',
     name: 'Bamboo',
     brandCode: 'GUC',
     categoryCode: 'WMN',
@@ -653,6 +725,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '275',
+    ingredients: 'ΓΙΑΣΕΜΊ ΣΑΜΠΑΚ, ΤΟΥΜΠΕΡΌΖΑ, ΡΊΖΩΜΑ ΊΡΙΣ, ΑΓΙΟΚΛΗΜΑ',
     name: 'Bloom',
     brandCode: 'GUC',
     categoryCode: 'WMN',
@@ -662,6 +735,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '277',
+    ingredients: 'ΕΣΠΕΡΙΔΟΕΙΔΉ, ΠΑΙΏΝΙΑ, ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΟΣΜΑΝΘΌΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΠΑΤΣΟΥΛΊ, ΡΌΖ ΠΙΠΈΡΙ',
     name: 'Flora',
     brandCode: 'GUC',
     categoryCode: 'WMN',
@@ -671,6 +745,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '283',
+    ingredients: 'ΠΈΤΑΛΑ ΦΡΈΖΙΑΣ, ΡΟΔΆΚΙΝΟ, ΓΑΡΔΈΝΙΑ, ΚΌΛΙΑΝΔΡΟΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΔΑΜΑΣΚΟΎ, ΓΙΑΣΕΜΊ, ΦΥΣΙΚΉ ΒΑΝΊΛΙΑ, ΠΑΤΣΟΥΛΊ, ΒΈΤΙΒΕΡ',
     name: 'Rush',
     brandCode: 'GUC',
     categoryCode: 'WMN',
@@ -680,6 +755,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '285',
+    ingredients: 'ΒΑΤΌΜΟΥΡΟ, ΠΕΡΓΑΜΌΝΤΟ, ΚΌΚΚΙΝΑ ΜΟΎΡΑ, ΛΕΜΌΝΙ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΒΙΟΛΈΤΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΊΡΙΔΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΜΌΣΧΟΣ, ΡΕΤΣΊΝΗ',
     name: 'Insolence',
     brandCode: 'GUE',
     categoryCode: 'WMN',
@@ -689,6 +765,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '287',
+    ingredients: 'ΓΛΥΚΆΝΙΣΟ, ΠΕΡΓΑΜΌΝΤΟ, ΛΕΜΌΝΙ, ΜΙΜΌΖΑ, ΓΑΡΎΦΑΛΛΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΊΡΙΔΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΈΔΡΟΣ, ΑΜΎΓΔΑΛΟ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ',
     name: "L'Instant Magique",
     brandCode: 'GUE',
     categoryCode: 'WMN',
@@ -698,6 +775,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '292',
+    ingredients: 'ΠΑΤΣΟΥΛΊ, ΝΌΤΕΣ ΞΎΛΩΝ, ΘΑΛΑΣΣΙΝΈΣ ΝΌΤΕΣ',
     name: 'Blue Marvelles',
     brandCode: 'HER',
     categoryCode: 'WMN',
@@ -707,6 +785,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '293',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΛΕΜΌΝΙ, ΡΗΤΊΝΗ, ΕΛΕΜΙ, ΚΕΧΡΙΜΠΆΡΙ, ΡΟΖ ΠΙΠΈΡΙ, ΒΙΟΛΈΤΑ, ΠΙΠΈΡΙ, ΈΛΑΤΟ, ΒΡΎΑ ΔΡΥΟΣ, ΚΈΔΡΟΣ, ΒΕΤΙΒΈΡ',
     name: 'Eau Des Merveilles',
     brandCode: 'HER',
     categoryCode: 'WMN',
@@ -716,6 +795,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '294',
+    ingredients: 'ZΆΧΑΡΗ ΒΑΝΊΛΙΑΣ, ΚΕΧΡΙΜΠΆΡΙ, ΣΑΝΔΑΛΌΞΥΛΟ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΠΑΤΣΟΥΛΊ, ΡΕΤΣΊΝΗ ΣΙΆΜ, ΚΑΡΑΜΈΛΑ, ΒΕΛΑΝΊΔΙ, ΘΥΜΊΑΜΑ, ΦΛΟΙΟΣ ΠΟΡΤΟΚΑΛΙΟΎ, ΚΈΔΡΟΣ',
     name: 'Elixir Des Merveilles',
     brandCode: 'HER',
     categoryCode: 'WMN',
@@ -725,6 +805,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '296',
+    ingredients: 'ΤΖΙΝΤΖΕΡ ΠΕΡΓΑΜΟΝΤΟ, ΝΕΡΑΝΤΖΙ ΓΙΑΣΕΜΙ, ΤΟΥΜΠΕΡΟΖΑ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΒΑΝΙΛΙΑ ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Twilly',
     brandCode: 'HER',
     categoryCode: 'WMN',
@@ -734,6 +815,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '299',
+    ingredients: 'ΜΗΛΟ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΔΑΜΑΣΚΗΝΟ, ΚΑΝΕΛΑ, ΒΑΝΙΛΙΑ ΜΑΓΑΔΑΣΚΑΡΗΣ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ, ΘΥΜΑΡΙ, ΚΕΔΡΟΣ, ΣΑΝΔΑΛΟΞΥΛΟ ΔΕΝΤΡΟ ΕΛΙΑΣ, ΝΟΤΕΣ ΞΥΛΩΝ',
     name: 'Alive',
     brandCode: 'HBS',
     categoryCode: 'WMN',
@@ -743,6 +825,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '310',
+    ingredients: 'ΚΥΚΛΆΜΙΝΟ, ΡΌΔΟ ΤΟΥ ΝΕΡΟΎ, ΠΕΠΌΝΙ, ΦΡΈΖΙΑ, ΛΩΤΌΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΑΡΎΦΑΛΟ, ΚΡΊΝΟΣ, ΠΑΙΏΝΙΑ, ΜΌΣΧΟΣ, ΤΟΥΜΠΕΡΌΖΑ, ΚΕΧΡΙΜΠΆΡΙ, ΌΣΜΑΝΘΟΣ, ΚΈΔΡΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: "L'Eau D'Issey",
     brandCode: 'ISM',
     categoryCode: 'WMN',
@@ -752,6 +835,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '312',
+    ingredients: 'ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΓΛΥΚΆΝΙΣΟΣ, ΑΧΛΆΔΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΊΡΙΔΑ, ΤΖΊΝΤΖΕΡ, ΟΡΧΙΔΈΑ, ΔΑΜΆΣΚΗΝΟ, ΤΟΥΜΠΕΡΟΖΑ, ΒΑΝΊΛΙΑ, ΚΕΧΡΙΜΠΆΡΙ, ΚΑΝΈΛΑ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Classique',
     brandCode: 'JPG',
     categoryCode: 'WMN',
@@ -761,6 +845,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '314',
+    ingredients: 'ΑΧΛΑΔΙ, ΒΕΤΙΒΕΡ, ΒΑΝΙΛΙΑ',
     name: 'La Belle',
     brandCode: 'JPG',
     categoryCode: 'WMN',
@@ -770,6 +855,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '318',
+    ingredients: 'ΠΟΡΤΟΚΆΛΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΓΡΕΝΑΔΊΝΗ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ ΤΗΣ ΒΙΡΤΖΊΝΙΑΣ',
     name: 'Ma Dame',
     brandCode: 'JPG',
     categoryCode: 'WMN',
@@ -779,6 +865,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '320',
+    ingredients: 'ΣΑΝΓΚΟΥΊΝΙ, ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΓΑΡΔΈΝΙΑ, ΜΈΛΙ, ΓΙΑΣΕΜΙ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΡΟΔΆΚΙΝΟ, ΠΑΤΣΟΥΛΊ, ΜΕΛΙΣΣΟΚΈΡΙ, ΚΑΡΑΜΈΛΑ, ΓΛΥΚΌΡΙΖΑ',
     name: 'Scandal Women',
     brandCode: 'JPG',
     categoryCode: 'WMN',
@@ -788,6 +875,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '325',
+    ingredients: 'ΒΑΤΟΜΟΥΡΟ, ΔΑΦΝΗ, ΒΕΤΙΒΕΡ, ΓΚΡΕΙΤΦΡΟΥΤ, ΚΕΔΡΟΣ',
     name: 'Blackberry And Bay',
     brandCode: 'JOM',
     categoryCode: 'WMN',
@@ -797,6 +885,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '328',
+    ingredients: 'ΛΕΒΑΝΤΑ, ΜΥΡΟ, ΤΟΝΚΑ, ΒΑΝΙΛΙΑ, ΑΜΥΓΔΑΛΟ',
     name: 'Myrrh & Tonka',
     brandCode: 'JOM',
     categoryCode: 'WMN',
@@ -806,6 +895,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '329',
+    ingredients: 'ΚΈΔΡΟΣ ΒΙΡΤΖΊΝΙΑΣ, ΠΕΡΓΑΜΌΝΤΟ, ΑΜΆΛΦΙ, ΛΕΜΌΝΙ, ΠΟΡΤΟΚΆΛΙ, ΟΎΝΤ',
     name: 'Oud Pergamont',
     brandCode: 'JOM',
     categoryCode: 'WMN',
@@ -815,6 +905,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '331',
+    ingredients: 'ΑΜΠΡΕΤΗ(ΜΟΛΟΧΑ), ΘΑΛΑΣΣΙΝΟ ΑΛΑΤΙ, ΦΑΣΚΟΜΗΛΟ, ΓΚΡΕΙΤΦΡΟΥΤ',
     name: 'Wood Sage And Sea Salt',
     brandCode: 'JOM',
     categoryCode: 'WMN',
@@ -824,6 +915,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '336',
+    ingredients: 'ΦΙΣΤΙΚΙ ΑΙΓΙΝΗΣ, ΠΑΓΩΤΟ, ΠΕΡΓΑΜΟΝΤΟ, ΦΟΥΝΤΟΥΚΙ, ΑΧΛΑΔΙ, ΣΑΝΤΙΓΙ, ΚΑΚΑΟ, ΣΑΝΔΑΛΟΞΥΛΟ, ΓΙΑΣΕΜΙ',
     name: 'Yum Pistachio Gelato 33',
     brandCode: 'KAY',
     categoryCode: 'WMN',
@@ -833,6 +925,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '337',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΜΠΟΥΡΜΠΟΥΡΝΤΖΕΛΙΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΒΟΥΛΓΑΡΊΑΣ, ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΟΠΟΠΟΝΑΞ, ΓΙΑΣΕΜΊ, ΒΙΟΛΈΤΑ ΠΑΡΜΑΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΒΑΝΊΛΙΑ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ, ΘΥΜΊΑΜΑ',
     name: 'Flowerbykenzo',
     brandCode: 'KEN',
     categoryCode: 'WMN',
@@ -842,6 +935,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '338',
+    ingredients: 'MΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΓΑΡΎΦΑΛΛΟ, ΚΎΜΙΝΟ, ΜΑΝΓΚΟ, ΗΛΙΟΤΡΌΠΙΟ, ΥΛΑΝΓΚ-ΥΛΑΝΓΚ, ΓΛΥΚΌΡΙΖΑ, ΓΑΡΔΈΝΙΑ, ΚΆΡΔΑΜΟ, ΚΕΧΡΙΜΠΆΡΙ, ΠΑΤΣΟΥΛΊ, ΒΑΝΊΛΙΑ',
     name: 'Jungle',
     brandCode: 'KEN',
     categoryCode: 'WMN',
@@ -851,6 +945,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '339',
+    ingredients: 'ΠΑΣΧΑΛΙΑ, ΕΣΠΕΡΙΔΟΕΙΔΗ, ΠΕΡΓΑΜΌΝΤΟ, ΜΙΜΌΖΑ, ΒΙΟΛΈΤΑ, ΦΡΈΖΙΑ, ΓΆΛΑ ΑΜΥΓΔΆΛΟΥ, ΓΙΑΣΕΜΙ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΜΌΣΧΟΣ, ΚΕΧΡΙΜΠΆΡΙ, ΝΌΤΕΣ ΞΎΛΩΝ, ΚΈΔΡΟΣ, ΣΤΊΡΑΞ',
     name: 'Kenzo Summer',
     brandCode: 'KEN',
     categoryCode: 'WMN',
@@ -860,6 +955,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '341',
+    ingredients: '',
     name: 'World',
     brandCode: 'KEN',
     categoryCode: 'WMN',
@@ -869,6 +965,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '342',
+    ingredients: 'ΚΟΝΙΑΚ, ΚΑΝΕΛΑ, ΤΟΝΚΑ, ΠΡΑΛΙΝΑ',
     name: 'Angels Share',
     brandCode: 'KIL',
     categoryCode: 'WMN',
@@ -878,6 +975,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '343',
+    ingredients: 'ΣΟΚΟΛΑΤΑ, ΡΟΥΜΙ, ΚΑΡΑΜΕΛΑ, ΚΑΦΕΣ, ΑΜΥΓΔΑΛΟ, ΗΛΙΟΤΡΟΠΙΟ, ΖΑΧΑΡΟΚΑΛΑΜΟ, ΣΑΝΔΑΛΟΞΥΛΟ, ΤΟΝΚΑ, ΒΕΤΙΒΕΡ, ΒΑΝΙΛΙΑ',
     name: 'Black Phantom',
     brandCode: 'KIL',
     categoryCode: 'WMN',
@@ -887,6 +985,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '344',
+    ingredients: 'ΑΛΔΕΥΔΕΣ ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΛΙΤΣΙ BUCHU ΤΡΙΑΝΤΑΦΥΛΛΟ, ΜΠΟΥΡΜΠΟΥΝΤΖΙΕΛΑ, ΗΛΙΟΤΡΟΠΙΟ, ΙΡΙΔΑ ΒΑΝΙΛΙΑ',
     name: 'Killing Me Slowly',
     brandCode: 'KIL',
     categoryCode: 'WMN',
@@ -896,6 +995,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '347',
+    ingredients: 'ΠΙΠΕΡΙ, ΛΕΜΟΝΙ, ΜΑΝΓΚΟ, ΚΑΡΥΔΑ',
     name: 'Moon Light In Heaven',
     brandCode: 'KIL',
     categoryCode: 'WMN',
@@ -905,6 +1005,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '349',
+    ingredients: 'ΚΟΚΚΙΝΑ ΜΟΥΡΑ, ΠΕΡΓΑΜΟΝΤΟ, ΓΙΑΣΕΜΙ, ΚΡΙΝΟΣ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΓΛΥΚΙΣΜΑ ΜΑΡΕΓΚΑΣ',
     name: 'Silver Rain',
     brandCode: 'LAP',
     categoryCode: 'WMN',
@@ -914,6 +1015,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '355',
+    ingredients: '',
     name: 'Climat',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -923,6 +1025,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '357',
+    ingredients: 'ΛΟΥΛΟΎΔΙ ΠΆΘΟΥΣ, ΓΙΑΣΕΜΊ, ΓΑΡΔΈΝΙΑ, ΒΈΤΙΒΕΡ, ΒΑΝΊΛΙΑ',
     name: 'Hypnose',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -932,6 +1035,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '358',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΑΧΛΆΔΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΤΟΥΡΚΊΑΣ, ΤΡΙΑΝΤΆΦΥΛΛΟ ΤΟΥ ΜΆΗ, ΙΝΔΙΚΌ ΓΙΑΣΕΜΊ, ΛΕΥΚΌΣ ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ',
     name: 'Idole',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -941,6 +1045,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '359',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΑΧΛΆΔΙ, ΊΡΙΔΑ, ΓΙΑΣΕΜΊ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΠΑΤΣΟΥΛΊ, ΒΑΝΊΛΙΑ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΠΡΑΛΊΝΑ',
     name: 'La Vie Est Belle',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -950,6 +1055,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '361',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΠΑΠΑΡΟΎΝΑ ΙΜΑΛΑΙΩΝ, ΔΑΜΆΣΚΗΝΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΝΆΡΚΙΣΣΟΣ, ΡΟΔΆΚΙΝΟ, ΠΕΡΓΑΜΌΝΤΟ, ΝΤΑΤΟΎΡΑ, ΜΙΜΌΖΑ, ΔΈΡΜΑ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΦΡΈΖΙΑ, ΓΙΑΣΕΜΊ, ΗΛΙΟΤΡΌΠΙΟ, ΒΑΝΊΛΙΑΤΟΥΜΠΕΡΌΖΑ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΚΈΔΡΟΣ',
     name: 'Poeme',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -959,6 +1065,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '362',
+    ingredients: 'AΧΛΑΔΙ, ΠΕΡΓΑΜΌΝΤΟ, ΜΑΝΤΑΡΊΝΙ, ΟΡΧΙΔΈΑ, ΒΑΝΊΛΙΑ, ΜΑΎΡΟ ΤΡΙΑΝΤΆΦΥΛΛΟ, ΦΡΟΎΤΟ ΤΟΥ, ΠΆΘΟΥΣ, ΦΡΆΟΥΛΑ, ΠΑΤΣΟΥΛΊ, ΠΆΠΥΡΟΣ, ΘΥΜΊΑΜΑ, ΛΙΤΣΙ, ΠΡΑΛΊΝΑ, ΒΑΝΊΛΙΑ, ΚΑΡΑΜΈΛΑ, ΚΑΦΈΣ, ΚΟΥΜΑΡΊΝΙ',
     name: 'Tresor La Nuit',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -968,6 +1075,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '364',
+    ingredients: 'ΑΝΑΝΆΣ, ΠΑΣΧΑΛΙΆ, ΡΟΔΑΚΙΝΟ, ΆΝΘΗ ΒΕΡΊΚΟΚΟΥ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΠΕΡΓΑΜΌΝΤΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΊΡΙΔΑ, ΓΙΑΣΕΜΊ, ΗΛΙΟΤΡΌΠΙΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΒΕΡΊΚΟΚΟ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ, ΡΟΔΆΚΙΝΟ',
     name: 'Tresor',
     brandCode: 'LAN',
     categoryCode: 'WMN',
@@ -977,6 +1085,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '369',
+    ingredients: 'ΝΕΡΆΝΤΖΙ, ΠΕΡΓΑΜΌΝΤΟ, ΑΘΆΝΑΤΟ, ΚΑΝΕΛΑ, ΜΌΣΧΟΣ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΒΑΝΊΛΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'L De Lolita',
     brandCode: 'LEP',
     categoryCode: 'WMN',
@@ -986,6 +1095,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '374',
+    ingredients: 'ΜΟΣΧΟΣ, ΓΙΑΣΕΜΙ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΠΕΡΓΑΜΟΤΟ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΚΑΡΥΔΑ',
     name: 'Black Vanilla',
     brandCode: 'MAN',
     categoryCode: 'WMN',
@@ -995,6 +1105,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '377',
+    ingredients: 'ΓΑΛΑ ΑΜΥΓΔΑΛΟΥ, ΠΕΡΓΑΜΟΝΤΟ, ΡΟΖ ΠΙΠΕΡΙ, ΗΛΙΟΤΡΟΠΙΟ, ΓΙΑΣΕΜΙ ΣΑΜΠΑΚ, ΓΑΡΥΦΑΛΛΟ, ΒΕΝΖΟΗ, ΣΑΝΔΑΛΟΞΥΛΟ, ΞΥΛΟ ΚΑΣΜΙΡ',
     name: 'Wonderlust',
     brandCode: 'MK',
     categoryCode: 'WMN',
@@ -1004,6 +1115,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '385',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΠΕΤΙΓΚΡΑΙΝ, ΦΡΟΎΤΟ ΓΙΟΎΖΟΥ, ΜΌΣΧΟΣ, ΡΟΔΌΞΥΛΟ ΒΡΑΖΙΛΊΑΣ, ΚΥΚΛΆΜΙΝΟ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΝΟΎΦΑΡΟ, ΠΑΙΏΝΙΑ, ΒΙΟΛΈΤΑ, ΓΙΑΣΕΜΊ, ΒΑΝΊΛΙΑ, ΒΕΤΙΒΈΡ, ΣΠΌΡΟΣ ΤΌΝΚΑ, ΟΡΧΙΔΈΑ, ΊΡΙΔΑ, ΓΚΡΊΖΑ ΑΜΒΡΑ',
     name: 'Cheap And Chic',
     brandCode: 'MOS',
     categoryCode: 'WMN',
@@ -1013,6 +1125,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '386',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΑΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΥ, ΠΑΤΣΟΥΛΙ, AMBROFIX',
     name: 'I Love Love',
     brandCode: 'MOS',
     categoryCode: 'WMN',
@@ -1022,6 +1135,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '389',
+    ingredients: 'TΡΙΑΝΤΆΦΥΛΛΟ, ΡΟΔΆΚΙΝΟ, ΜΌΣΧΟΣ, ΚΕΧΡΙΜΠΆΡΙ, ΣΑΝΔΑΛΌΞΥΛΟ, ΠΑΤΣΟΥΛΊ',
     name: 'For Her',
     brandCode: 'NRO',
     categoryCode: 'WMN',
@@ -1031,6 +1145,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '393',
+    ingredients: 'ΤΡΙΑΝΤΆΦΥΛΛΟ ΒΟΥΛΓΑΡΊΑΣ, ΓΙΑΣΕΜΊ, ΜΌΣΧΟΣ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΒΈΤΙΒΕΡ, ΚΈΔΡΟΣ, ΚΟΥΜΑΡΊΝΗ, ΠΑΤΣΟΥΛΊ',
     name: 'Poudree',
     brandCode: 'NRO',
     categoryCode: 'WMN',
@@ -1040,6 +1155,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '394',
+    ingredients: 'ΓΑΡΔΈΝΙΑ, ΛΕΥΚΌ ΤΡΙΑΝΤΆΦΥΛΛΟ, ΜΌΣΧΟΣ, ΒΈΤΙΒΕΡ, ΕΚΧΎΛΙΣΜΑ ΛΕΥΚΟΎ ΚΈΔΡΟΥ, ΚΈΔΡΟΣ',
     name: 'Narciso',
     brandCode: 'NRO',
     categoryCode: 'WMN',
@@ -1049,6 +1165,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '395',
+    ingredients: 'ΠΟΥΔΡΑ, ΜΟΣΧΟΣ, ΚΑΣΜΗΡΙ',
     name: 'Pure Musk',
     brandCode: 'NRO',
     categoryCode: 'WMN',
@@ -1058,6 +1175,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '400',
+    ingredients: 'AΜΆΛΦΙ, ΛΕΜΌΝΙ, ΛΑΙΜ, ΜΉΛΟ ΓΚΌΛΝΤΕΝ, ΠΑΙΏΝΙΑ, ΜΗΛΙΆ, ΠΡΑΛΊΝΑ, ΝΤΑΤΟΎΡΑ, ΚΈΔΡΟΣ ΒΙΡΤΖΊΝΙΑΣ, ΜΌΣΧΟΣ, ΜΗΛΙΆ',
     name: 'Nina',
     brandCode: 'NRC',
     categoryCode: 'WMN',
@@ -1067,6 +1185,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '403',
+    ingredients: '',
     name: 'Black XS',
     brandCode: 'PRA',
     categoryCode: 'WMN',
@@ -1076,6 +1195,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '405',
+    ingredients: 'ΑΧΛΑΔΙ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΛΕΒΑΝΤΑ, ΓΙΑΣΕΜΙ, ΒΑΝΙΛΙΑ, ΜΟΣΧΟΣ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ',
     name: 'Lady Million Gold',
     brandCode: 'PRA',
     categoryCode: 'WMN',
@@ -1085,6 +1205,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '407',
+    ingredients: 'ΠΡΆΣΙΝΟ ΜΑΝΤΑΡΊΝΙ, ΑΝΘΌΣ ΤΖΙΝΤΖΕΡ, ΓΙΑΣΕΜΊ ΤΟΥ ΝΕΡΟΎ, ΑΛΆΤΙ, ΞΎΛΟ ΚΑΣΜΊΡΙ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Olympea',
     brandCode: 'PRA',
     categoryCode: 'WMN',
@@ -1094,6 +1215,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '411',
+    ingredients: 'ΥΛΑΝΓΚ ΥΛΑΝΓΚ ΒΝΙΛΙΑ, ΠΟΠ ΚΟΡΝ ΦΥΤΙΚΟ ΜΟΣΧΟ, ΣΑΝΔΑΛΟΞΥΛΟ ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΡΟΔΑΚΙΝΟ ΑΜΠΕΡΟΞΥΛΟ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ, ΚΑΡΥΔΑ',
     name: 'Pure XS',
     brandCode: 'PRA',
     categoryCode: 'WMN',
@@ -1103,6 +1225,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '414',
+    ingredients: 'ΜΑΝΓΚΟ-ΠΕΡΓΑΜΟΝΤΟ, ΓΙΑΣΕΜΙ-ΛΙΒΑΝΙ, ΒΑΝΙΛΙΑ-ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Fame',
     brandCode: 'PRA',
     categoryCode: 'WMN',
@@ -1112,6 +1235,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '418',
+    ingredients: 'ΑΝΘΟΣ ΠΟΡΤΟΚΑΛΙΟΎ ΑΦΡΙΚΗΣ, ΠΟΡΤΟΚΆΛΙ, ΜΑΝΤΑΡΊΝ ΟΡΆΝΖ, ΝΕΡΟΛΊ, ΊΡΙΔΑ, ΜΑΣΤΊΧΑ, ΓΆΛΒΑΝΟ, ΒΈΤΙΒΕΡ, ΚΈΔΡΟΣ ΤΗΣ, ΒΙΡΤΖΊΝΙΑΣ, ΘΥΜΊΑΜΑ, ΒΕΝΖΌΗ',
     name: "Infusion D'Iris",
     brandCode: 'PRADA',
     categoryCode: 'WMN',
@@ -1121,6 +1245,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '423',
+    ingredients: 'ΜΆΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΠΕΡΓΑΜΟΝΤΟ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ',
     name: 'Paradoxe',
     brandCode: 'PRADA',
     categoryCode: 'WMN',
@@ -1130,6 +1255,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '427',
+    ingredients: 'ΦΎΛΛΟ ΜΠΑΜΠΟΎ, ΚΑΝΈΛΑ, ΦΎΛΛΑ ΦΡΑΓΚΟΣΤΑΦΥΛΛΙΆΣ, ΠΕΡΓΑΜΌΝΤΟ ΣΙΚΕΛΙΑΣ, ΜΉΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΚΈΔΡΟΣ, ΜΌΣΧΟΣ, ΒΑΝΊΛΙΑ ΜΑΔΑΓΑΣΚ. ΤΑΜΠΆΚΟ',
     name: 'Just Her',
     brandCode: 'RC',
     categoryCode: 'WMN',
@@ -1139,6 +1265,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '428',
+    ingredients: 'ΕΣΠΕΡΙΔΟΕΙΔΗ, ΜΑΝΤΑΡΊΝ ΟΡΑΝΖ, ΠΕΡΓΑΜΌΝΤΟ, ΓΙΑΣΕΜΊ, ΠΕΎΚΟ, ΚΥΠΑΡΊΣΣΙ, ΔΆΦΝΗ',
     name: 'Paradiso',
     brandCode: 'RC',
     categoryCode: 'WMN',
@@ -1148,6 +1275,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '430',
+    ingredients: 'ΚΑΜΠΑΡΙ ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΔΕΝΤΡΟΛΙΒΑΝΟ ΓΙΑΣΕΜΙ, ΣΑΜΠΑΚ ΜΑΤΕ ΡΑΒΕΝΤΙ ΒΑΝΙΛΙΑ, ΑΜΠΡΟΞΑΝ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Amo',
     brandCode: 'SF',
     categoryCode: 'WMN',
@@ -1157,6 +1285,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '437',
+    ingredients: 'ΓΙΑΣΕΜΊ, ΠΕΡΓΑΜΌΝΤΟ, COCONUT WATER, ΗΛΙΟΤΡΟΠΙΟ, ΒΑΝΙΛΙΑ, ΜΠΕΡΜΠΟΝ, ΚΑΣΜΗΡΙ',
     name: 'Alien Goddess',
     brandCode: 'MUG',
     categoryCode: 'WMN',
@@ -1166,6 +1295,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '439',
+    ingredients: 'ΓΙΑΣΕΜΙ, ΝΌΤΕΣ ΞΎΛΩΝ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Alien',
     brandCode: 'MUG',
     categoryCode: 'WMN',
@@ -1175,6 +1305,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '441',
+    ingredients: 'ΒΑΤΟΜΟΥΡΟ, ΛΙΤΣΙ, ΤΡΙΑΝΤΑΦΥΛΛΟ ΔΑΜΑΣΚΟΥ, ΑΓΚΙΓΚΑΛΑ, ΒΕΝΖΟΗ',
     name: 'Angel Nova',
     brandCode: 'MUG',
     categoryCode: 'WMN',
@@ -1184,6 +1315,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '442',
+    ingredients: 'ΠΕΡΓΑΜΌΝΤΟ, ΑΝΑΝΆΣ, ΚΎΜΙΝΟ, ΚΌΚΚΙΝΑ ΜΟΎΡΑ, ΜΟΣΧΟΚΆΡΥΔΟ, ΠΡΑΛΊΝΑ, ΣΠΌΡΟΣ ΤΟΝΚΑ, ΒΑΝΊΛΙΑ, ΠΑΤΣΟΥΛΊ, ΣΑΝΔΑΛΌΞΥΛΟ',
     name: 'Angel',
     brandCode: 'MUG',
     categoryCode: 'WMN',
@@ -1193,6 +1325,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '445',
+    ingredients: 'ΦΡΟΥΤΟ ΤΟΥ ΠΑΘΟΥΣ ΡΟΔΑΚΙΝΟ, ΒΑΤΟΜΟΥΡΟ ΚΑΣΣΙΑ ΑΧΛΑΔΙ ΑΜΜΟΣ, ΚΡΙΝΟ ΚΟΙΛΑΔΑΣ ΗΛΙΟΤΡΟΠΙΟ, ΣΑΝΔΑΛΟΞΥΛΟ ΒΑΝΙΛΙΑ, ΜΟΣΧΟΣ ΠΑΤΣΟΥΛΙ',
     name: 'Kirke',
     brandCode: 'TIZ',
     categoryCode: 'WMN',
@@ -1202,6 +1335,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '465',
+    ingredients: 'ΠΡΑΣΙΝΟ ΑΜΥΓΔΑΛΟ, ΜΑΝΤΑΡΙΝ, ΟΡΑΝΖ, ΜΑΝΟΛΙΑ, ΗΛΙΟΤΡΟΠΙΟ, ΤΟΥΜΠΕΡΟΖΑ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΣΑΝΤΙΓΙ, ΚΑΣΤΑΝΟ, ΠΑΤΣΟΥΛΙ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Sound Of Donna',
     brandCode: 'TRU',
     categoryCode: 'WMN',
@@ -1211,6 +1345,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '468',
+    ingredients: 'ΛΕΥΚΉ ΒΙΟΛΈΤΑ, ΗΛΙΟΤΡΌΠΙΟ, ΠΑΣΧΑΛΙΆ, ΜΌΣΧΟΣ, ΚΡΊΝΟΣ ΠΑΝΑΓΊΑΣ, ΚΕΧΡΙΜΠΆΡΙ, ΒΑΝΊΛΙΑ',
     name: 'My Name Trussardi',
     brandCode: 'TRU',
     categoryCode: 'WMN',
@@ -1220,6 +1355,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '473',
+    ingredients: 'ΤΖΊΝΤΖΕΡ, ΚΆΡΔΑΜΟ, ΠΙΠΈΡΙ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΊΑΣ, ΠΑΙΏΝΙΑ, ΓΑΡΔΈΝΙΑ, ΚΑΡΎΔΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΜΌΣΧΟΣ, ΚΕΧΡΙΜΠΆΡΙ',
     name: 'Crystal Noir',
     brandCode: 'VERSACE',
     categoryCode: 'WMN',
@@ -1229,6 +1365,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '475',
+    ingredients: 'ΜΑΝΤΑΡΙΝ ΌΡΑΝΤΖ, ΠΟΡΤΟΚΆΛΙ, ΡΟΔΆΚΙΝΟ, ΚΑΡΑΜΈΛΑ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΓΙΑΣΕΜΊ, ΞΎΛΟ ΓΚΟΥΑΙΚ, ΣΑΝΔΑΛΌΞΥΛΟ, ΚΕΧΡΙΜΠΆΡΙ, ΚΈΔΡΟΣ',
     name: 'Bon Bon',
     brandCode: 'VRO',
     categoryCode: 'WMN',
@@ -1238,6 +1375,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '479',
+    ingredients: 'ΦΡΟΥΤΑ ΤΟΥ ΠΑΘΟΥΣ, ΓΚΡΕΙΦΡΟΥΤ, ΑΝΑΝΑΣ, ΟΡΧΙΔΈΑ, ΦΡΑΟΥΛΑ, ΒΑΝΙΛΙΑ, ΚΟΚΚΙΝΑ ΜΟΥΡΑ, ΝΟΤΕΣ ΞΥΛΟΥ',
     name: 'Bombshell',
     brandCode: 'VSC',
     categoryCode: 'WMN',
@@ -1247,6 +1385,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '480',
+    ingredients: 'ΚΑΡΎΔΑ, ΧΑΜΟΜΉΛΙ, ΒΑΝΊΛΙΑ, ΚΡΊΝΟΣ ΚΟΙΛΆΔΑΣ, ΑΛΌΗ',
     name: 'Coconut Passion',
     brandCode: 'VSC',
     categoryCode: 'WMN',
@@ -1256,6 +1395,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '481',
+    ingredients: 'ΚΡΊΝΟΣ, ΜΌΣΧΟΣ, ΓΆΛΒΑΝΟ, ΒΑΣΙΛΙΚΌΣ, ΥΛΑΝΓΚ ΥΛΆΝΓΚ, ΓΙΑΣΕΜΊ, ΤΡΙΑΝΤΆΦΥΛΛΟ, ΊΡΙΔΑ, ΚΕΧΡΙΜΠΆΡΙ, ΠΑΤΣΟΎΛΙ, ΒΑΝΊΛΙΑ, ΡΟΔΆΚΙΝΟ, ΒΡΎΑ ΔΡΥΌΣ, ΒΕΤΙΒΕΡ',
     name: 'White Musk',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -1265,6 +1405,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '490',
+    ingredients: 'ΡΌΖ ΠΙΠΈΡΙ, ΆΝΘΗ ΠΟΡΤΟΚΑΛΙΆΣ, ΑΧΛΆΔΙ, ΚΑΦΈΣ, ΓΙΑΣΕΜΊ, ΠΙΚΡΑΜΎΓΔΑΛΟ, ΓΛΥΚΚΌΡΙΖΑ, ΒΑΝΊΛΙΑ, ΠΑΤΣΟΥΛΊ, ΚΈΔΡΟΣ, ΞΎΛΟ ΚΑΣΜΉΡΙ',
     name: 'Black Opium',
     brandCode: 'YSL',
     categoryCode: 'WMN',
@@ -1274,6 +1415,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '498',
+    ingredients: 'ΜΑΝΤΑΡΙΝ ΟΡΑΝΖ, ΛΕΒΑΝΤΑ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΛΕΒΑΝΤΑ, ΓΙΑΣΕΜΙ, ΓΚΡΙΖΑ ΑΜΒΡΑ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΜΟΣΧΟΣ, ΠΕΤΙΓΚΡΑΙΝ, ΒΑΝΙΛΙΑ ΜΑΓΑΔΑΣΚΑΡΗΣ',
     name: 'Libre',
     brandCode: 'YSL',
     categoryCode: 'WMN',
@@ -1283,6 +1425,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '499',
+    ingredients: 'ΦΡΑΓΚΟΣΤΆΦΥΛΛΟ, ΠΕΡΓΑΜΌΝΤΟ, ΝΌΤΕΣ ΠΡΑΣΊΝΟΥ, ΚΡΊΝΟ ΤΗΣ ΚΟΙΛΆΔΑΣ, ΓΙΑΣΕΜΊ, ΣΑΜΠΑΚ, ΚΈΔΡΟΣ, ΣΑΝΔΑΛΌΞΥΛΟ, ΒΑΝΊΛΙΑ, ΣΠΌΡΟΣ ΤΌΝΚΑ',
     name: 'Manifesto',
     brandCode: 'YSL',
     categoryCode: 'WMN',
@@ -1292,6 +1435,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '505',
+    ingredients: 'ΓΙΑΣΕΜΊ ΣΑΜΠΆΚ, ΡΌΖ ΠΙΠΈΡΙ, ΆΝΘΟΣ ΜΕΤΑΞΙΟΎ, ΚΆΣΤΑΝΟ, ΣΑΝΤΙΓΎ, ΒΑΝΊΛΙΑ, ΣΑΝΔΑΛΌΞΥΛΟ, ΞΎΛΟ ΚΑΣΜΉΡΙ',
     name: 'This Is Her',
     brandCode: 'ZAD',
     categoryCode: 'WMN',
@@ -1301,6 +1445,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '510',
+    ingredients: 'ΑΜΠΕΡΟΞΥΛΟ, ΟΡΧΙΔΕΑ, ΒΑΝΙΛΙΑ, ΓΙΑΣΕΜΙ, ΖΑΧΑΡΗ, ΤΟΝΚΑ, ΚΕΧΡΙΜΠΑΡΙ, ΜΟΣΧΟ, ΠΑΤΣΟΥΛΙ',
     name: 'Vanilla 28',
     brandCode: 'KAY',
     categoryCode: 'WMN',
@@ -1310,6 +1455,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '511',
+    ingredients: 'ΑΝΘΗ ΑΧΛΑΔΙΑΣ, ΜΟΥΡΑ, ΜΑΝΤΑΡΙΝΙ, ΓΑΡΔΕΝΙΑ, ΓΙΑΣΕΜΙ, ΠΑΤΣΟΥΛΙ',
     name: 'Gardenia',
     brandCode: 'GUC',
     categoryCode: 'WMN',
@@ -1319,6 +1465,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '512',
+    ingredients: 'ΣΑΦΡΑΝ, ΠΕΡΓΑΜΟΝΤΟ, ΞΥΛΟ ΑΓΑΡ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΣΠΟΡΟΥΣ ΤΟΝΚΑ, ΖΑΧΑΡΟΚΑΛΑΜΟ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ',
     name: 'Arabian Tonka',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -1328,6 +1475,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '523',
+    ingredients: 'ΠΕΡΓΑΜΟΝΤΟ, ΠΙΚΟ ΑΜΥΓΔΑΛΟ, ΠΑΙΩΝΙΑ, ΥΛΑΝΓΚ, ΒΑΝΙΛΙΑ, ΚΟΥΜΑΡΙΝΗ',
     name: 'Good Girl Blush',
     brandCode: 'CH',
     categoryCode: 'WMN',
@@ -1337,6 +1485,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '524',
+    ingredients: 'ΣΤΑΦΙΔΑ, ΡΟΖ ΠΙΠΕΡΙ, ΓΙΑΣΕΜΙ, ΒΑΝΙΛΙΑ, ΚΑΣΜΙΡ, ΞΥΛΟ',
     name: 'Born In Roma',
     brandCode: 'VALENTINO',
     categoryCode: 'WMN',
@@ -1346,6 +1495,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '525',
+    ingredients: 'ΑΜΥΓΔΑΛΟ, ΜΑΝΤΑΡΙΝΙ, ΠΕΡΓΑΜΟΝΤΟ, ΠΟΥΔΡΑ, ΛΕΥΚΑ ΑΝΘΗ, ΒΑΝΙΛΙΑ, ΑΜΠΡΟΞΑΝ, ΞΥΛΟ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Valaya Exclusif',
     brandCode: 'PDM',
     categoryCode: 'WMN',
@@ -1355,6 +1505,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '527',
+    ingredients: 'ΠΙΤΑΧΑΓΙΑ, ΚΟΚΚΙΝΗ ΠΑΙΩΝΙΑ, ΦΡΑΤΖΙΠΑΝΙ, ΒΑΝΙΛΙΑ, ΠΑΤΣΟΥΛΙ',
     name: 'La Bomba',
     brandCode: 'CH',
     categoryCode: 'WMN',
@@ -1364,6 +1515,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '529',
+    ingredients: 'ΜΟΥΡΟ, ΠΕΡΓΑΜΟΝΤΟ, ΛΕΥΚΟ ΚΡΙΝΟ, ΤΖΙΝΤΖΕΡ, ΠΑΤΣΟΥΛΙ, ΞΥΛΟ, ΔΡΥΣ',
     name: 'Barenia',
     brandCode: 'HER',
     categoryCode: 'WMN',
@@ -1373,6 +1525,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '530',
+    ingredients: 'ΑΓΑΣΘΟΜΆ, ΛΟΥΛΟΥΔΙ, ΓΚΡΕΙΠΦΡΟΥΤ, ΛΑΜΠΕΡ, ΑΓΙΟΚΛΗΜΑ, ΛΟΥΛΟΥΔΙ ΤΗΣ ΚΟΙΛΑΔΑΣ, ΦΡΕΖΙΑ, ΚΡΕΜΩΔΗΣ, ΚΕΧΡΙΜΠΑΡΙ, ΛΕΥΚΗ ΜΠΥΡΑ, ΙΡΙΣ, ΣΚΟΝΗ ΚΑΡΥΔΑΣ, ΗΛΙΟΤΡΟΠΙΟ, ΒΑΝΙΛΙΑ ΜΑΔΑΓΑΣΚΑΡΗΣ, ΑΠΟΛΥΤΗ ΒΑΝΙΛΙΑ, ΛΕΥΚΟΣ ΜΟΣΧΟΣ, ΚΑΡΥΔΑ, ΠΑΛΟ ΣΑΝΤΟ',
     name: 'Vanilla Powder',
     brandCode: 'MAT',
     categoryCode: 'WMN',
@@ -1382,6 +1535,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '531',
+    ingredients: 'ΖΑΧΑΡΗ, ΚΟΚΚΙΝΑ ΜΟΥΡΑ, ΜΑΝΤΑΡΙΝΙ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΒΑΝΙΛΙΑ, ΜΠΑΧΑΡΙΚΑ, ΚΑΚΑΟ, ΚΕΧΡΙΜΠΑΡΙ, ΜΟΣΧΟΣ, ΤΟΝΚΑ, ΞΥΛΟ',
     name: 'Eilish',
     brandCode: 'BIL',
     categoryCode: 'WMN',
@@ -1391,6 +1545,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '536',
+    ingredients: 'ΦΡΟΥΤΟ ΤΟΥ ΠΑΘΟΥΣ, ΝΕΡΑΝΤΖΙ, ΛΕΜΟΝΙ, ΠΛΟΥΜΕΡΙΑ(ΦΡΑΤΖΙΠΑΝΙ), ΗΛΙΑΚΕΣ ΝΟΤΕΣ, ΒΕΝΖΟΗ, ΒΑΝΙΛΙΑ ΜΑΔΑΓΑΣΚΑΡΗΣ, ΛΑΒΔΑΝΟ',
     name: 'Power Of You',
     brandCode: 'ARM',
     categoryCode: 'WMN',
@@ -1400,6 +1555,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '537',
+    ingredients: 'ΦΙΣΤΙΚΙ ΑΙΓΙΝΗΣ, ΑΜΥΓΔΑΛΟ, ΗΛΙΟΤΡΟΠΙΟ, ΓΙΑΣΕΜΙ, ΚΑΡΑΜΕΛΑ, ΒΑΝΙΛΙΑ, ΑΛΑΤΙ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Sol De Janeiro 62',
     brandCode: 'SDJ',
     categoryCode: 'WMN',
@@ -1409,6 +1565,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '538',
+    ingredients: 'ΚΑΡΑΜΕΛΑ, ΚΟΥΜΑΡΙΝΗ, ΜΕΛΙ, ΒΑΝΙΛΙΑ, ΛΕΥΚΟ ΜΟΣΧΟ',
     name: 'Bianco Latte',
     brandCode: 'GEN',
     categoryCode: 'WMN',
@@ -1418,6 +1575,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '542',
+    ingredients: 'ΣΜΕΟΥΡΟ, ΜΑΝΤΑΡΙΝΙ, ΑΝΘΗ ΠΟΡΤΟΚΑΛΙΑΣ, ΛΕΒΑΝΤΑ, ΒΑΝΙΛΙΑ, ΜΠΕΡΜΠΟΝ, ΜΟΣΧΟ, ΚΑΡΥΔΑ',
     name: 'Libre Crush',
     brandCode: 'YSL',
     categoryCode: 'WMN',
@@ -1427,6 +1585,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '543',
+    ingredients: 'ΛΙΤΣΙ, ΡΑΒΕΝΤΙ, ΠΕΡΓΑΜΟΝΤΟ, ΜΟΣΧΟΚΑΡΥΔΟ, ΦΡΑΓΚΟΣΤΑΦΥΛΛΟ, ΤΡΙΑΝΤΑΦΥΛΛΟ, ΠΑΙΩΝΙΑ, ΜΟΣΧΟ, ΠΕΤΑΛΙΑ, ΒΑΝΙΛΙΑ, ΚΑΣΜΗΡΙ, ΘΥΜΙΑΜΑ, ΚΕΔΡΟ, ΒΕΤΙΒΕΡ ΑΙΤΗΣ, ΚΑΡΑΜΕΛΑ',
     name: 'Delina',
     brandCode: 'PDM',
     categoryCode: 'WMN',
@@ -1436,6 +1595,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '544',
+    ingredients: 'ΜΑΝΤΑΡΙΝΙ, ΑΝΘΟΣ, ΠΟΡΤΟΚΑΛΙΟΥ, ΥΛΑΝΓΚ, ΑΓΑΥΗ, ΤΟΥΜΠΕΡΟΖΑ, ΒΑΝΙΛΙΑ, ΛΕΥΚΟ ΜΟΣΧΟ, ΚΕΔΡΟ, ΣΑΝΔΑΛΟΞΥΛΟ',
     name: 'Marfa',
     brandCode: 'MEM',
     categoryCode: 'WMN',
@@ -1445,6 +1605,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '545',
+    ingredients: 'ΓΑΛΑ ΚΑΡΥΔΑΣ, ΖΕΣΤΗ ΑΜΜΟΣ, ΤΟΥΜΠΕΡΟΖΑ, ΥΛΑΝΓΚ ΥΛΑΝΓΚ, ΒΑΝΙΛΙΑ, ΚΕΧΡΙΜΠΑΡΙ',
     name: 'Sol De Janeiro 87',
     brandCode: 'SDJ',
     categoryCode: 'WMN',
@@ -1454,6 +1615,7 @@ export const womenCatalog: MockProductSeed[] = [
   },
   {
     productCode: '546',
+    ingredients: '',
     name: 'Marshmellow',
     brandCode: 'KAY',
     categoryCode: 'WMN',

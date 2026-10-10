@@ -136,6 +136,7 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
           name: name,
           category: categoryById[data['categoryId'] as String? ?? ''] ?? 'Uncategorized',
           variants: variants,
+          ingredients: (data['ingredients'] as String? ?? '').trim(),
         ),
       );
     }

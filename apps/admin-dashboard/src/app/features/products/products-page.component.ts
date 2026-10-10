@@ -110,6 +110,7 @@ export class ProductsPageComponent {
     productType: ['PERFUME' as ProductType, [Validators.required]],
     packagingCategory: ['BULK' as PackagingCategory, [Validators.required]],
     gender: [''],
+    ingredients: ['', [Validators.maxLength(500)]],
     active: [true]
   });
 
@@ -238,6 +239,7 @@ export class ProductsPageComponent {
       productType: form.productType,
       packagingCategory: form.packagingCategory,
       gender: (form.gender || undefined) as ProductGender | undefined,
+      ingredients: form.ingredients.trim(),
       variantAssignments: this.variantAssignments(),
       variantOrder: this.getOrderedVariantIds(),
       active: form.active
@@ -274,6 +276,7 @@ export class ProductsPageComponent {
       productType: product.productType,
       packagingCategory: product.packagingCategory,
       gender: product.gender ?? '',
+      ingredients: product.ingredients ?? '',
       active: product.active
     });
     const assignments = { ...(product.variantAssignments ?? {}) };
@@ -402,6 +405,7 @@ export class ProductsPageComponent {
       productType: 'PERFUME',
       packagingCategory: 'BULK',
       gender: '',
+      ingredients: '',
       active: true
     });
     this.variantAssignments.set({});
