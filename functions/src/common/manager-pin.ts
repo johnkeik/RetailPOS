@@ -25,7 +25,8 @@ export async function assertManagerPin(tenantId: string, pin: string): Promise<v
     const snapshot = await tx.get(ref);
     if (!snapshot.exists) return "not-configured" as const;
 
-    const data = snapshot.data()!;
+    const data = snapshot.data();
+    if (!data) return "not-configured" as const;
     const lockedUntil = data["lockedUntil"];
     if (lockedUntil instanceof Timestamp && lockedUntil.toMillis() > Date.now()) {
       return "locked" as const;
@@ -47,9 +48,9 @@ export async function assertManagerPin(tenantId: string, pin: string): Promise<v
     const failedAttempts = (lockoutExpired ? 0 : Number(data["failedAttempts"] ?? 0)) + 1;
     tx.update(ref, {
       failedAttempts,
-      lockedUntil: failedAttempts >= MAX_FAILED_ATTEMPTS
-        ? Timestamp.fromMillis(Date.now() + LOCKOUT_MS)
-        : null
+      lockedUntil: failedAttempts >= MAX_FAILED_ATTEMPTS ?
+        Timestamp.fromMillis(Date.now() + LOCKOUT_MS) :
+        null
     });
     return failedAttempts >= MAX_FAILED_ATTEMPTS ? "locked" as const : "invalid" as const;
   });

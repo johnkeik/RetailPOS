@@ -26,7 +26,8 @@ export const deleteProduct = onCall(async (request) => {
     if (items.some((it: { productId?: string }) => it.productId === data.productId)) {
       throw new HttpsError(
         "failed-precondition",
-        "Το προϊόν δεν μπορεί να διαγραφεί οριστικά επειδή έχει καταγεγραμμένες πωλήσεις. Χρησιμοποιήστε την απενεργοποίηση."
+        "Το προϊόν δεν μπορεί να διαγραφεί οριστικά επειδή έχει καταγεγραμμένες πωλήσεις. " +
+          "Χρησιμοποιήστε την απενεργοποίηση."
       );
     }
   }

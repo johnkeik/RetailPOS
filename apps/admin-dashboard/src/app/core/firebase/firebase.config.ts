@@ -14,14 +14,14 @@ export type FirebaseConfig = {
 };
 
 export const firebaseConfig: FirebaseConfig = {
-  apiKey: 'demo-api-key',
+  apiKey: 'AIzaSyA5fgbHc2iHMMuQTKqM2sbztAHEqLa0skw',
   authDomain: 'pos-inventorysaas.firebaseapp.com',
   projectId: 'pos-inventorysaas',
-  storageBucket: 'pos-inventorysaas.appspot.com',
-  messagingSenderId: '000000000000',
-  appId: '1:000000000000:web:localdev',
+  storageBucket: 'pos-inventorysaas.firebasestorage.app',
+  messagingSenderId: '675049225203',
+  appId: '1:675049225203:web:7a89428072bc814671b086',
   functionsRegion: 'us-central1',
-  useEmulators: true,
+  useEmulators: false,
   emulatorHost: '127.0.0.1',
   emulatorAuthPort: 9099,
   emulatorFirestorePort: 8080,

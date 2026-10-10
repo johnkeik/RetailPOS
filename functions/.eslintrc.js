@@ -30,6 +30,9 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+    "object-curly-spacing": 0,
+    "comma-dangle": ["error", "never"],
+    "require-jsdoc": 0,
     "max-len": ["error", {"code": 120}],
   },
 };

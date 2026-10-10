@@ -1,4 +1,21 @@
 {
+  "hosting": {
+    "public": "apps/admin-dashboard/dist/admin-dashboard/browser",
+    "predeploy": [
+      "npm --prefix apps/admin-dashboard run build"
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
   "firestore": {
     "database": "(default)",
     "location": "eur3",

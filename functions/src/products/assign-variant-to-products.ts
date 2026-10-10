@@ -69,9 +69,9 @@ export const assignVariantToProducts = onCall(async (request) => {
 
     const rawAssignments = product.variantAssignments;
     const assignments =
-      rawAssignments && typeof rawAssignments === "object" && !Array.isArray(rawAssignments)
-        ? (rawAssignments as Record<string, ProductVariantAssignment>)
-        : {};
+      rawAssignments && typeof rawAssignments === "object" && !Array.isArray(rawAssignments) ?
+        (rawAssignments as Record<string, ProductVariantAssignment>) :
+        {};
     if (Object.prototype.hasOwnProperty.call(assignments, data.variantTemplateId)) {
       alreadyAssignedCount++;
       continue;

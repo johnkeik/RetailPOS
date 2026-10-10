@@ -26,9 +26,9 @@ export const createOrder = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "employeeId and at least one item are required.");
   }
 
-  const actor = request.auth?.uid
-    ? await resolveActorContext(request.auth, data.tenantId)
-    : { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
+  const actor = request.auth?.uid ?
+    await resolveActorContext(request.auth, data.tenantId) :
+    { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
 
   const cleanedItems = data.items.map((item) => ({
@@ -158,7 +158,10 @@ export const createOrder = onCall(async (request) => {
     // --- Validate sufficient stock ---
     const insufficientProductIds = new Set<string>();
     for (const [docId, delta] of inventoryDeltas) {
-      const snap = inventorySnapMap.get(docId)!;
+      const snap = inventorySnapMap.get(docId);
+      if (!snap) {
+        throw new HttpsError("internal", "Δεν ήταν δυνατή η ανάγνωση του αποθέματος.");
+      }
       const current = snap.exists ? Number(snap.data()?.quantity ?? 0) : 0;
       if (current + delta < 0) {
         for (const productId of inventoryProductIds.get(docId) ?? []) {
@@ -179,7 +182,10 @@ export const createOrder = onCall(async (request) => {
 
     // --- Apply inventory updates ---
     for (const [docId, delta] of inventoryDeltas) {
-      const snap = inventorySnapMap.get(docId)!;
+      const snap = inventorySnapMap.get(docId);
+      if (!snap) {
+        throw new HttpsError("internal", "Δεν ήταν δυνατή η ανάγνωση του αποθέματος.");
+      }
       const current = snap.exists ? Number(snap.data()?.quantity ?? 0) : 0;
       const [productId, vtId] = docId.split("__");
       tx.set(
@@ -266,9 +272,9 @@ export const createOrder = onCall(async (request) => {
                 quantityDelta: -(item.quantity * cQty),
                 isBulkVolume: false,
                 orderId: orderRef.id,
-                reason: isSpecialBottle
-                  ? `Πώληση Special Μπουκαλιού (${item.quantity} × ${cQty} τεμ.)`
-                  : `Πώληση Αναλωσίμου (${item.quantity} × ${cQty} τεμ.)`,
+                reason: isSpecialBottle ?
+                  `Πώληση Special Μπουκαλιού (${item.quantity} × ${cQty} τεμ.)` :
+                  `Πώληση Αναλωσίμου (${item.quantity} × ${cQty} τεμ.)`,
                 performedByEmployeeId: data.employeeId || actor.uid,
                 createdAt: now
               });

@@ -37,7 +37,7 @@ export async function resolveActorContext(
     throw new HttpsError("permission-denied", "User profile not found.");
   }
 
-  const userData = userSnap.data() as { tenantId?: string; role?: string } | undefined;
+  const userData = userSnap.data() as { tenantId?: string; role?: string; active?: boolean } | undefined;
   const tenantId = userData?.tenantId;
   const role = userData?.role;
 
@@ -49,6 +49,9 @@ export async function resolveActorContext(
   }
   if (role !== "OWNER" && role !== "EMPLOYEE") {
     throw new HttpsError("permission-denied", "Invalid user role.");
+  }
+  if (userData?.active === false) {
+    throw new HttpsError("permission-denied", "User account is disabled.");
   }
 
   return {

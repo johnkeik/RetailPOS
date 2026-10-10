@@ -1,9 +1,10 @@
 {
   "name": "functions",
   "scripts": {
-    "lint": "eslint --ext .js,.ts .",
+    "lint": "eslint --ext .ts src",
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "bootstrap:admin": "node scripts/bootstrap-admin-user.js",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",

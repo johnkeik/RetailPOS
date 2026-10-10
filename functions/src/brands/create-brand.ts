@@ -19,7 +19,7 @@ export const createBrand = onCall(async (request) => {
     name: data.name.trim(),
     code: data.code?.trim() || null,
     active: data.active ?? true,
-    createdAt: serverTimestamp(),
+    createdAt: serverTimestamp()
   });
 
   return {ok: true, brandId: brandRef.id};

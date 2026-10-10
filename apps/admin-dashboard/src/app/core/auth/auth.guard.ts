@@ -9,7 +9,7 @@ export const authGuard: CanActivateFn = async () => {
 
   await authService.authReady;
 
-  if (authService.isAuthenticated()) {
+  if (authService.currentUser()?.role === 'OWNER') {
     return true;
   }
 

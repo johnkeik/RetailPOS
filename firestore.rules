@@ -6,7 +6,9 @@ service cloud.firestore {
     function belongsToTenant(tenantId) {
       return request.auth != null
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId == tenantId;
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId == tenantId
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'OWNER'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false;
     }
 
     function isBuiltInPosTenant(tenantId) {
@@ -19,6 +21,11 @@ service cloud.firestore {
         'orders', 'products', 'stockMovements', 'variantTemplates', 'variants'
       ] && (belongsToTenant(tenantId) || isBuiltInPosTenant(tenantId));
       allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
     }
 
     match /{document=**} {

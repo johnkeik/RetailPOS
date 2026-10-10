@@ -39,7 +39,8 @@ export const recordStockMovements = onCall(async (request) => {
     if (!valid) {
       throw new HttpsError(
         "invalid-argument",
-        "Each line needs productId, variantTemplateId and a non-zero quantity (whole units, except perfume/essence in ml)."
+        "Each line needs productId, variantTemplateId and a non-zero quantity " +
+          "(whole units, except perfume/essence in ml)."
       );
     }
     return {
@@ -79,12 +80,12 @@ export const recordStockMovements = onCall(async (request) => {
       }
       if (isConsumable) continue;
 
-      const valid = BULK_COMPONENTS.includes(line.variantTemplateId)
-        ? parentData.packagingCategory === "BULK"
-        : Object.prototype.hasOwnProperty.call(
-            parentData.variantAssignments ?? {},
-            line.variantTemplateId
-          );
+      const valid = BULK_COMPONENTS.includes(line.variantTemplateId) ?
+        parentData.packagingCategory === "BULK" :
+        Object.prototype.hasOwnProperty.call(
+          parentData.variantAssignments ?? {},
+          line.variantTemplateId
+        );
       if (!valid) {
         throw new HttpsError(
           "failed-precondition",

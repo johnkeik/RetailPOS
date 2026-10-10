@@ -21,9 +21,9 @@ export const deleteConsumable = onCall(async (request) => {
 
   for (const doc of templatesSnap.docs) {
     const tData = doc.data();
-    const recipeConsumables = Array.isArray(tData.recipeConsumables)
-      ? tData.recipeConsumables
-      : [];
+    const recipeConsumables = Array.isArray(tData.recipeConsumables) ?
+      tData.recipeConsumables :
+      [];
     const isUsedInRecipe = recipeConsumables.some(
       (rc: { consumableId?: string }) => rc.consumableId === data.consumableId
     );

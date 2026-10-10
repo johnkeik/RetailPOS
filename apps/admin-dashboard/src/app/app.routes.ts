@@ -24,6 +24,7 @@ export const routes: Routes = [
 		path: '',
 		component: AdminShellComponent,
 		canActivate: [authGuard],
+		canActivateChild: [authGuard],
 		children: [
 			{
 				path: '',

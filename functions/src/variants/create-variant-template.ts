@@ -26,7 +26,7 @@ export const createVariantTemplate = onCall(async (request) => {
     sellingPrice: Number(data.sellingPrice),
     active: data.active ?? true,
     createdAt: now,
-    updatedAt: now,
+    updatedAt: now
   };
 
   if (data.size != null) payload.size = Number(data.size);

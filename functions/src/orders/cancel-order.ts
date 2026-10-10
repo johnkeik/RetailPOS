@@ -24,9 +24,9 @@ export const cancelOrder = onCall(async (request) => {
   }
 
   validateTenantScope(data.tenantId);
-  const actor = request.auth?.uid
-    ? await resolveActorContext(request.auth, data.tenantId)
-    : { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
+  const actor = request.auth?.uid ?
+    await resolveActorContext(request.auth, data.tenantId) :
+    { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
   const tenantId = actor.tenantId;
   await assertManagerPin(tenantId, data.managerPin);
@@ -100,7 +100,10 @@ export const cancelOrder = onCall(async (request) => {
 
     const now = serverTimestamp();
     for (const [inventoryId, delta] of inventoryDeltas) {
-      const snapshot = inventorySnapshots.get(inventoryId)!;
+      const snapshot = inventorySnapshots.get(inventoryId);
+      if (!snapshot) {
+        throw new HttpsError("internal", "Δεν ήταν δυνατή η ανάγνωση του αποθέματος για την ακύρωση.");
+      }
       const current = snapshot.exists ? Number(snapshot.data()?.["quantity"] ?? 0) : 0;
       tx.set(db.doc(`tenants/${tenantId}/inventory/${inventoryId}`), {
         tenantId,
