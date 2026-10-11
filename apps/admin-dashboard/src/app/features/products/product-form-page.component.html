@@ -1,0 +1,267 @@
+<app-page-title
+  [title]="isEditing() ? 'Επεξεργασία Προϊόντος' : 'Νέο Προϊόν'"
+  subtitle="Συμπληρώστε τα στοιχεία του προϊόντος και επιλέξτε τις παραλλαγές του."
+/>
+
+<div class="product-form-toolbar">
+  <a routerLink="/products">← Πίσω στα προϊόντα</a>
+  @if (isEditing()) {
+    <button type="button" class="form-delete-button" (click)="deleteProduct()">Διαγραφή προϊόντος</button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="form-state">Φόρτωση προϊόντος και διαθέσιμων επιλογών…</div>
+} @else if (productLoadError()) {
+  <div class="form-error" role="alert">{{ productLoadError() }}</div>
+} @else {
+  @if (error()) {
+    <div class="form-error" role="alert">{{ error() }}</div>
+  }
+
+  @if (!hasCatalogDependencies()) {
+    <div class="form-error" role="status">Δημιουργήστε τουλάχιστον μία ενεργή μάρκα και κατηγορία πριν καταχωρίσετε προϊόν.</div>
+  }
+  @if (!hasVariantTemplates()) {
+    <div class="form-error" role="status">Δεν βρέθηκαν παραλλαγές. Δημιουργήστε πρότυπα παραλλαγών πρώτα.</div>
+  }
+
+  <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="product-form">
+    <section class="form-section">
+      <h2>Στοιχεία προϊόντος</h2>
+
+      <div class="form-grid two-columns">
+        <div>
+          <label class="field" for="productCode">Κωδικός Προϊόντος</label>
+          <input id="productCode" type="text" class="text-input" formControlName="productCode" placeholder="π.χ. 310001" />
+          @if (productForm.controls.productCode.touched && productForm.controls.productCode.invalid) {
+            <small class="field-error">Ο κωδικός είναι υποχρεωτικός.</small>
+          }
+        </div>
+        <div>
+          <label class="field" for="name">Όνομα Προϊόντος</label>
+          <input id="name" type="text" class="text-input" formControlName="name" placeholder="π.χ. Sauvage" />
+          @if (productForm.controls.name.touched && productForm.controls.name.invalid) {
+            <small class="field-error">Το όνομα είναι υποχρεωτικό.</small>
+          }
+        </div>
+        <div>
+          <label class="field" for="brandId">Μάρκα</label>
+          <select id="brandId" class="text-input" formControlName="brandId">
+            <option value="">Επιλέξτε μάρκα...</option>
+            @for (brand of brands(); track brand.id) {
+              <option [value]="brand.id">{{ brand.name }}</option>
+            }
+          </select>
+          @if (productForm.controls.brandId.touched && productForm.controls.brandId.invalid) {
+            <small class="field-error">Η μάρκα είναι υποχρεωτική.</small>
+          }
+        </div>
+        <div>
+          <label class="field" for="categoryId">Κατηγορία</label>
+          <select id="categoryId" class="text-input" formControlName="categoryId">
+            <option value="">Επιλέξτε κατηγορία...</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+          @if (productForm.controls.categoryId.touched && productForm.controls.categoryId.invalid) {
+            <small class="field-error">Η κατηγορία είναι υποχρεωτική.</small>
+          }
+        </div>
+        <div>
+          <label class="field" for="packagingCategory">Κατηγορία Συσκευασίας</label>
+          <select
+            id="packagingCategory"
+            class="text-input"
+            formControlName="packagingCategory"
+            (change)="onPackagingCategoryChange()"
+          >
+            <option value="BULK">Χύμα (BULK)</option>
+            <option value="PACKAGED">Συσκευασμένο (PACKAGED)</option>
+          </select>
+          <small class="hint">ΧΥΜΑ = παρακολούθηση όγκου (ml). ΣΥΣΚΕΥΑΣΜΕΝΟ = τεμάχια.</small>
+        </div>
+        <div>
+          <label class="field" for="gender">Φύλο</label>
+          <select id="gender" class="text-input" formControlName="gender">
+            <option value="">Μη καθορισμένο</option>
+            <option value="M">Ανδρικό (M)</option>
+            <option value="F">Γυναικείο (F)</option>
+            <option value="UNISEX">Unisex</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ingredients-block">
+        <label class="field" for="ingredients">Συστατικά (για την ετικέτα)</label>
+        <textarea id="ingredients" class="text-input" rows="3" maxlength="500" formControlName="ingredients"></textarea>
+        <small class="hint">Με κεφαλαία, χωρισμένα με κόμμα. Εκτυπώνονται στη δεύτερη ετικέτα.</small>
+      </div>
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Ενεργό Προϊόν</span>
+      </label>
+    </section>
+
+    <section class="form-section variant-section">
+      <header class="variant-section-heading">
+        <div>
+          <h2>Παραλλαγές προϊόντος</h2>
+          <p>Επιλέξτε τις διαθέσιμες συσκευασίες και ορίστε τιμές.</p>
+        </div>
+        <span class="variants-count-badge">{{ filteredVariantTemplates().length }} διαθέσιμες</span>
+      </header>
+
+      @if (orderedAssignedVariants().length > 0) {
+        <div class="variant-order-panel">
+          <button
+            type="button"
+            class="variant-order-toggle"
+            [attr.aria-expanded]="variantOrderExpanded()"
+            aria-controls="variant-order-details"
+            (click)="toggleVariantOrder()"
+          >
+            <span class="variant-order-toggle-label">
+              <strong>Σειρά εμφάνισης στο POS</strong>
+              <span>{{ orderedAssignedVariants().length }} επιλεγμένες</span>
+            </span>
+            <span aria-hidden="true">{{ variantOrderExpanded() ? '⌃' : '⌄' }}</span>
+          </button>
+          <div id="variant-order-details" [hidden]="!variantOrderExpanded()">
+            <p class="variant-order-hint">Η πρώτη παραλλαγή επιλέγεται αυτόματα.</p>
+            <ol
+              class="variant-order-list"
+              cdkDropList
+              cdkDropListLockAxis="y"
+              [cdkDropListData]="orderedAssignedVariants()"
+              (cdkDropListDropped)="reorderVariants($event)"
+            >
+              @for (template of orderedAssignedVariants(); track template.id; let index = $index) {
+                <li class="variant-order-item" cdkDrag>
+                  <span class="variant-order-name">{{ template.name }}</span>
+                  <div class="variant-order-actions">
+                    <button
+                      type="button"
+                      class="variant-order-move"
+                      cdkDragHandle
+                      [attr.aria-label]="'Σύρετε για αλλαγή σειράς: ' + template.name"
+                      title="Σύρετε για αλλαγή σειράς"
+                    >⋮⋮</button>
+                    <button
+                      type="button"
+                      class="variant-order-move"
+                      [disabled]="index === 0"
+                      (click)="moveVariant(template.id, -1)"
+                      [attr.aria-label]="'Μετακίνηση ' + template.name + ' προς τα πάνω'"
+                      title="Μετακίνηση προς τα πάνω"
+                    >↑</button>
+                    <button
+                      type="button"
+                      class="variant-order-move"
+                      [disabled]="index === orderedAssignedVariants().length - 1"
+                      (click)="moveVariant(template.id, 1)"
+                      [attr.aria-label]="'Μετακίνηση ' + template.name + ' προς τα κάτω'"
+                      title="Μετακίνηση προς τα κάτω"
+                    >↓</button>
+                  </div>
+                </li>
+              }
+            </ol>
+          </div>
+        </div>
+      }
+
+      <div class="variant-search">
+        <label class="field" for="templateSearch">Αναζήτηση παραλλαγής</label>
+        <input
+          id="templateSearch"
+          type="search"
+          class="text-input"
+          [value]="variantSearch()"
+          (input)="variantSearch.set(templateSearch.value)"
+          #templateSearch
+          placeholder="Όνομα ή κωδικός παραλλαγής"
+        />
+      </div>
+
+      @if (filteredVariantTemplates().length === 0) {
+        <div class="form-state">Δεν βρέθηκαν πρότυπα για αυτόν τον τύπο συσκευασίας.</div>
+      } @else if (visibleVariantTemplates().length === 0) {
+        <div class="form-state">Δεν βρέθηκαν παραλλαγές για την αναζήτηση.</div>
+      } @else {
+        <div class="variant-template-grid">
+          @for (template of visibleVariantTemplates(); track template.id) {
+            <div class="variant-template-card" [class.selected]="isVariantTemplateSelected(template.id)">
+              <label class="variant-check-label">
+                <input
+                  type="checkbox"
+                  [checked]="isVariantTemplateSelected(template.id)"
+                  (change)="toggleVariantTemplate(template.id, template.sellingPrice)"
+                />
+                <span class="variant-card-info">
+                  <strong class="variant-card-title">{{ template.name }}</strong>
+                  <span class="variant-card-meta">
+                    {{ template.size ?? 1 }}{{ template.unit }}
+                    @if (template.packagingType === 'BULK' && (template.perfumeMl || template.essenceMl)) {
+                      • ({{ template.perfumeMl ?? 0 }}ml βάση + {{ template.essenceMl ?? 0 }}ml εσάνς)
+                    }
+                    • Προτεινόμενη: {{ template.sellingPrice }} €
+                  </span>
+                </span>
+              </label>
+
+              @if (isVariantTemplateSelected(template.id)) {
+                <div class="variant-pricing-row">
+                  <div>
+                    <label class="field-mini" [for]="'sp-' + template.id">Τιμή Πώλησης (€)</label>
+                    <input
+                      [id]="'sp-' + template.id"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="text-input price-input"
+                      [value]="getVariantAssignment(template.id)?.sellingPrice"
+                      (change)="setVariantSellingPrice(template.id, spInput.value)"
+                      #spInput
+                    />
+                  </div>
+                  <div>
+                    <label class="field-mini" [for]="'cp-' + template.id">Τιμή Κόστους (€)</label>
+                    <input
+                      [id]="'cp-' + template.id"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      class="text-input price-input"
+                      [value]="getVariantAssignment(template.id)?.costPrice ?? ''"
+                      (change)="setVariantCostPrice(template.id, cpInput.value)"
+                      #cpInput
+                      placeholder="Προαιρετικό"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (variantSelectionError()) {
+        <small class="field-error">{{ variantSelectionError() }}</small>
+      }
+    </section>
+
+    <footer class="form-actions">
+      <button type="button" class="form-secondary-button" (click)="onBack()">Ακύρωση</button>
+      <button
+        type="submit"
+        class="form-primary-button"
+        [disabled]="saving() || !hasCatalogDependencies() || !hasVariantTemplates()"
+      >
+        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία προϊόντος') }}
+      </button>
+    </footer>
+  </form>
+}

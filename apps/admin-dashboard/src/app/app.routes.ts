@@ -9,6 +9,7 @@ import { DashboardPageComponent } from './features/dashboard/dashboard-page.comp
 import { EmployeesPageComponent } from './features/employees/employees-page.component';
 import { ConsumablesPageComponent } from './features/consumables/consumables-page.component';
 import { InventoryPageComponent } from './features/inventory/inventory-page.component';
+import { ProductFormPageComponent } from './features/products/product-form-page.component';
 import { ProductsPageComponent } from './features/products/products-page.component';
 import { SalesHistoryPageComponent } from './features/sales-history/sales-history-page.component';
 import { StockEntryPageComponent } from './features/stock-movements/stock-entry-page.component';
@@ -34,6 +35,14 @@ export const routes: Routes = [
 			{
 				path: 'dashboard',
 				component: DashboardPageComponent
+			},
+			{
+				path: 'products/new',
+				component: ProductFormPageComponent
+			},
+			{
+				path: 'products/:id/edit',
+				component: ProductFormPageComponent
 			},
 			{
 				path: 'products',

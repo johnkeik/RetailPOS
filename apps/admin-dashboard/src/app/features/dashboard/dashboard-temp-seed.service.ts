@@ -37,32 +37,55 @@ export class DashboardTempSeedService {
     }
   }
 
-  async seedMockCatalog(): Promise<void> {
-    const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      this.error.set('Missing tenant context.');
-      return;
-    }
+  async seedMockBrands(): Promise<void> {
+    await this.runCatalogSeed('Μάρκες', async (tenantId) => {
+      await this.ensureBrands(tenantId, mockCatalogData.brands);
+      return `Έτοιμες ${mockCatalogData.brands.length} μάρκες.`;
+    });
+  }
 
-    this.loading.set(true);
-    this.error.set(null);
-    this.status.set('Seeding mock catalog into Firebase emulators...');
+  async seedMockCategories(): Promise<void> {
+    await this.runCatalogSeed('Κατηγορίες', async (tenantId) => {
+      await this.ensureCategories(tenantId, mockCatalogData.categories);
+      return `Έτοιμες ${mockCatalogData.categories.length} κατηγορίες.`;
+    });
+  }
 
-    try {
-      const [brandMap, categoryMap, consumableMap] = await Promise.all([
-        this.ensureBrands(tenantId, mockCatalogData.brands),
-        this.ensureCategories(tenantId, mockCatalogData.categories),
-        this.ensureConsumables(tenantId, mockCatalogData.consumables)
-      ]);
+  async seedMockConsumables(): Promise<void> {
+    await this.runCatalogSeed('Αναλώσιμα', async (tenantId) => {
+      await this.ensureConsumables(tenantId, mockCatalogData.consumables);
+      return `Έτοιμα ${mockCatalogData.consumables.length} αναλώσιμα.`;
+    });
+  }
 
-      const [templateMap, existingProductCodes] = await Promise.all([
-        this.ensureVariantTemplates(tenantId, mockCatalogData.variantTemplates, consumableMap),
+  async seedMockVariantTemplates(): Promise<void> {
+    await this.runCatalogSeed('Πρότυπα παραλλαγών', async (tenantId) => {
+      const consumableMap = await this.loadExistingIdMap(tenantId, 'consumables');
+      await this.ensureVariantTemplates(tenantId, mockCatalogData.variantTemplates, consumableMap);
+      return `Έτοιμα ${mockCatalogData.variantTemplates.length} πρότυπα παραλλαγών.`;
+    });
+  }
+
+  async seedMockProducts(categoryCode: string): Promise<void> {
+    const category = mockCatalogData.categories.find((item) => item.code === categoryCode);
+    await this.runCatalogSeed(category?.name ?? 'Προϊόντα', async (tenantId) => {
+      if (!category) {
+        throw new Error(`Unknown mock category: ${categoryCode}.`);
+      }
+
+      const products = mockCatalogData.products.filter((item) => item.categoryCode === categoryCode);
+      const [brandMap, categoryMap, templateMap, existingProductCodes] = await Promise.all([
+        this.loadExistingIdMap(tenantId, 'brands'),
+        this.loadExistingIdMap(tenantId, 'categories'),
+        this.loadExistingIdMap(tenantId, 'variantTemplates'),
         this.loadExistingProductCodes(tenantId)
       ]);
 
       let createdProducts = 0;
-      for (const product of mockCatalogData.products) {
+      let skippedProducts = 0;
+      for (const product of products) {
         if (existingProductCodes.has(product.productCode)) {
+          skippedProducts += 1;
           continue;
         }
 
@@ -90,12 +113,29 @@ export class DashboardTempSeedService {
         createdProducts += 1;
       }
 
-      this.status.set(
-        `Mock catalog ready. Brands: ${mockCatalogData.brands.length}, categories: ${mockCatalogData.categories.length}, consumables: ${mockCatalogData.consumables.length}, templates: ${mockCatalogData.variantTemplates.length}, new products: ${createdProducts}.`
-      );
+      return `${category.name}: νέα ${createdProducts}, ήδη υπάρχοντα ${skippedProducts}.`;
+    });
+  }
+
+  private async runCatalogSeed(
+    group: string,
+    seed: (tenantId: string) => Promise<string>
+  ): Promise<void> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) {
+      this.error.set('Λείπει το κατάστημα.');
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+    this.status.set(`Δημιουργία δοκιμαστικών δεδομένων: ${group}...`);
+
+    try {
+      this.status.set(await seed(tenantId));
     } catch (error) {
       console.error(error);
-      this.error.set('Failed to seed mock catalog into the emulators.');
+      this.error.set(`Αποτυχία δημιουργίας δοκιμαστικών δεδομένων: ${group}.`);
     } finally {
       this.loading.set(false);
     }
