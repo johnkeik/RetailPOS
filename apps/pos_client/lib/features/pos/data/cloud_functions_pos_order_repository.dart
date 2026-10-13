@@ -30,10 +30,12 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required List<CartLine> lines,
+    required PaymentMethod paymentMethod,
   }) async {
     final payload = {
       'tenantId': tenantId,
       'employeeId': employeeId,
+      'paymentMethod': paymentMethod.wireValue,
       'items': lines
           .map(
             (line) => {
@@ -192,6 +194,7 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
         total: (data['total'] as num? ?? 0).toDouble(),
         createdAt: createdAt,
         items: items,
+        paymentMethod: paymentMethodFromWireValue(data['paymentMethod']),
         status: data['status'] as String? ?? 'COMPLETED',
         cancellationReason: data['cancellationReason'] as String?,
         isSeeded: data['seededAt'] != null,

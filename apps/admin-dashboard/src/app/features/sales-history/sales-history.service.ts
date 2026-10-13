@@ -86,6 +86,7 @@ export class SalesHistoryService {
           employeeId,
           employeeName: employeeNames.get(employeeId) || employeeId,
           status: data.status ?? 'COMPLETED',
+          paymentMethod: data.paymentMethod,
           subtotal: typeof data.subtotal === 'number' ? data.subtotal : undefined,
           discountTotal:
             typeof data.discountTotal === 'number' ? data.discountTotal : undefined,

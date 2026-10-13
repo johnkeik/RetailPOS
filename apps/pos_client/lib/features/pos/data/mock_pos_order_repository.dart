@@ -9,6 +9,7 @@ class MockPosOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required List<CartLine> lines,
+    required PaymentMethod paymentMethod,
   }) async {
     return 'mock-order-id';
   }

@@ -49,6 +49,7 @@ class _PosHomePageState extends State<PosHomePage> {
   bool _loadingCatalog = true;
   String? _catalogError;
   bool _submittingOrder = false;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.cash;
 
   @override
   void initState() {
@@ -165,17 +166,9 @@ class _PosHomePageState extends State<PosHomePage> {
     return null;
   }
 
-  double get _subtotal {
+  double get _total {
     return _cartLines.fold(
         0.0, (sum, line) => sum + (line.unitPrice * line.quantity));
-  }
-
-  double get _tax {
-    return _subtotal * 0.24;
-  }
-
-  double get _total {
-    return _subtotal + _tax;
   }
 
   String _categoryLabel(String category) {
@@ -464,6 +457,60 @@ class _PosHomePageState extends State<PosHomePage> {
     });
   }
 
+  Widget _paymentMethodOption({
+    required PaymentMethod method,
+    required String label,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedPaymentMethod == method;
+    final colors = Theme.of(context).colorScheme;
+
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        onTap: _submittingOrder
+            ? null
+            : () => setState(() => _selectedPaymentMethod = method),
+        child: ExcludeSemantics(
+          child: Material(
+            key: ValueKey('payment-${method.name}'),
+            color: isSelected ? colors.secondary : Colors.transparent,
+            child: InkWell(
+              onTap: _submittingOrder
+                  ? null
+                  : () => setState(() => _selectedPaymentMethod = method),
+              child: SizedBox.expand(
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 20,
+                        color: isSelected ? colors.onSecondary : colors.onSurface,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: isSelected ? colors.onSecondary : colors.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitOrder() async {
     if (_cartLines.isEmpty || _submittingOrder) {
       return;
@@ -476,6 +523,7 @@ class _PosHomePageState extends State<PosHomePage> {
         tenantId: widget.tenantId,
         employeeId: widget.employeeId,
         lines: _cartLines,
+        paymentMethod: _selectedPaymentMethod,
       );
 
       if (!mounted) {
@@ -1518,40 +1566,6 @@ class _PosHomePageState extends State<PosHomePage> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Text('Υποσύνολο',
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                            const Spacer(),
-                                            Text(
-                                              '€${_subtotal.toStringAsFixed(2)}',
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Row(
-                                          children: [
-                                            const Text('ΦΠΑ (24%)',
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                            const Spacer(),
-                                            Text(
-                                              '€${_tax.toStringAsFixed(2)}',
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        const Divider(height: 16),
-                                        Row(
-                                          children: [
                                             const Text(
                                               'ΣΥΝΟΛΟ',
                                               style: TextStyle(
@@ -1571,6 +1585,39 @@ class _PosHomePageState extends State<PosHomePage> {
                                           ],
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+
+                                SizedBox(
+                                  height: 56,
+                                  child: DecoratedBox(
+                                    position: DecorationPosition.foreground,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: colors.outline),
+                                      borderRadius: BorderRadius.circular(28),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(28),
+                                      child: Row(
+                                        children: [
+                                          _paymentMethodOption(
+                                            method: PaymentMethod.card,
+                                            label: 'Κάρτα',
+                                            icon: Icons.credit_card,
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            color: colors.outline,
+                                          ),
+                                          _paymentMethodOption(
+                                            method: PaymentMethod.cash,
+                                            label: 'Μετρητά',
+                                            icon: Icons.payments_outlined,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1635,4 +1682,3 @@ class _PosHomePageState extends State<PosHomePage> {
     );
   }
 }
-

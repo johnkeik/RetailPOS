@@ -1,5 +1,20 @@
 enum ProductVariantType { packaged, bulk }
 
+enum PaymentMethod { card, cash }
+
+extension PaymentMethodSerialization on PaymentMethod {
+  String get wireValue => switch (this) {
+        PaymentMethod.card => 'CARD',
+        PaymentMethod.cash => 'CASH',
+      };
+}
+
+PaymentMethod? paymentMethodFromWireValue(Object? value) => switch (value) {
+      'CARD' => PaymentMethod.card,
+      'CASH' => PaymentMethod.cash,
+      _ => null,
+    };
+
 extension ProductVariantTypeLabel on ProductVariantType {
   String get label {
     switch (this) {
@@ -131,6 +146,7 @@ class PosOrder {
     required this.total,
     required this.createdAt,
     required this.items,
+    this.paymentMethod,
     this.status = 'COMPLETED',
     this.cancellationReason,
     this.isSeeded = false,
@@ -141,6 +157,7 @@ class PosOrder {
   final double total;
   final DateTime? createdAt;
   final List<PosOrderItem> items;
+  final PaymentMethod? paymentMethod;
   final String status;
   final String? cancellationReason;
   final bool isSeeded;

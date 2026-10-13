@@ -94,6 +94,67 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
     super.dispose();
   }
 
+  void _appendDigit(String digit) {
+    if (_checking) return;
+    _controller.text += digit;
+    setState(() => _error = null);
+  }
+
+  void _backspace() {
+    final text = _controller.text;
+    if (_checking || text.isEmpty) return;
+    _controller.text = text.substring(0, text.length - 1);
+  }
+
+  void _clear() {
+    if (!_checking) _controller.clear();
+  }
+
+  Widget _keypadButton(String label, VoidCallback onTap) {
+    return FilledButton.tonal(
+      onPressed: _checking ? null : onTap,
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(60),
+        padding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+    );
+  }
+
+  Widget _buildKeypad() {
+    final rows = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['⌫', '0', 'C'],
+    ];
+    return Column(
+      children: [
+        for (final row in rows) ...[
+          Row(
+            children: [
+              for (var i = 0; i < row.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _keypadButton(
+                    row[i],
+                    row[i] == '⌫'
+                        ? _backspace
+                        : row[i] == 'C'
+                            ? _clear
+                            : () => _appendDigit(row[i]),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (row != rows.last) const SizedBox(height: 8),
+        ],
+      ],
+    );
+  }
+
   Future<void> _submit() async {
     final employeeCode = _controller.text.trim();
     if (employeeCode.isEmpty) {
@@ -194,6 +255,8 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                         ),
                         onSubmitted: (_) => _submit(),
                       ),
+                      const SizedBox(height: 12),
+                      _buildKeypad(),
                       if (_error != null) ...[
                         const SizedBox(height: 8),
                         Text(

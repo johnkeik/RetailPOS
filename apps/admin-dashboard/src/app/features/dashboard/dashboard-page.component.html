@@ -138,6 +138,7 @@
             <th>Παραγγελία</th>
             <th>Υπάλληλος</th>
             <th>Είδη</th>
+            <th>Πληρωμή</th>
             <th>Σύνολο</th>
           </tr>
         </thead>
@@ -148,6 +149,7 @@
               <td><a class="order-link" routerLink="/sales-history">{{ order.id.slice(0, 8) }}</a></td>
               <td>{{ order.employeeName }}</td>
               <td>{{ order.itemCount }}</td>
+              <td>{{ order.paymentMethod === 'CARD' ? 'Κάρτα' : order.paymentMethod === 'CASH' ? 'Μετρητά' : '—' }}</td>
               <td class="order-total">{{ formatCurrency(order.total) }}</td>
             </tr>
           }

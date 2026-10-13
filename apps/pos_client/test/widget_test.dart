@@ -30,6 +30,7 @@ class _HistoryOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required List<CartLine> lines,
+    required PaymentMethod paymentMethod,
   }) async =>
       'order-1';
 
@@ -83,6 +84,7 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required List<CartLine> lines,
+    required PaymentMethod paymentMethod,
   }) async =>
       'order-cancel-1';
 
@@ -155,7 +157,31 @@ void main() {
     expect(find.text('store001'), findsOneWidget);
     expect(find.text('Ιστορικό'), findsOneWidget);
     expect(find.text('Αποσύνδεση'), findsOneWidget);
+    final cardPayment = find.byKey(const ValueKey('payment-card'));
+    final cashPayment = find.byKey(const ValueKey('payment-cash'));
+    expect(cardPayment, findsOneWidget);
+    expect(cashPayment, findsOneWidget);
+    expect(tester.getSize(cardPayment).height, 56);
+    expect(tester.getSize(cashPayment).height, 56);
+    final initialSelectedColor = tester.widget<Material>(cashPayment).color;
+    final initialUnselectedColor = tester.widget<Material>(cardPayment).color;
+    expect(initialSelectedColor, isNot(initialUnselectedColor));
+    expect(find.text('Κάρτα'), findsOneWidget);
+    expect(find.text('Μετρητά'), findsOneWidget);
+    await tester.tap(cardPayment);
+    await tester.pump();
+    expect(tester.widget<Material>(cardPayment).color, initialSelectedColor);
+    expect(tester.widget<Material>(cashPayment).color, initialUnselectedColor);
     expect(tester.takeException(), isNull);
+
+    await tester.tap(find.textContaining('Προσθήκη — €15.00'));
+    await tester.pumpAndSettle();
+    expect(find.text('Καθαρή αξία'), findsNothing);
+    expect(find.textContaining('ΦΠΑ'), findsNothing);
+    expect(find.text('ΣΥΝΟΛΟ'), findsOneWidget);
+    expect(find.text('€12.10'), findsNothing);
+    expect(find.text('€2.90'), findsNothing);
+    expect(find.text('€15.00'), findsNWidgets(3));
 
     tester.view.physicalSize = const Size(1280, 720);
     await tester.pumpAndSettle();

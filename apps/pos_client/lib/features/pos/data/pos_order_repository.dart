@@ -5,6 +5,7 @@ abstract class PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required List<CartLine> lines,
+    required PaymentMethod paymentMethod,
   });
 
   Future<List<PosOrder>> loadRecentOrders({
