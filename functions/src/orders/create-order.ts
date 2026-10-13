@@ -25,6 +25,9 @@ export const createOrder = onCall(async (request) => {
   if (!data.employeeId || !Array.isArray(data.items) || data.items.length === 0) {
     throw new HttpsError("invalid-argument", "employeeId and at least one item are required.");
   }
+  if (data.paymentMethod !== undefined && !["CARD", "CASH"].includes(data.paymentMethod)) {
+    throw new HttpsError("invalid-argument", "Invalid payment method.");
+  }
 
   const actor = request.auth?.uid ?
     await resolveActorContext(request.auth, data.tenantId) :
@@ -324,6 +327,7 @@ export const createOrder = onCall(async (request) => {
       tenantId: actor.tenantId,
       employeeId: data.employeeId || actor.uid,
       status: "COMPLETED",
+      ...(data.paymentMethod ? { paymentMethod: data.paymentMethod } : {}),
       subtotal: total,
       discountTotal: 0,
       total,

@@ -73,10 +73,13 @@ export type OrderItemInput = {
   useSpecialBottle?: boolean;
 };
 
+export type PaymentMethod = "CARD" | "CASH";
+
 export type CreateOrderInput = {
   tenantId: string;
   employeeId: string;
   items: OrderItemInput[];
+  paymentMethod?: PaymentMethod;
 };
 
 export type SetManagerPinInput = {
