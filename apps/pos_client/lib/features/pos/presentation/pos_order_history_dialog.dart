@@ -143,16 +143,17 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
     setState(() => _printingKey = key);
 
     // Ingredients are not stored on orders; use the current catalog.
-    final ingredientsByCode = {
-      for (final product in widget.products) product.code: product.ingredients,
+    final productsByKey = {
+      for (final product in widget.products) product.id: product,
+      for (final product in widget.products) product.code: product,
     };
     final result = await widget.labelPrinter.printItems(
       orderId: orderId,
       items: [
         for (final item in items)
           LabelPrintItem(
-            productCode: item.productCode,
-            ingredients: ingredientsByCode[item.productCode] ?? '',
+            productCode: productsByKey[item.productCode]?.code ?? item.productCode,
+            ingredients: productsByKey[item.productCode]?.ingredients ?? '',
             quantity: item.quantity,
           ),
       ],

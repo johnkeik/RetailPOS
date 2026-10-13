@@ -540,9 +540,14 @@ class _PosHomePageState extends State<PosHomePage> {
         case 'invalid-argument':
           return 'Τα στοιχεία της παραγγελίας δεν είναι έγκυρα. Ελέγξτε το καλάθι και δοκιμάστε ξανά.';
       }
+
+      final message = error.message?.trim();
+      return message == null || message.isEmpty
+          ? 'Σφάλμα διακομιστή (${error.code}).'
+          : 'Σφάλμα διακομιστή (${error.code}): $message';
     }
 
-    return 'Παρουσιάστηκε σφάλμα κατά την καταχώρηση. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.';
+    return 'Παρουσιάστηκε σφάλμα (${error.runtimeType}) κατά την καταχώρηση. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.';
   }
 
   Future<void> _showOrderHistory() async {

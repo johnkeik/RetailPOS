@@ -21,7 +21,9 @@ import 'package:pos_client/features/pos/presentation/pos_home_page.dart';
 import 'package:pos_client/features/pos/presentation/pos_order_history_dialog.dart';
 
 class _HistoryOrderRepository implements PosOrderRepository {
-  const _HistoryOrderRepository();
+  const _HistoryOrderRepository({this.productCode = '310047'});
+
+  final String productCode;
 
   @override
   Future<String> submitOrder({
@@ -40,9 +42,9 @@ class _HistoryOrderRepository implements PosOrderRepository {
         employeeId: 'employee-1',
         total: 12,
         createdAt: DateTime(2026, 9, 27, 12),
-        items: const [
+        items: [
           PosOrderItem(
-            productCode: '310047',
+            productCode: productCode,
             productName: 'Άρωμα δοκιμής',
             variantCode: 'BULK-50',
             variantLabel: '50ml',
@@ -242,6 +244,57 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(sent?['orderId'], 'order-1');
+    expect(sent?['items'], [
+      {'productCode': '310047', 'ingredients': 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ', 'quantity': 2},
+    ]);
+  });
+
+  testWidgets('order history resolves product IDs before reprinting labels',
+      (tester) async {
+    Map<String, dynamic>? sent;
+    final client = MockClient((request) async {
+      sent = jsonDecode(utf8.decode(request.bodyBytes)) as Map<String, dynamic>;
+      return http.Response(
+          jsonEncode({'success': true, 'labelsSubmitted': 2}), 200);
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => PosOrderHistoryDialog(
+                  repository: const _HistoryOrderRepository(productCode: 'p1'),
+                  tenantId: 'store001',
+                  employeeId: 'employee-1',
+                  labelPrinter:
+                      LabelPrintService(client: client, baseUrl: 'http://print'),
+                  products: const [
+                    ProductItem(
+                      id: 'p1',
+                      code: '310047',
+                      name: 'Test',
+                      category: 'All',
+                      variants: [],
+                      ingredients: 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ',
+                    ),
+                  ],
+                ),
+              ),
+              child: const Text('Άνοιγμα ιστορικού'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Άνοιγμα ιστορικού'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Εκτύπωση παραγγελίας'));
+    await tester.pumpAndSettle();
+
     expect(sent?['items'], [
       {'productCode': '310047', 'ingredients': 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ', 'quantity': 2},
     ]);
