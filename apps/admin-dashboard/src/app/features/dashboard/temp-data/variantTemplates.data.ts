@@ -1,15 +1,21 @@
 export const variants = [
+  // =====================================================
+  // PERFUME
+  // =====================================================
+
   {
     code: 'TRAVEL-10',
     name: 'Travel 10ml',
     size: 10,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 8,
+    sellingPrice: 5,
     costPrice: 0,
-    perfumeMl: 8,
-    essenceMl: 2,
-    recipeConsumables: [{ consumableCode: 'BTL-TRAVEL-10', quantity: 1 }],
+    perfumeMl: 9,
+    essenceMl: 1,
+    recipeConsumables: [
+      { consumableCode: 'BTL-TRAVEL-10', quantity: 1 },
+    ],
   },
 
   {
@@ -18,15 +24,17 @@ export const variants = [
     size: 30,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 15,
+    sellingPrice: 8,
     costPrice: 0,
-    perfumeMl: 24,
-    essenceMl: 6,
+    perfumeMl: 27.5,
+    essenceMl: 2.5,
     recipeConsumables: [
       { consumableCode: 'BTL-30', quantity: 1 },
       { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-STD', quantity: 1 },
     ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-30',
+    specialBottleExtraPrice: 2,
   },
 
   {
@@ -35,15 +43,17 @@ export const variants = [
     size: 50,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 22,
+    sellingPrice: 12,
     costPrice: 0,
-    perfumeMl: 40,
-    essenceMl: 10,
+    perfumeMl: 46,
+    essenceMl: 4,
     recipeConsumables: [
       { consumableCode: 'BTL-50', quantity: 1 },
       { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-STD', quantity: 1 },
     ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-50',
+    specialBottleExtraPrice: 2,
   },
 
   {
@@ -52,87 +62,21 @@ export const variants = [
     size: 100,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 38,
+    sellingPrice: 18,
     costPrice: 0,
-    perfumeMl: 80,
-    essenceMl: 20,
+    perfumeMl: 91,
+    essenceMl: 9,
     recipeConsumables: [
       { consumableCode: 'BTL-100', quantity: 1 },
       { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-STD', quantity: 1 },
     ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-100',
+    specialBottleExtraPrice: 2,
   },
 
   // =====================================================
-  // PREMIUM PERFUME
-  // =====================================================
-
-  {
-    code: 'PREM-TRAVEL-10',
-    name: 'Premium Travel 10ml',
-    size: 10,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 12,
-    costPrice: 0,
-    perfumeMl: 7,
-    essenceMl: 3,
-    recipeConsumables: [{ consumableCode: 'BTL-TRAVEL-10', quantity: 1 }],
-  },
-
-  {
-    code: 'PREM-30',
-    name: 'Premium 30ml',
-    size: 30,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 20,
-    costPrice: 0,
-    perfumeMl: 21,
-    essenceMl: 9,
-    recipeConsumables: [
-      { consumableCode: 'BTL-PREM-30', quantity: 1 },
-      { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-MAG', quantity: 1 },
-    ],
-  },
-
-  {
-    code: 'PREM-50',
-    name: 'Premium 50ml',
-    size: 50,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 30,
-    costPrice: 0,
-    perfumeMl: 35,
-    essenceMl: 15,
-    recipeConsumables: [
-      { consumableCode: 'BTL-PREM-50', quantity: 1 },
-      { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-MAG', quantity: 1 },
-    ],
-  },
-
-  {
-    code: 'PREM-100',
-    name: 'Premium 100ml',
-    size: 100,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 52,
-    costPrice: 0,
-    perfumeMl: 70,
-    essenceMl: 30,
-    recipeConsumables: [
-      { consumableCode: 'BTL-PREM-100', quantity: 1 },
-      { consumableCode: 'PMP-STD', quantity: 1 },
-      { consumableCode: 'CAP-MAG', quantity: 1 },
-    ],
-  },
-
-  // =====================================================
-  // SIMPLE ROLL ON
+  // ROLL ON
   // =====================================================
 
   {
@@ -141,11 +85,13 @@ export const variants = [
     size: 5,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 6,
+    sellingPrice: 5,
     costPrice: 0,
-    perfumeMl: 4,
-    essenceMl: 1,
-    recipeConsumables: [{ consumableCode: 'ROLLON-5', quantity: 1 }],
+    perfumeMl: 0,
+    essenceMl: 6,
+    recipeConsumables: [
+      { consumableCode: 'ROLLON-5', quantity: 1 },
+    ],
   },
 
   {
@@ -154,94 +100,106 @@ export const variants = [
     size: 10,
     unit: 'ml',
     packagingType: 'BULK',
-    sellingPrice: 8,
+    sellingPrice: 10,
     costPrice: 0,
-    perfumeMl: 8,
-    essenceMl: 2,
-    recipeConsumables: [{ consumableCode: 'ROLLON-10', quantity: 1 }],
-  },
-
-  // =====================================================
-  // PREMIUM ROLL ON
-  // =====================================================
-
-  {
-    code: 'ROLLON-PREM-5',
-    name: 'Premium Roll On 5ml',
-    size: 5,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 9,
-    costPrice: 0,
-    perfumeMl: 3.5,
-    essenceMl: 1.5,
-    recipeConsumables: [{ consumableCode: 'ROLLON-PREM-5', quantity: 1 }],
-  },
-
-  {
-    code: 'ROLLON-PREM-10',
-    name: 'Premium Roll On 10ml',
-    size: 10,
-    unit: 'ml',
-    packagingType: 'BULK',
-    sellingPrice: 12,
-    costPrice: 0,
-    perfumeMl: 7,
-    essenceMl: 3,
-    recipeConsumables: [{ consumableCode: 'ROLLON-PREM-10', quantity: 1 }],
-  },
-
-  // =====================================================
-  // BODY CREAM
-  // =====================================================
-
-  {
-    code: 'BODY-CREAM',
-    name: 'Κρέμα Σώματος Απλή',
-    size: 1,
-    unit: 'pcs',
-    packagingType: 'BULK',
-    sellingPrice: 12,
-    costPrice: 0,
-    recipeConsumables: [{ consumableCode: 'CREAM-BODY', quantity: 1 }],
-  },
-
-  {
-    code: 'BODY-CREAM-PREMIUM',
-    name: 'Κρέμα Σώματος Premium',
-    size: 1,
-    unit: 'pcs',
-    packagingType: 'BULK',
-    sellingPrice: 16,
-    costPrice: 0,
-    recipeConsumables: [{ consumableCode: 'CREAM-BODY-PREMIUM', quantity: 1 }],
-  },
-
-  // =====================================================
-  // GLITTER CREAM
-  // =====================================================
-
-  {
-    code: 'GLITTER-CREAM',
-    name: 'Glitter Κρέμα Απλή',
-    size: 1,
-    unit: 'pcs',
-    packagingType: 'BULK',
-    sellingPrice: 14,
-    costPrice: 0,
-    recipeConsumables: [{ consumableCode: 'CREAM-GLITTER', quantity: 1 }],
-  },
-
-  {
-    code: 'GLITTER-CREAM-PREMIUM',
-    name: 'Glitter Κρέμα Premium',
-    size: 1,
-    unit: 'pcs',
-    packagingType: 'BULK',
-    sellingPrice: 18,
-    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 12,
     recipeConsumables: [
-      { consumableCode: 'CREAM-GLITTER-PREMIUM', quantity: 1 },
+      { consumableCode: 'ROLLON-10', quantity: 1 },
+    ],
+  },
+
+  // =====================================================
+  // BODY / CARE
+  // =====================================================
+
+  {
+    code: 'SHOWER-GEL',
+    name: 'Shower Gel',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 13,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'SHOWER-GEL', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'BODY-MILK',
+    name: 'Body Milk',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 13,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-MILK', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'BODY-OIL',
+    name: 'Body Oil',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 13,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-OIL', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'BODY-MIST',
+    name: 'Body Mist',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 13,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-MIST', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'BODY-BUTTER',
+    name: 'Body Butter',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-BUTTER', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'GLITTER-BODY-OIL',
+    name: 'Glitter Body Oil',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'GLITTER-BODY-OIL', quantity: 1 },
     ],
   },
 
@@ -255,9 +213,13 @@ export const variants = [
     size: 1,
     unit: 'pcs',
     packagingType: 'BULK',
-    sellingPrice: 7,
+    sellingPrice: 5,
     costPrice: 0,
-    recipeConsumables: [{ consumableCode: 'CAR-FRESHENER', quantity: 1 }],
+    perfumeMl: 0,
+    essenceMl: 6,
+    recipeConsumables: [
+      { consumableCode: 'CAR-FRESHENER', quantity: 1 },
+    ],
   },
 
   // =====================================================
@@ -265,128 +227,291 @@ export const variants = [
   // =====================================================
 
   {
-    code: 'ROOM-FRESHENER',
-    name: 'Αρωματικό Χώρου',
-    size: 1,
-    unit: 'pcs',
+    code: 'ROOM-FRESHENER-50',
+    name: 'Αρωματικό Χώρου 50ml',
+    size: 50,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 12,
+    costPrice: 0,
+    perfumeMl: 46,
+    essenceMl: 4,
+    recipeConsumables: [
+      { consumableCode: 'ROOM-FRESHENER-50', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'ROOM-FRESHENER-100',
+    name: 'Αρωματικό Χώρου 100ml',
+    size: 100,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 17,
+    costPrice: 0,
+    perfumeMl: 91,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'ROOM-FRESHENER-100', quantity: 1 },
+    ],
+  },
+];
+
+export const premiumVariants = [
+  // =====================================================
+  // PREMIUM PERFUME
+  // =====================================================
+
+  {
+    code: 'PREM-TRAVEL-10',
+    name: 'Prem Travel 10ml',
+    size: 10,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 7,
+    costPrice: 0,
+    perfumeMl: 9,
+    essenceMl: 1,
+    recipeConsumables: [
+      { consumableCode: 'BTL-TRAVEL-10', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'PREM-BULK-30',
+    name: 'Prem Χύμα 30ml',
+    size: 30,
+    unit: 'ml',
     packagingType: 'BULK',
     sellingPrice: 10,
     costPrice: 0,
-    recipeConsumables: [{ consumableCode: 'ROOM-FRESHENER', quantity: 1 }],
+    perfumeMl: 27.5,
+    essenceMl: 2.5,
+    recipeConsumables: [
+      { consumableCode: 'BTL-30', quantity: 1 },
+      { consumableCode: 'PMP-STD', quantity: 1 },
+    ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-30',
+    specialBottleExtraPrice: 2,
   },
+
+  {
+    code: 'PREM-BULK-50',
+    name: 'Prem Χύμα 50ml',
+    size: 50,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 46,
+    essenceMl: 4,
+    recipeConsumables: [
+      { consumableCode: 'BTL-50', quantity: 1 },
+      { consumableCode: 'PMP-STD', quantity: 1 },
+    ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-50',
+    specialBottleExtraPrice: 2,
+  },
+
+  {
+    code: 'PREM-BULK-100',
+    name: 'Prem Χύμα 100ml',
+    size: 100,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 25,
+    costPrice: 0,
+    perfumeMl: 91,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BTL-100', quantity: 1 },
+      { consumableCode: 'PMP-STD', quantity: 1 },
+    ],
+    hasSpecialBottle: true,
+    specialBottleConsumableCode: 'BTL-PREM-100',
+    specialBottleExtraPrice: 2,
+  },
+
   // =====================================================
-// PREMIUM BODY / CARE
-// =====================================================
+  // PREMIUM ROLL ON
+  // =====================================================
 
-{
-  code: 'SHOWER-GEL-PREMIUM',
-  name: 'Premium Shower Gel',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'SHOWER-GEL', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-ROLLON-5',
+    name: 'Prem Roll On 5ml',
+    size: 5,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 7,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 6,
+    recipeConsumables: [
+      { consumableCode: 'ROLLON-5', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'BODY-MILK-PREMIUM',
-  name: 'Premium Body Milk',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'BODY-MILK', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-ROLLON-10',
+    name: 'Prem Roll On 10ml',
+    size: 10,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 12,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 12,
+    recipeConsumables: [
+      { consumableCode: 'ROLLON-10', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'BODY-OIL-PREMIUM',
-  name: 'Premium Body Oil',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'BODY-OIL', quantity: 1 },
-  ],
-},
+  // =====================================================
+  // PREMIUM BODY / CARE
+  // =====================================================
 
-{
-  code: 'BODY-MIST-PREMIUM',
-  name: 'Premium Body Mist',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'BODY-MIST', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-SHOWER-GEL',
+    name: 'Prem Shower Gel',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'SHOWER-GEL', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'BODY-BUTTER-PREMIUM',
-  name: 'Premium Body Butter',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'BODY-BUTTER', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-BODY-MILK',
+    name: 'Prem Body Milk',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-MILK', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'GLITTER-BODY-OIL-PREMIUM',
-  name: 'Premium Glitter Body Oil',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'GLITTER-BODY-OIL', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-BODY-OIL',
+    name: 'Prem Body Oil',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-OIL', quantity: 1 },
+    ],
+  },
 
-// =====================================================
-// PREMIUM CAR PERFUME
-// =====================================================
+  {
+    code: 'PREM-BODY-MIST',
+    name: 'Prem Body Mist',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 15,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-MIST', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'CAR-FRESHENER-PREMIUM',
-  name: 'Premium Αρωματικό Αυτοκινήτου',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'CAR-FRESHENER', quantity: 1 },
-  ],
-},
+  {
+    code: 'PREM-BODY-BUTTER',
+    name: 'Prem Body Butter',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 17,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'BODY-BUTTER', quantity: 1 },
+    ],
+  },
 
-// =====================================================
-// PREMIUM ROOM FRAGRANCE
-// =====================================================
+  {
+    code: 'PREM-GLITTER-BODY-OIL',
+    name: 'Prem Glitter Body Oil',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 17,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'GLITTER-BODY-OIL', quantity: 1 },
+    ],
+  },
 
-{
-  code: 'ROOM-FRESHENER-PREMIUM',
-  name: 'Premium Αρωματικό Χώρου',
-  size: 1,
-  unit: 'pcs',
-  packagingType: 'BULK',
-  sellingPrice: 0,
-  costPrice: 0,
-  recipeConsumables: [
-    { consumableCode: 'ROOM-FRESHENER', quantity: 1 },
-  ],
-},
+  // =====================================================
+  // PREMIUM CAR PERFUME
+  // =====================================================
+
+  {
+    code: 'PREM-CAR-FRESHENER',
+    name: 'Prem Αρωματικό Αυτοκινήτου',
+    size: 1,
+    unit: 'pcs',
+    packagingType: 'BULK',
+    sellingPrice: 7,
+    costPrice: 0,
+    perfumeMl: 0,
+    essenceMl: 6,
+    recipeConsumables: [
+      { consumableCode: 'CAR-FRESHENER', quantity: 1 },
+    ],
+  },
+
+  // =====================================================
+  // PREMIUM ROOM FRAGRANCE
+  // =====================================================
+
+  {
+    code: 'PREM-ROOM-FRESHENER-50',
+    name: 'Prem Αρωματικό Χώρου 50ml',
+    size: 50,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 14,
+    costPrice: 0,
+    perfumeMl: 46,
+    essenceMl: 4,
+    recipeConsumables: [
+      { consumableCode: 'ROOM-FRESHENER-50', quantity: 1 },
+    ],
+  },
+
+  {
+    code: 'PREM-ROOM-FRESHENER-100',
+    name: 'Prem Αρωματικό Χώρου 100ml',
+    size: 100,
+    unit: 'ml',
+    packagingType: 'BULK',
+    sellingPrice: 19,
+    costPrice: 0,
+    perfumeMl: 91,
+    essenceMl: 9,
+    recipeConsumables: [
+      { consumableCode: 'ROOM-FRESHENER-100', quantity: 1 },
+    ],
+  },
 ];

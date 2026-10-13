@@ -1,0 +1,110 @@
+<app-page-title
+  title="Παραλλαγές"
+  subtitle="Διαχείριση κοινόχρηστων προτύπων παραλλαγών και συνταγών (ml αρώματος, ml εσάνς & αναλώσιμα)."
+/>
+
+<section class="variants-container">
+  <article class="panel">
+    <header class="panel-header-row">
+      <div>
+        <h3>Λίστα Παραλλαγών</h3>
+        <p>Αναζήτηση με όνομα, κωδικό, τύπο συσκευασίας ή μονάδα.</p>
+      </div>
+      <button type="button" class="btn primary" (click)="createVariant()">+ Νέα Παραλλαγή</button>
+    </header>
+
+    <div class="search-bar">
+      <label class="field sr-only" for="search">Αναζήτηση</label>
+      <input
+        id="search"
+        type="text"
+        class="text-input"
+        [value]="searchQuery()"
+        (input)="onSearch(search.value)"
+        #search
+        placeholder="Αναζήτηση παραλλαγής (π.χ. 50ml, χύμα, 100ml)..."
+      />
+    </div>
+
+    @if (loading()) {
+      <div class="inline-state">Φόρτωση παραλλαγών...</div>
+    }
+    @if (error()) {
+      <div class="inline-error">{{ error() }}</div>
+    }
+
+    @if (filteredVariants().length > 0) {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Όνομα</th>
+              <th>Κωδικός</th>
+              <th>Μέγεθος</th>
+              <th>Συσκευασία</th>
+              <th>Συνταγή Παρασκευής</th>
+              <th>Τιμή Πώλησης</th>
+              <th>Προϊόντα</th>
+              <th>Κατάσταση</th>
+              <th class="actions-col">Ενέργειες</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (variant of filteredVariants(); track variant.id) {
+              <tr>
+                <td class="name-col"><strong>{{ variant.name }}</strong></td>
+                <td class="code-col">{{ variant.code || '-' }}</td>
+                <td>{{ variant.size ?? 1 }} {{ variant.unit }}</td>
+                <td>
+                  <span class="pkg-tag" [class.bulk]="variant.packagingType === 'BULK'">
+                    {{ variant.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΟ' }}
+                  </span>
+                </td>
+                <td class="recipe-col">
+                  @if (variant.packagingType === 'BULK') {
+                    <div class="recipe-badges">
+                      @if (variant.perfumeMl) {
+                        <span class="recipe-pill perfume-pill">{{ variant.perfumeMl }}ml βάση</span>
+                      }
+                      @if (variant.essenceMl) {
+                        <span class="recipe-pill essence-pill">{{ variant.essenceMl }}ml εσάνς</span>
+                      }
+                      @if (variant.recipeConsumables?.length) {
+                        <span class="recipe-pill consumables-pill">{{ variant.recipeConsumables?.length ?? 0 }} αναλώσιμα</span>
+                      }
+                      @if (variant.hasSpecialBottle && variant.specialBottleExtraPrice) {
+                        <span class="recipe-pill special-pill">Special (+{{ variant.specialBottleExtraPrice }}€)</span>
+                      }
+                      @if (!variant.perfumeMl && !variant.essenceMl && !variant.recipeConsumables?.length) {
+                        <span class="muted">—</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="muted">—</span>
+                  }
+                </td>
+                <td class="price-col">{{ variant.sellingPrice }} €</td>
+                <td class="products-count">{{ variant.assignedProducts }}</td>
+                <td>
+                  <span class="status-chip" [class.inactive]="!variant.active">
+                    {{ variant.active ? 'ΕΝΕΡΓΟ' : 'ΑΝΕΝΕΡΓΟ' }}
+                  </span>
+                </td>
+                <td class="actions-col">
+                  <app-entity-actions
+                    [active]="variant.active"
+                    (edit)="editVariant(variant)"
+                    (toggleActive)="toggleActive(variant)"
+                    (delete)="deleteVariant(variant)"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (!loading()) {
+      <div class="empty-state">Δεν βρέθηκαν παραλλαγές για την αναζήτηση.</div>
+    }
+  </article>
+</section>

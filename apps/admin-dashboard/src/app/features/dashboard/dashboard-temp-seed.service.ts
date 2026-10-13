@@ -20,6 +20,8 @@ type CreateConsumableResponse = { ok: boolean; consumableId: string };
 type CreateVariantTemplateResponse = { ok: boolean; templateId: string };
 type CreateProductResponse = { ok: boolean; productId: string };
 type ReceiveStockResponse = { ok: boolean };
+type ExistingSeedProduct = { id: string; data: Record<string, unknown> };
+type SeedVariantTemplate = { id: string; sellingPrice: number; costPrice?: number };
 
 @Injectable({ providedIn: 'root' })
 export class DashboardTempSeedService {
@@ -74,21 +76,18 @@ export class DashboardTempSeedService {
       }
 
       const products = mockCatalogData.products.filter((item) => item.categoryCode === categoryCode);
-      const [brandMap, categoryMap, templateMap, existingProductCodes] = await Promise.all([
+      const [brandMap, categoryMap, templateMap, existingProducts] = await Promise.all([
         this.loadExistingIdMap(tenantId, 'brands'),
         this.loadExistingIdMap(tenantId, 'categories'),
-        this.loadExistingIdMap(tenantId, 'variantTemplates'),
-        this.loadExistingProductCodes(tenantId)
+        this.loadExistingVariantTemplates(tenantId),
+        this.loadExistingProducts(tenantId)
       ]);
 
       let createdProducts = 0;
       let skippedProducts = 0;
+      let repairedProducts = 0;
+      const updateProduct = this.updateProductCallable();
       for (const product of products) {
-        if (existingProductCodes.has(product.productCode)) {
-          skippedProducts += 1;
-          continue;
-        }
-
         const brandId = brandMap.get(product.brandCode);
         const categoryId = categoryMap.get(product.categoryCode);
         if (!brandId || !categoryId) {
@@ -96,6 +95,45 @@ export class DashboardTempSeedService {
         }
 
         const variantAssignments = this.buildVariantAssignments(product, templateMap);
+        const existingProduct = existingProducts.get(product.productCode);
+        if (existingProduct) {
+          const currentAssignments = existingProduct.data['variantAssignments'] as
+            Record<string, ProductVariantAssignment> | undefined;
+          if (currentAssignments && Object.keys(currentAssignments).length > 0) {
+            skippedProducts += 1;
+            continue;
+          }
+
+          await updateProduct({
+            tenantId,
+            productId: existingProduct.id,
+            productCode: typeof existingProduct.data['productCode'] === 'string'
+              ? existingProduct.data['productCode'] as string
+              : product.productCode,
+            name: typeof existingProduct.data['name'] === 'string'
+              ? existingProduct.data['name'] as string
+              : product.name,
+            brandId: typeof existingProduct.data['brandId'] === 'string'
+              ? existingProduct.data['brandId'] as string
+              : brandId,
+            categoryId: typeof existingProduct.data['categoryId'] === 'string'
+              ? existingProduct.data['categoryId'] as string
+              : categoryId,
+            productType: (existingProduct.data['productType'] as ProductType | undefined) ?? 'PERFUME',
+            packagingCategory: (existingProduct.data['packagingCategory'] as PackagingCategory | undefined)
+              ?? product.packagingCategory,
+            gender: existingProduct.data['gender'] as MockProductSeed['gender'] | undefined,
+            ingredients: typeof existingProduct.data['ingredients'] === 'string'
+              ? existingProduct.data['ingredients'] as string
+              : product.ingredients ?? '',
+            variantAssignments,
+            variantOrder: Object.keys(variantAssignments),
+            active: existingProduct.data['active'] !== false
+          });
+          repairedProducts += 1;
+          continue;
+        }
+
         await this.createProductCallable()({
           tenantId,
           productCode: product.productCode,
@@ -109,11 +147,10 @@ export class DashboardTempSeedService {
           variantAssignments,
           active: true
         });
-        existingProductCodes.add(product.productCode);
         createdProducts += 1;
       }
 
-      return `${category.name}: νέα ${createdProducts}, ήδη υπάρχοντα ${skippedProducts}.`;
+      return `${category.name}: νέα ${createdProducts}, συμπληρώθηκαν παραλλαγές ${repairedProducts}, ήδη καταχωρημένα ${skippedProducts}.`;
     });
   }
 
@@ -327,14 +364,16 @@ export class DashboardTempSeedService {
     seeds: MockVariantTemplateSeed[],
     consumableMap?: Map<string, string>
   ): Promise<Map<string, string>> {
-    const existing = await this.loadExistingIdMap(tenantId, 'variantTemplates');
+    const snapshot = await getDocs(collection(this.firestore, `tenants/${tenantId}/variantTemplates`));
+    const existing = new Map<string, { id: string; data: Record<string, unknown> }>();
+    for (const item of snapshot.docs) {
+      const data = item.data();
+      if (typeof data['code'] === 'string') existing.set(data['code'], { id: item.id, data });
+    }
     const createTemplate = this.createVariantTemplateCallable();
+    const updateTemplate = this.updateVariantTemplateCallable();
 
     for (const seed of seeds) {
-      if (existing.has(seed.code)) {
-        continue;
-      }
-
       const recipeConsumables = seed.recipeConsumables?.map((rc) => {
         const consumableId = consumableMap?.get(rc.consumableCode);
         if (!consumableId) {
@@ -342,6 +381,45 @@ export class DashboardTempSeedService {
         }
         return { consumableId, quantity: rc.quantity };
       });
+
+      const specialBottleConsumableId = seed.specialBottleConsumableCode
+        ? consumableMap?.get(seed.specialBottleConsumableCode)
+        : undefined;
+      if (seed.hasSpecialBottle && !specialBottleConsumableId) {
+        throw new Error(`Unknown special bottle consumable code in variant template ${seed.code}.`);
+      }
+
+      const existingTemplate = existing.get(seed.code);
+      if (existingTemplate) {
+        const data = existingTemplate.data;
+        const specialBottleIsCurrent = data['hasSpecialBottle'] === true &&
+          data['specialBottleConsumableId'] === specialBottleConsumableId &&
+          Number(data['specialBottleExtraPrice']) === seed.specialBottleExtraPrice;
+        if (seed.hasSpecialBottle && !specialBottleIsCurrent) {
+          await updateTemplate({
+            tenantId,
+            templateId: existingTemplate.id,
+            name: typeof data['name'] === 'string' ? data['name'] : seed.name,
+            code: typeof data['code'] === 'string' ? data['code'] : seed.code,
+            size: typeof data['size'] === 'number' ? data['size'] : seed.size,
+            unit: typeof data['unit'] === 'string' ? data['unit'] : seed.unit,
+            packagingType: (data['packagingType'] as PackagingCategory | undefined) ?? seed.packagingType,
+            costPrice: typeof data['costPrice'] === 'number' ? data['costPrice'] : seed.costPrice,
+            sellingPrice: typeof data['sellingPrice'] === 'number' ? data['sellingPrice'] : seed.sellingPrice,
+            perfumeMl: typeof data['perfumeMl'] === 'number' ? data['perfumeMl'] : seed.perfumeMl,
+            essenceMl: typeof data['essenceMl'] === 'number' ? data['essenceMl'] : seed.essenceMl,
+            recipeConsumables: Array.isArray(data['recipeConsumables'])
+              ? data['recipeConsumables'] as { consumableId: string; quantity: number }[]
+              : [],
+            consumableParts: Array.isArray(data['consumableParts']) ? data['consumableParts'] : [],
+            hasSpecialBottle: true,
+            specialBottleConsumableId,
+            specialBottleExtraPrice: seed.specialBottleExtraPrice,
+            active: data['active'] !== false
+          });
+        }
+        continue;
+      }
 
       const result = await createTemplate({
         tenantId,
@@ -355,12 +433,17 @@ export class DashboardTempSeedService {
         perfumeMl: seed.perfumeMl,
         essenceMl: seed.essenceMl,
         recipeConsumables,
+        hasSpecialBottle: seed.hasSpecialBottle,
+        specialBottleConsumableId,
+        specialBottleExtraPrice: seed.specialBottleExtraPrice,
         active: true
       });
-      existing.set(seed.code, result.data.templateId);
+      existing.set(seed.code, { id: result.data.templateId, data: {} });
     }
 
-    return existing;
+    const templateIds = new Map<string, string>();
+    for (const [code, template] of existing) templateIds.set(code, template.id);
+    return templateIds;
   }
 
   private async loadExistingIdMap(
@@ -380,35 +463,53 @@ export class DashboardTempSeedService {
     return idMap;
   }
 
-  private async loadExistingProductCodes(tenantId: string): Promise<Set<string>> {
+  private async loadExistingProducts(tenantId: string): Promise<Map<string, ExistingSeedProduct>> {
     const snapshot = await getDocs(collection(this.firestore, `tenants/${tenantId}/products`));
-    const productCodes = new Set<string>();
+    const products = new Map<string, ExistingSeedProduct>();
 
     for (const item of snapshot.docs) {
-      const data = item.data() as { productCode?: string };
-      if (data.productCode) {
-        productCodes.add(data.productCode);
+      const data = item.data();
+      const productCode = data['productCode'];
+      if (typeof productCode === 'string') {
+        products.set(productCode, { id: item.id, data });
       }
     }
 
-    return productCodes;
+    return products;
+  }
+
+  private async loadExistingVariantTemplates(tenantId: string): Promise<Map<string, SeedVariantTemplate>> {
+    const snapshot = await getDocs(collection(this.firestore, `tenants/${tenantId}/variantTemplates`));
+    const templates = new Map<string, SeedVariantTemplate>();
+
+    for (const item of snapshot.docs) {
+      const data = item.data();
+      const code = data['code'];
+      if (typeof code !== 'string') continue;
+      templates.set(code, {
+        id: item.id,
+        sellingPrice: Number(data['sellingPrice'] ?? 0),
+        costPrice: typeof data['costPrice'] === 'number' ? data['costPrice'] : undefined
+      });
+    }
+
+    return templates;
   }
 
   private buildVariantAssignments(
     product: MockProductSeed,
-    templateMap: Map<string, string>
+    templateMap: Map<string, SeedVariantTemplate>
   ): Record<string, ProductVariantAssignment> {
     const assignments: Record<string, ProductVariantAssignment> = {};
 
     for (const variant of product.variantAssignments) {
-      const templateId = templateMap.get(variant.templateCode);
-      if (!templateId) {
+      const template = templateMap.get(variant.templateCode);
+      if (!template) {
         throw new Error(`Missing variant template ${variant.templateCode} for ${product.productCode}.`);
       }
-
-      assignments[templateId] = {
-        sellingPrice: variant.sellingPrice,
-        costPrice: variant.costPrice
+      assignments[template.id] = {
+        sellingPrice: template.sellingPrice,
+        costPrice: template.costPrice
       };
     }
 
@@ -593,8 +694,33 @@ export class DashboardTempSeedService {
       perfumeMl?: number;
       essenceMl?: number;
       recipeConsumables?: { consumableId: string; quantity: number }[];
+      hasSpecialBottle?: boolean;
+      specialBottleConsumableId?: string;
+      specialBottleExtraPrice?: number;
       active: boolean;
     }, CreateVariantTemplateResponse>(this.functions, 'createVariantTemplate');
+  }
+
+  private updateVariantTemplateCallable() {
+    return httpsCallable<{
+      tenantId: string;
+      templateId: string;
+      name: string;
+      code?: string;
+      size?: number;
+      unit: string;
+      packagingType: PackagingCategory;
+      costPrice?: number;
+      sellingPrice: number;
+      perfumeMl?: number;
+      essenceMl?: number;
+      recipeConsumables?: { consumableId: string; quantity: number }[];
+      consumableParts?: { variantTemplateId: string; quantity: number }[];
+      hasSpecialBottle?: boolean;
+      specialBottleConsumableId?: string;
+      specialBottleExtraPrice?: number;
+      active: boolean;
+    }, { ok: boolean }>(this.functions, 'updateVariantTemplate');
   }
 
   private createProductCallable() {
@@ -611,6 +737,24 @@ export class DashboardTempSeedService {
       variantAssignments: Record<string, ProductVariantAssignment>;
       active: boolean;
     }, CreateProductResponse>(this.functions, 'createProduct');
+  }
+
+  private updateProductCallable() {
+    return httpsCallable<{
+      tenantId: string;
+      productId: string;
+      productCode: string;
+      name: string;
+      brandId: string;
+      categoryId: string;
+      productType: ProductType;
+      packagingCategory: PackagingCategory;
+      gender?: MockProductSeed['gender'];
+      ingredients?: string;
+      variantAssignments: Record<string, ProductVariantAssignment>;
+      variantOrder: string[];
+      active: boolean;
+    }, { ok: boolean }>(this.functions, 'updateProduct');
   }
 
   private receiveStockCallable() {

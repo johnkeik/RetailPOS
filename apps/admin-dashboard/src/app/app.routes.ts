@@ -15,6 +15,7 @@ import { SalesHistoryPageComponent } from './features/sales-history/sales-histor
 import { StockEntryPageComponent } from './features/stock-movements/stock-entry-page.component';
 import { StockMovementsPageComponent } from './features/stock-movements/stock-movements-page.component';
 import { VariantsPageComponent } from './features/variants/variants-page.component';
+import { VariantFormPageComponent } from './features/variants/variant-form-page.component';
 
 export const routes: Routes = [
 	{
@@ -63,6 +64,14 @@ export const routes: Routes = [
 			{
 				path: 'consumables',
 				component: ConsumablesPageComponent
+			},
+			{
+				path: 'variants/new',
+				component: VariantFormPageComponent
+			},
+			{
+				path: 'variants/:id/edit',
+				component: VariantFormPageComponent
 			},
 			{
 				path: 'variants',

@@ -7,7 +7,7 @@ import { consumables } from './consumables.data';
 import { menCatalog } from './men-catalog.data';
 import { priveCatalog } from './premium.data';
 import { arabicCatalog, roomFragranceCatalog, unisexCatalog } from './unisex-arabic-rmf';
-import { variants } from './variantTemplates.data';
+import { premiumVariants, variants } from './variantTemplates.data';
 import { womenCatalog } from './women-catalog.data';
 
 type MockBrandSeed = {
@@ -43,12 +43,13 @@ type MockVariantTemplateSeed = {
   perfumeMl?: number;
   essenceMl?: number;
   recipeConsumables?: MockRecipeConsumableSeed[];
+  hasSpecialBottle?: boolean;
+  specialBottleConsumableCode?: string;
+  specialBottleExtraPrice?: number;
 };
 
 type MockVariantAssignmentSeed = {
   templateCode: string;
-  sellingPrice: number;
-  costPrice: number;
 };
 
 type MockProductSeed = {
@@ -74,7 +75,7 @@ export const mockCatalogData = {
     { code: 'RMF', name: 'Αρωματικά Χώρου' },
   ],
   consumables: <MockConsumableSeed[]>consumables,
-  variantTemplates: <MockVariantTemplateSeed[]>variants,
+  variantTemplates: <MockVariantTemplateSeed[]>[...variants, ...premiumVariants],
   products: <MockProductSeed[]>[...menCatalog, ...womenCatalog, ...unisexCatalog, ...arabicCatalog, ...roomFragranceCatalog, ...priveCatalog],
 };
 

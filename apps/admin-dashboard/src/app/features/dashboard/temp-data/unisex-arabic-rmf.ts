@@ -10,7 +10,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '420',
@@ -20,7 +20,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '421',
@@ -30,7 +30,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '422',
@@ -40,7 +40,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '426',
@@ -50,7 +50,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '446',
@@ -60,7 +60,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '447',
@@ -70,7 +70,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '448',
@@ -80,7 +80,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '449',
@@ -90,7 +90,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '450',
@@ -100,7 +100,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '451',
@@ -110,7 +110,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '452',
@@ -120,7 +120,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '454',
@@ -130,7 +130,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '455',
@@ -140,7 +140,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '456',
@@ -150,7 +150,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '457',
@@ -160,7 +160,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '459',
@@ -170,7 +170,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '460',
@@ -180,7 +180,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '462',
@@ -190,7 +190,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '440',
@@ -200,7 +200,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '463',
@@ -210,7 +210,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '467',
@@ -220,7 +220,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '469',
@@ -230,7 +230,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '474',
@@ -240,7 +240,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '491',
@@ -250,7 +250,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '501',
@@ -260,7 +260,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '504',
@@ -270,7 +270,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '506',
@@ -280,7 +280,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '514',
@@ -290,7 +290,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '532',
@@ -300,7 +300,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '533',
@@ -310,7 +310,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '534',
@@ -320,7 +320,7 @@ export const unisexCatalog: MockProductSeed[] = [
     categoryCode: 'UNX',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
 ];
 
@@ -334,7 +334,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '516',
@@ -344,7 +344,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '517',
@@ -354,7 +354,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '518',
@@ -364,7 +364,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '519',
@@ -374,7 +374,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '520',
@@ -384,7 +384,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '521',
@@ -394,7 +394,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '522',
@@ -404,7 +404,7 @@ export const arabicCatalog: MockProductSeed[] = [
     categoryCode: 'ARB',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(10),
+    variantAssignments: normalAssignments(),
   },
 ];
 
@@ -418,7 +418,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
     categoryCode: 'RMF',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: roomFreshenerAssignments(10),
+    variantAssignments: roomFreshenerAssignments(),
   },
   {
     productCode: '89',
@@ -428,7 +428,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
     categoryCode: 'RMF',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: roomFreshenerAssignments(10),
+    variantAssignments: roomFreshenerAssignments(),
   },
   {
     productCode: '94',
@@ -438,7 +438,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
     categoryCode: 'RMF',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: roomFreshenerAssignments(10),
+    variantAssignments: roomFreshenerAssignments(),
   },
   {
     productCode: '97',
@@ -448,7 +448,7 @@ export const roomFragranceCatalog: MockProductSeed[] = [
     categoryCode: 'RMF',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: roomFreshenerAssignments(10),
+    variantAssignments: roomFreshenerAssignments(),
   },
   {
     productCode: '100',
@@ -458,6 +458,6 @@ export const roomFragranceCatalog: MockProductSeed[] = [
     categoryCode: 'RMF',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: roomFreshenerAssignments(10),
+    variantAssignments: roomFreshenerAssignments(),
   },
 ];

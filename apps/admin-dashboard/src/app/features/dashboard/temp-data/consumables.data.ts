@@ -1,33 +1,37 @@
 export const consumables = [
+  // =====================================================
+  // PERFUME PACKAGING
+  // =====================================================
+
+  {
+    code: 'BTL-TRAVEL-10',
+    name: 'Travel Μπουκαλάκι 10ml',
+    unit: 'τεμ.',
+    costPrice: 0,
+  },
   {
     code: 'BTL-30',
     name: 'Μπουκάλι 30ml',
     unit: 'τεμ.',
-    costPrice: 0.45,
+    costPrice: 0,
   },
   {
     code: 'BTL-50',
     name: 'Μπουκάλι 50ml',
     unit: 'τεμ.',
-    costPrice: 0.6,
+    costPrice: 0,
   },
   {
     code: 'BTL-100',
     name: 'Μπουκάλι 100ml',
     unit: 'τεμ.',
-    costPrice: 0.85,
+    costPrice: 0,
   },
   {
     code: 'PMP-STD',
     name: 'Βαλβίδα Spray (Pump)',
     unit: 'τεμ.',
-    costPrice: 0.3,
-  },
-  {
-    code: 'CAP-STD',
-    name: 'Καπάκι Standard',
-    unit: 'τεμ.',
-    costPrice: 0.2,
+    costPrice: 0,
   },
 
   // =====================================================
@@ -38,36 +42,19 @@ export const consumables = [
     code: 'BTL-PREM-30',
     name: 'Premium Μπουκάλι 30ml',
     unit: 'τεμ.',
-    costPrice: 0.7,
+    costPrice: 0,
   },
   {
     code: 'BTL-PREM-50',
     name: 'Premium Μπουκάλι 50ml',
     unit: 'τεμ.',
-    costPrice: 0.9,
+    costPrice: 0,
   },
   {
     code: 'BTL-PREM-100',
     name: 'Premium Μπουκάλι 100ml',
     unit: 'τεμ.',
-    costPrice: 1.2,
-  },
-  {
-    code: 'CAP-MAG',
-    name: 'Μαγνητικό Καπάκι Premium',
-    unit: 'τεμ.',
-    costPrice: 0.6,
-  },
-
-  // =====================================================
-  // TRAVEL
-  // =====================================================
-
-  {
-    code: 'BTL-TRAVEL-10',
-    name: 'Travel Μπουκαλάκι 10ml',
-    unit: 'τεμ.',
-    costPrice: 0.35,
+    costPrice: 0,
   },
 
   // =====================================================
@@ -119,7 +106,7 @@ export const consumables = [
     code: 'CAR-FRESHENER',
     name: 'Συσκευασία Αρωματικού Αυτοκινήτου',
     unit: 'τεμ.',
-    costPrice: 0.5,
+    costPrice: 0,
   },
 
   // =====================================================
@@ -127,62 +114,31 @@ export const consumables = [
   // =====================================================
 
   {
-    code: 'ROOM-FRESHENER',
-    name: 'Συσκευασία Αρωματικού Χώρου',
+    code: 'ROOM-FRESHENER-50',
+    name: 'Συσκευασία Αρωματικού Χώρου 50 ML',
     unit: 'τεμ.',
-    costPrice: 0.7,
+    costPrice: 0,
   },
+  {
+    code: 'ROOM-FRESHENER-100',
+    name: 'Συσκευασία Αρωματικού Χώρου 100 ML',
+    unit: 'τεμ.',
+    costPrice: 0,
+  },
+
+  // =====================================================
+  // ROLL ON
+  // =====================================================
+
   {
     code: 'ROLLON-5',
     name: 'Roll On 5ml',
     unit: 'τεμ.',
     costPrice: 0,
   },
-
   {
     code: 'ROLLON-10',
     name: 'Roll On 10ml',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-  {
-    code: 'ROLLON-PREM-5',
-    name: 'Premium Roll On 5ml',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-  {
-    code: 'ROLLON-PREM-10',
-    name: 'Premium Roll On 10ml',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-
-  // =====================================================
-  // CREAMS
-  // =====================================================
-
-  {
-    code: 'CREAM-BODY',
-    name: 'Συσκευασία Κρέμας Σώματος',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-  {
-    code: 'CREAM-BODY-PREMIUM',
-    name: 'Συσκευασία Κρέμας Σώματος Premium',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-  {
-    code: 'CREAM-GLITTER',
-    name: 'Συσκευασία Glitter Κρέμας',
-    unit: 'τεμ.',
-    costPrice: 0,
-  },
-  {
-    code: 'CREAM-GLITTER-PREMIUM',
-    name: 'Συσκευασία Glitter Κρέμας Premium',
     unit: 'τεμ.',
     costPrice: 0,
   },

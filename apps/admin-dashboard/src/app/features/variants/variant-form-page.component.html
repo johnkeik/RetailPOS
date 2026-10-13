@@ -1,0 +1,165 @@
+<app-page-title
+  [title]="isEditing() ? 'Επεξεργασία Παραλλαγής' : 'Νέα Παραλλαγή'"
+  subtitle="Ορίστε μεγέθη, τιμές και τη συνταγή παρασκευής."
+/>
+
+<div class="variant-form-toolbar">
+  <a routerLink="/variants">← Πίσω στις παραλλαγές</a>
+  @if (isEditing()) {
+    <button type="button" class="btn danger" (click)="deleteVariant()">Διαγραφή παραλλαγής</button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="inline-state">Φόρτωση παραλλαγής και αναλωσίμων...</div>
+} @else if (loadError()) {
+  <div class="inline-error" role="alert">{{ loadError() }}</div>
+} @else {
+  @if (serviceError()) {
+    <div class="inline-error" role="alert">{{ serviceError() }}</div>
+  }
+
+  @if (formError()) {
+    <div class="inline-error" role="alert">{{ formError() }}</div>
+  }
+
+  <form [formGroup]="variantForm" (ngSubmit)="saveVariant()" class="variant-form-page">
+    <div class="variant-form-body">
+      <div>
+        <label class="field" for="name">Όνομα Παραλλαγής</label>
+        <input id="name" type="text" class="text-input" formControlName="name" placeholder="π.χ. 50ml Χύμα" />
+        @if (variantForm.controls.name.touched && variantForm.controls.name.invalid) {
+          <small class="inline-error">Το όνομα είναι υποχρεωτικό.</small>
+        }
+      </div>
+
+      <div>
+        <label class="field" for="code">Κωδικός Παραλλαγής</label>
+        <input id="code" type="text" class="text-input" formControlName="code" placeholder="π.χ. VAR-50" />
+      </div>
+
+      <div class="double-grid">
+        <div>
+          <label class="field" for="size">Συνολικό Μέγεθος</label>
+          <input id="size" type="number" class="text-input" formControlName="size" min="1" placeholder="50" />
+        </div>
+        <div>
+          <label class="field" for="unit">Μονάδα</label>
+          <input id="unit" type="text" class="text-input" formControlName="unit" placeholder="ml" />
+          @if (variantForm.controls.unit.touched && variantForm.controls.unit.invalid) {
+            <small class="inline-error">Η μονάδα είναι υποχρεωτική.</small>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label class="field" for="packagingType">Τύπος Συσκευασίας</label>
+        <select id="packagingType" class="text-input" formControlName="packagingType">
+          <option value="BULK">Χύμα (BULK) — με Συνταγή & Αναλώσιμα</option>
+          <option value="PACKAGED">Συσκευασμένο (PACKAGED) — έτοιμο τεμάχιο</option>
+        </select>
+      </div>
+
+      <div class="double-grid">
+        <div>
+          <label class="field" for="costPrice">Τιμή Κόστους (€)</label>
+          <input id="costPrice" type="number" class="text-input" formControlName="costPrice" min="0" step="0.01" placeholder="0.00" />
+        </div>
+        <div>
+          <label class="field" for="sellingPrice">Τιμή Πώλησης (€)</label>
+          <input id="sellingPrice" type="number" class="text-input" formControlName="sellingPrice" min="0" step="0.01" placeholder="10.00" />
+        </div>
+      </div>
+
+      @if (isFormBulk()) {
+        <div class="recipe-section">
+          <h2 class="section-title">Συνταγή Παρασκευής</h2>
+          <p class="section-hint">Καθορίστε την ποσότητα σε ml για τη Βάση και την Εσάνς που καταναλώνονται ανά γέμισμα.</p>
+          <div class="double-grid">
+            <div>
+              <label class="field" for="perfumeMl">Ποσότητα Βάσης (ml)</label>
+              <input id="perfumeMl" type="number" class="text-input" formControlName="perfumeMl" min="0" step="1" placeholder="π.χ. 40" (blur)="onRecipeInputBlur()" />
+            </div>
+            <div>
+              <label class="field" for="essenceMl">Ποσότητα Εσάνς (ml)</label>
+              <input id="essenceMl" type="number" class="text-input" formControlName="essenceMl" min="0" step="1" placeholder="π.χ. 10" (blur)="onRecipeInputBlur()" />
+            </div>
+          </div>
+          @if (recipeTotalMl() > 0) {
+            <div class="recipe-calc-hint">Σύνολο υγρών: <strong>{{ recipeTotalMl() }} ml</strong></div>
+          }
+        </div>
+
+        <div class="consumables-block">
+          <h2 class="section-title">Αναλώσιμα Συσκευασίας</h2>
+          <p class="section-hint">Τσεκάρετε τα υλικά που απαιτούνται για αυτή την παραλλαγή και ορίστε τα τεμάχια.</p>
+          @if (activeConsumables().length > 0) {
+            <div class="consumables-checklist">
+              @for (consumable of activeConsumables(); track consumable.id) {
+                <div class="consumable-card" [class.selected]="isConsumableSelected(consumable.id)">
+                  <label class="consumable-check-label">
+                    <input type="checkbox" [checked]="isConsumableSelected(consumable.id)" (change)="toggleConsumable(consumable.id)" />
+                    <span class="consumable-info">
+                      <span class="consumable-name">{{ consumable.name }}</span>
+                      <span class="consumable-unit">{{ consumable.code ? consumable.code + ' • ' : '' }}{{ consumable.unit }}</span>
+                    </span>
+                  </label>
+                  @if (isConsumableSelected(consumable.id)) {
+                    <div class="consumable-qty-wrap">
+                      <span class="qty-text">Ποσότητα:</span>
+                      <input type="number" class="text-input qty-input" min="1" [value]="getConsumableQty(consumable.id)" (input)="setConsumableQty(consumable.id, +qtyInput.value)" #qtyInput />
+                      <span class="qty-unit-tag">{{ consumable.unit }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="consumable-empty">Δεν υπάρχουν καταχωρημένα αναλώσιμα. Μπορείτε να προσθέσετε από την ενότητα «Αναλώσιμα».</p>
+          }
+        </div>
+
+        <div class="special-bottle-block">
+          <label class="checkbox-row" for="hasSpecialBottle">
+            <input id="hasSpecialBottle" type="checkbox" formControlName="hasSpecialBottle" />
+            <span class="special-bottle-title">Δυνατότητα Επιλογής Special Μπουκαλιού</span>
+          </label>
+          <p class="section-hint">Επιτρέπει στον πελάτη στο ταμείο (POS) να ζητήσει σπέσιαλ μπουκάλι, αντικαθιστώντας το κανονικό και προσθέτοντας έξτρα χρέωση.</p>
+          @if (variantForm.controls.hasSpecialBottle.value) {
+            <div class="double-grid special-bottle-inputs">
+              <div>
+                <label class="field" for="specialBottleConsumableId">Αναλώσιμο Special Μπουκαλιού</label>
+                <select id="specialBottleConsumableId" class="text-input" formControlName="specialBottleConsumableId">
+                  <option value="">Επιλέξτε μπουκάλι...</option>
+                  @for (consumable of activeConsumables(); track consumable.id) {
+                    <option [value]="consumable.id">{{ consumable.name }} ({{ consumable.unit }})</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="field" for="specialBottleExtraPrice">Έξτρα Χρέωση (€)</label>
+                <input id="specialBottleExtraPrice" type="number" class="text-input" formControlName="specialBottleExtraPrice" min="0" step="0.50" placeholder="π.χ. 3.00" />
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="packaged-note">
+          <p>Τα συσκευασμένα προϊόντα πωλούνται ως έτοιμα τεμάχια. Για παραλλαγή με συνταγή (βάση + εσάνς) και αναλώσιμα, επιλέξτε <strong>Χύμα (BULK)</strong>.</p>
+        </div>
+      }
+
+      <label class="checkbox-row" for="active">
+        <input id="active" type="checkbox" formControlName="active" />
+        <span>Ενεργό</span>
+      </label>
+    </div>
+
+    <footer class="variant-form-actions">
+      <button type="button" class="btn ghost" routerLink="/variants">Ακύρωση</button>
+      <button type="submit" class="btn primary" [disabled]="saving()">
+        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση Αλλαγών' : 'Δημιουργία Παραλλαγής') }}
+      </button>
+    </footer>
+  </form>
+}

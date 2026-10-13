@@ -1,31 +1,21 @@
-import { MockVariantAssignmentSeed } from "./mock-catalog.data";
+import { MockVariantAssignmentSeed } from './mock-catalog.data';
 
-export const normalAssignments = (
-  base: number,
-): MockVariantAssignmentSeed[] => [
+export const normalAssignments = (): MockVariantAssignmentSeed[] => [
   // =====================================================
   // SIMPLE PERFUME
   // =====================================================
 
   {
     templateCode: 'TRAVEL-10',
-    sellingPrice: Math.round(base * 0.5),
-    costPrice: Math.round(base * 0.2),
   },
   {
     templateCode: 'BULK-30',
-    sellingPrice: Math.round(base * 0.7),
-    costPrice: Math.round(base * 0.3),
   },
   {
     templateCode: 'BULK-50',
-    sellingPrice: base,
-    costPrice: Math.round(base * 0.42),
   },
   {
     templateCode: 'BULK-100',
-    sellingPrice: Math.round(base * 1.7),
-    costPrice: Math.round(base * 0.72),
   },
 
   // =====================================================
@@ -34,33 +24,32 @@ export const normalAssignments = (
 
   {
     templateCode: 'ROLLON-5',
-    sellingPrice: Math.round(base * 0.35),
-    costPrice: Math.round(base * 0.14),
   },
   {
     templateCode: 'ROLLON-10',
-    sellingPrice: Math.round(base * 0.5),
-    costPrice: Math.round(base * 0.2),
   },
 
   // =====================================================
-  // BODY CREAM
+  // BODY / CARE
   // =====================================================
 
   {
-    templateCode: 'BODY-CREAM',
-    sellingPrice: Math.round(base * 0.8),
-    costPrice: Math.round(base * 0.32),
+    templateCode: 'SHOWER-GEL',
   },
-
-  // =====================================================
-  // GLITTER CREAM
-  // =====================================================
-
   {
-    templateCode: 'GLITTER-CREAM',
-    sellingPrice: Math.round(base * 0.95),
-    costPrice: Math.round(base * 0.38),
+    templateCode: 'BODY-MILK',
+  },
+  {
+    templateCode: 'BODY-OIL',
+  },
+  {
+    templateCode: 'BODY-MIST',
+  },
+  {
+    templateCode: 'BODY-BUTTER',
+  },
+  {
+    templateCode: 'GLITTER-BODY-OIL',
   },
 
   // =====================================================
@@ -69,8 +58,6 @@ export const normalAssignments = (
 
   {
     templateCode: 'CAR-FRESHENER',
-    sellingPrice: Math.round(base * 0.45),
-    costPrice: Math.round(base * 0.18),
   },
 
   // =====================================================
@@ -78,38 +65,28 @@ export const normalAssignments = (
   // =====================================================
 
   {
-    templateCode: 'ROOM-FRESHENER',
-    sellingPrice: Math.round(base * 0.8),
-    costPrice: Math.round(base * 0.32),
+    templateCode: 'ROOM-FRESHENER-50',
+  },
+  {
+    templateCode: 'ROOM-FRESHENER-100',
   },
 ];
-
-export const premiumAssignments = (
-  base: number,
-): MockVariantAssignmentSeed[] => [
+export const premiumAssignments = (): MockVariantAssignmentSeed[] => [
   // =====================================================
   // PREMIUM PERFUME
   // =====================================================
 
   {
     templateCode: 'PREM-TRAVEL-10',
-    sellingPrice: Math.round(base * 0.8),
-    costPrice: Math.round(base * 0.32),
   },
   {
-    templateCode: 'PREM-30',
-    sellingPrice: Math.round(base * 0.95),
-    costPrice: Math.round(base * 0.4),
+    templateCode: 'PREM-BULK-30',
   },
   {
-    templateCode: 'PREM-50',
-    sellingPrice: Math.round(base * 1.35),
-    costPrice: Math.round(base * 0.58),
+    templateCode: 'PREM-BULK-50',
   },
   {
-    templateCode: 'PREM-100',
-    sellingPrice: Math.round(base * 2.2),
-    costPrice: Math.round(base * 0.95),
+    templateCode: 'PREM-BULK-100',
   },
 
   // =====================================================
@@ -117,34 +94,10 @@ export const premiumAssignments = (
   // =====================================================
 
   {
-    templateCode: 'ROLLON-PREM-5',
-    sellingPrice: Math.round(base * 0.6),
-    costPrice: Math.round(base * 0.24),
+    templateCode: 'PREM-ROLLON-5',
   },
   {
-    templateCode: 'ROLLON-PREM-10',
-    sellingPrice: Math.round(base * 0.8),
-    costPrice: Math.round(base * 0.32),
-  },
-
-  // =====================================================
-  // PREMIUM BODY CREAM
-  // =====================================================
-
-  {
-    templateCode: 'BODY-CREAM-PREMIUM',
-    sellingPrice: Math.round(base * 1.05),
-    costPrice: Math.round(base * 0.42),
-  },
-
-  // =====================================================
-  // PREMIUM GLITTER CREAM
-  // =====================================================
-
-  {
-    templateCode: 'GLITTER-CREAM-PREMIUM',
-    sellingPrice: Math.round(base * 1.2),
-    costPrice: Math.round(base * 0.48),
+    templateCode: 'PREM-ROLLON-10',
   },
 
   // =====================================================
@@ -152,34 +105,22 @@ export const premiumAssignments = (
   // =====================================================
 
   {
-    templateCode: 'SHOWER-GEL-PREMIUM',
-    sellingPrice: Math.round(base * 1.05),
-    costPrice: Math.round(base * 0.42),
+    templateCode: 'PREM-SHOWER-GEL',
   },
   {
-    templateCode: 'BODY-MILK-PREMIUM',
-    sellingPrice: Math.round(base * 1.1),
-    costPrice: Math.round(base * 0.44),
+    templateCode: 'PREM-BODY-MILK',
   },
   {
-    templateCode: 'BODY-OIL-PREMIUM',
-    sellingPrice: Math.round(base * 1.15),
-    costPrice: Math.round(base * 0.46),
+    templateCode: 'PREM-BODY-OIL',
   },
   {
-    templateCode: 'BODY-MIST-PREMIUM',
-    sellingPrice: Math.round(base * 1.1),
-    costPrice: Math.round(base * 0.44),
+    templateCode: 'PREM-BODY-MIST',
   },
   {
-    templateCode: 'BODY-BUTTER-PREMIUM',
-    sellingPrice: Math.round(base * 1.15),
-    costPrice: Math.round(base * 0.46),
+    templateCode: 'PREM-BODY-BUTTER',
   },
   {
-    templateCode: 'GLITTER-BODY-OIL-PREMIUM',
-    sellingPrice: Math.round(base * 1.25),
-    costPrice: Math.round(base * 0.5),
+    templateCode: 'PREM-GLITTER-BODY-OIL',
   },
 
   // =====================================================
@@ -187,9 +128,7 @@ export const premiumAssignments = (
   // =====================================================
 
   {
-    templateCode: 'CAR-FRESHENER-PREMIUM',
-    sellingPrice: Math.round(base * 0.6),
-    costPrice: Math.round(base * 0.24),
+    templateCode: 'PREM-CAR-FRESHENER',
   },
 
   // =====================================================
@@ -197,18 +136,19 @@ export const premiumAssignments = (
   // =====================================================
 
   {
-    templateCode: 'ROOM-FRESHENER-PREMIUM',
-    sellingPrice: Math.round(base * 1.05),
-    costPrice: Math.round(base * 0.42),
+    templateCode: 'PREM-ROOM-FRESHENER-50',
+  },
+  {
+    templateCode: 'PREM-ROOM-FRESHENER-100',
   },
 ];
 
-export const roomFreshenerAssignments = (
-  base: number,
-): MockVariantAssignmentSeed[] => [
+export const roomFreshenerAssignments = (): MockVariantAssignmentSeed[] => [
   {
-    templateCode: 'ROOM-FRESHENER',
-    sellingPrice: Math.round(base * 0.8),
-    costPrice: Math.round(base * 0.32),
+    templateCode: 'ROOM-FRESHENER-50',
+  },
+
+  {
+    templateCode: 'ROOM-FRESHENER-100',
   },
 ];

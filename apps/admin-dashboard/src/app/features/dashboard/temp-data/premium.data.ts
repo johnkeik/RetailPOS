@@ -11,7 +11,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '116',
@@ -21,7 +21,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '198',
@@ -31,7 +31,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '199',
@@ -41,7 +41,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '200',
@@ -51,7 +51,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '201',
@@ -61,7 +61,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '202',
@@ -71,7 +71,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '203',
@@ -81,7 +81,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '372',
@@ -91,7 +91,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '373',
@@ -101,7 +101,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '482',
@@ -111,7 +111,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '483',
@@ -121,7 +121,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '484',
@@ -131,7 +131,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '486',
@@ -141,7 +141,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '509',
@@ -151,7 +151,7 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
   {
     productCode: '535',
@@ -161,6 +161,6 @@ export const priveCatalog: MockProductSeed[] = [
     categoryCode: 'PRV',
     gender: 'UNISEX',
     packagingCategory: 'BULK',
-    variantAssignments: premiumAssignments(30),
+    variantAssignments: premiumAssignments(),
   },
 ];

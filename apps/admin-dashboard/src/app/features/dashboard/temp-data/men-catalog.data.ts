@@ -11,7 +11,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '106',
@@ -21,7 +21,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '110',
@@ -31,7 +31,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '111',
@@ -41,7 +41,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '120',
@@ -51,7 +51,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '121',
@@ -61,7 +61,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '122',
@@ -71,7 +71,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '123',
@@ -81,7 +81,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '124',
@@ -91,7 +91,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '134',
@@ -101,7 +101,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '135',
@@ -111,7 +111,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '137',
@@ -121,7 +121,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '142',
@@ -131,7 +131,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '145',
@@ -141,7 +141,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '160',
@@ -151,7 +151,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '161',
@@ -161,7 +161,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '164',
@@ -171,7 +171,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '169',
@@ -181,7 +181,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '178',
@@ -191,7 +191,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '182',
@@ -201,7 +201,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '183',
@@ -211,7 +211,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '205',
@@ -221,7 +221,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '207',
@@ -231,7 +231,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '208',
@@ -241,7 +241,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '212',
@@ -251,7 +251,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '215',
@@ -261,7 +261,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '225',
@@ -271,7 +271,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '226',
@@ -281,7 +281,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '234',
@@ -291,7 +291,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '235',
@@ -301,7 +301,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '242',
@@ -311,7 +311,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '246',
@@ -321,7 +321,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '295',
@@ -331,7 +331,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '302',
@@ -341,7 +341,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '303',
@@ -351,7 +351,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '304',
@@ -361,7 +361,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '309',
@@ -371,7 +371,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '315',
@@ -381,7 +381,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '316',
@@ -391,7 +391,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '317',
@@ -401,7 +401,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '319',
@@ -411,7 +411,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '321',
@@ -421,7 +421,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '332',
@@ -431,7 +431,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '333',
@@ -441,7 +441,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '340',
@@ -451,7 +451,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '380',
@@ -461,7 +461,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '382',
@@ -471,7 +471,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '387',
@@ -481,7 +481,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '397',
@@ -491,7 +491,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '402',
@@ -501,7 +501,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '404',
@@ -511,7 +511,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '408',
@@ -521,7 +521,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '409',
@@ -531,7 +531,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '415',
@@ -541,7 +541,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '513',
@@ -551,7 +551,7 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
   {
     productCode: '528',
@@ -561,6 +561,6 @@ export const menCatalog: MockProductSeed[] = [
     categoryCode: 'MEN',
     gender: 'M',
     packagingCategory: 'BULK',
-    variantAssignments: normalAssignments(22),
+    variantAssignments: normalAssignments(),
   },
 ];
