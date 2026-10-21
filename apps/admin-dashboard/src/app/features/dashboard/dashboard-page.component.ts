@@ -7,8 +7,8 @@ import { SalesHistoryService } from '../sales-history/sales-history.service';
 import { DashboardTempSeedService } from './dashboard-temp-seed.service';
 import { mockCatalogData } from './temp-data/mock-catalog.data';
 
-const LOW_STOCK_LITERS = 5;
-const LOW_STOCK_UNITS = 5;
+const LOW_STOCK_LITERS = 0.5;
+const LOW_STOCK_UNITS = 10;
 
 @Component({
   selector: 'app-dashboard-page',

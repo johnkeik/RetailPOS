@@ -31,7 +31,9 @@ export class AdminShellComponent implements OnInit {
     { label: 'Παραλλαγές', path: '/variants' },
     { label: 'Απόθεμα', path: '/inventory' },
     { label: 'Κινήσεις Αποθέματος', path: '/stock-movements' },
-    { label: 'Ιστορικό Πωλήσεων', path: '/sales-history' }
+    { label: 'Ιστορικό Πωλήσεων', path: '/sales-history' },
+    { label: 'Αναφορά Πωλήσεων', path: '/sales-report' },
+    { label: 'Έξοδα', path: '/expenses' }
   ];
 
   ngOnInit(): void {

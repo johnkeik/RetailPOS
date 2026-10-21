@@ -1,6 +1,5 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
-import { assertManagerPin } from "../common/manager-pin";
 import { assertRole, resolveActorContext, validateTenantScope } from "../common/auth";
 import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { CancelOrderInput } from "../types/domain";
@@ -15,23 +14,18 @@ type SaleMovement = {
 
 export const cancelOrder = onCall(async (request) => {
   const data = request.data as CancelOrderInput;
-  if (!data?.orderId || !data.employeeId || !/^\d{6}$/.test(data.managerPin ?? "")) {
-    throw new HttpsError("invalid-argument", "Λείπουν στοιχεία ακύρωσης ή ο κωδικός manager δεν είναι έγκυρος.");
+  if (!data?.orderId || !data.employeeId) {
+    throw new HttpsError("invalid-argument", "Λείπουν στοιχεία ακύρωσης.");
   }
-  const reason = (data.reason ?? "").trim();
-  if (!reason || reason.length > 200) {
-    throw new HttpsError("invalid-argument", "Συμπληρώστε αιτία ακύρωσης έως 200 χαρακτήρες.");
-  }
-
   validateTenantScope(data.tenantId);
   const actor = request.auth?.uid ?
     await resolveActorContext(request.auth, data.tenantId) :
     { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
   const tenantId = actor.tenantId;
-  await assertManagerPin(tenantId, data.managerPin);
 
   const orderRef = db.doc(`tenants/${tenantId}/orders/${data.orderId}`);
+  const historyRef = db.collection(`tenants/${tenantId}/orders`).doc();
   const employeeRef = db.doc(`tenants/${tenantId}/employees/${data.employeeId}`);
   const movementQuery = db.collection(`tenants/${tenantId}/stockMovements`)
     .where("orderId", "==", data.orderId);
@@ -66,14 +60,16 @@ export const cancelOrder = onCall(async (request) => {
 
     const movements: SaleMovement[] = saleDocuments.map((document) => {
       const movement = document.data();
-      if (!movement["productId"] || !movement["variantId"] || Number(movement["quantityDelta"]) >= 0) {
+      const quantityDelta = Number(movement["quantityDelta"]);
+      if (!movement["productId"] || !movement["variantId"] ||
+          !Number.isFinite(quantityDelta) || quantityDelta >= 0) {
         throw new HttpsError("failed-precondition", "Βρέθηκε μη έγκυρη κίνηση πώλησης.");
       }
       return {
         id: document.id,
         productId: movement["productId"] as string,
         variantId: movement["variantId"] as string,
-        quantityDelta: Number(movement["quantityDelta"]),
+        quantityDelta,
         isBulkVolume: movement["isBulkVolume"] === true
       };
     });
@@ -127,20 +123,33 @@ export const cancelOrder = onCall(async (request) => {
         isBulkVolume: movement.isBulkVolume,
         orderId: data.orderId,
         reversesMovementId: movement.id,
-        reason: `Ακύρωση παραγγελίας: ${reason}`,
+        reason: "Ακύρωση παραγγελίας",
         performedByEmployeeId: data.employeeId,
-        approvedByUserId: actor.uid,
-        approvedBy: "MANAGER_PIN",
+        performedByUserId: actor.uid,
         createdAt: now
       });
     }
+
+    // A separate history entry records the deletion at cancellation time.
+    // It is not a sale and must never contribute to revenue totals.
+    tx.set(historyRef, {
+      ...orderSnapshot.data(),
+      tenantId,
+      status: "DELETED",
+      originalOrderId: data.orderId,
+      employeeId: data.employeeId,
+      createdAt: now,
+      originalCreatedAt: orderSnapshot.data()?.["createdAt"] ?? null,
+      cancelledAt: now,
+      cancelledByEmployeeId: data.employeeId,
+      cancelledByUserId: actor.uid
+    });
 
     tx.update(orderRef, {
       status: "CANCELLED",
       cancelledAt: now,
       cancelledByEmployeeId: data.employeeId,
-      cancellationApprovedBy: actor.uid,
-      cancellationReason: reason
+      cancelledByUserId: actor.uid
     });
   });
 

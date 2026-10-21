@@ -1,0 +1,84 @@
+<app-page-title
+  title="Αναφορά πωλήσεων"
+  subtitle="Ημερήσιες πωλήσεις ανά υπάλληλο, με διάκριση μετρητών και κάρτας. Δεν περιλαμβάνονται οι ακυρωμένες παραγγελίες. Τα «Καθαρά μετρητά» είναι τα μετρητά μείον τα έξοδα που πληρώθηκαν με μετρητά."
+/>
+
+<section class="panel">
+  <div class="filters no-print">
+    <div>
+      <label class="field" for="from">Από</label>
+      <input id="from" class="text-input" type="date" [value]="dateFrom()" (change)="setFrom(from.value)" #from />
+    </div>
+    <div>
+      <label class="field" for="to">Έως</label>
+      <input id="to" class="text-input" type="date" [value]="dateTo()" (change)="setTo(to.value)" #to />
+    </div>
+    <button class="print-btn" type="button" (click)="print()">Εκτύπωση / PDF</button>
+    <button class="print-btn" type="button" (click)="exportCsv()" [disabled]="days().length === 0">Εξαγωγή CSV</button>
+  </div>
+  <p class="print-period">Περίοδος: {{ formatInputDate(dateFrom()) }} – {{ formatInputDate(dateTo()) }}</p>
+
+  @if (loading()) {
+    <div class="inline-state">Φόρτωση αναφοράς...</div>
+  }
+
+  @if (error()) {
+    <div class="inline-error">{{ error() }}</div>
+  }
+
+  @for (day of days(); track day.key) {
+    <h3>{{ day.label }}</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Υπάλληλος</th>
+            <th class="num">Μετρητά</th>
+            <th class="num">Κάρτα</th>
+            @if (hasOther()) {
+              <th class="num">Χωρίς τρόπο πληρωμής</th>
+            }
+            <th class="num">Σύνολο</th>
+            <th class="num">Έξοδα μετρητά</th>
+            <th class="num">Έξοδα κάρτα</th>
+            <th class="num">Καθαρά μετρητά</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of day.employees; track employee.name) {
+            <tr>
+              <td>{{ employee.name }}</td>
+              <td class="num">{{ formatCurrency(employee.cash) }}</td>
+              <td class="num">{{ formatCurrency(employee.card) }}</td>
+              @if (hasOther()) {
+                <td class="num">{{ formatCurrency(employee.other) }}</td>
+              }
+              <td class="num strong">{{ formatCurrency(employee.total) }}</td>
+              <td class="num">{{ formatCurrency(employee.cashExpenses) }}</td>
+              <td class="num">{{ formatCurrency(employee.cardExpenses) }}</td>
+              <td class="num strong">{{ formatCurrency(employee.cash - employee.cashExpenses) }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Σύνολο ημέρας</td>
+            <td class="num">{{ formatCurrency(day.totals.cash) }}</td>
+            <td class="num">{{ formatCurrency(day.totals.card) }}</td>
+            @if (hasOther()) {
+              <td class="num">{{ formatCurrency(day.totals.other) }}</td>
+            }
+            <td class="num strong">{{ formatCurrency(day.totals.total) }}</td>
+            <td class="num">{{ formatCurrency(day.totals.cashExpenses) }}</td>
+            <td class="num">{{ formatCurrency(day.totals.cardExpenses) }}</td>
+            <td class="num strong">{{ formatCurrency(day.totals.cash - day.totals.cashExpenses) }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  } @empty {
+    @if (!loading()) {
+      <div class="empty-state">Δεν βρέθηκαν πωλήσεις για το επιλεγμένο διάστημα.</div>
+    }
+  }
+</section>

@@ -6,6 +6,7 @@ import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
+import 'pos_expense_page.dart';
 import 'pos_order_completion_dialog.dart';
 import 'pos_order_history_dialog.dart';
 
@@ -267,6 +268,13 @@ class _PosHomePageState extends State<PosHomePage> {
                 onPressed: _showOrderHistory,
                 icon: const Icon(Icons.history),
                 label: const Text('Ιστορικό'),
+              ),
+              OutlinedButton.icon(
+                style:
+                    OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
+                onPressed: _showExpenses,
+                icon: const Icon(Icons.receipt_long_outlined),
+                label: const Text('Έξοδα'),
               ),
               OutlinedButton.icon(
                 style:
@@ -596,6 +604,23 @@ class _PosHomePageState extends State<PosHomePage> {
     }
 
     return 'Παρουσιάστηκε σφάλμα (${error.runtimeType}) κατά την καταχώρηση. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.';
+  }
+
+  Future<void> _showExpenses() async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => PosExpensePage(
+          repository: widget.orderRepository,
+          tenantId: widget.tenantId,
+          employeeId: widget.employeeId,
+          employeeName: widget.employeeName,
+        ),
+      ),
+    );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Το έξοδο καταχωρήθηκε.')));
+    }
   }
 
   Future<void> _showOrderHistory() async {

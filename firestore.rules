@@ -17,7 +17,7 @@ service cloud.firestore {
 
     match /tenants/{tenantId}/{collectionName}/{document=**} {
       allow read: if collectionName in [
-        'brands', 'categories', 'consumables', 'employees', 'inventory',
+        'brands', 'categories', 'consumables', 'employees', 'expenses', 'inventory',
         'orders', 'products', 'stockMovements', 'variantTemplates', 'variants'
       ] && (belongsToTenant(tenantId) || isBuiltInPosTenant(tenantId));
       allow write: if false;

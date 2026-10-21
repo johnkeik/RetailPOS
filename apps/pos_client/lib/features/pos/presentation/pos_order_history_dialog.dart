@@ -7,91 +7,42 @@ import '../data/label_print_service.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
 
-class _OrderCancellationDialog extends StatefulWidget {
+String _historyDate(DateTime? value) {
+  if (value == null) return 'Χωρίς ημερομηνία';
+  final date = value.toLocal();
+  return '${date.day.toString().padLeft(2, '0')}/'
+      '${date.month.toString().padLeft(2, '0')}/${date.year} · '
+      '${date.hour.toString().padLeft(2, '0')}:'
+      '${date.minute.toString().padLeft(2, '0')}';
+}
+
+String _historyAmount(double value) =>
+    '${value.toStringAsFixed(2).replaceAll('.', ',')} €';
+
+class _OrderCancellationDialog extends StatelessWidget {
   const _OrderCancellationDialog({required this.order});
 
   final PosOrder order;
 
   @override
-  State<_OrderCancellationDialog> createState() => _OrderCancellationDialogState();
-}
-
-class _OrderCancellationDialogState extends State<_OrderCancellationDialog> {
-  final _pinController = TextEditingController();
-  final _reasonController = TextEditingController();
-  String? _formError;
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    _reasonController.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    final managerPin = _pinController.text.trim();
-    final reason = _reasonController.text.trim();
-    if (!RegExp(r'^\d{6}$').hasMatch(managerPin)) {
-      setState(() => _formError = 'Ο κωδικός manager πρέπει να έχει 6 ψηφία.');
-      return;
-    }
-    if (reason.isEmpty) {
-      setState(() => _formError = 'Συμπληρώστε την αιτία ακύρωσης.');
-      return;
-    }
-    Navigator.of(context).pop((managerPin: managerPin, reason: reason));
-  }
-
-  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Ακύρωση παραγγελίας'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Παραγγελία ${widget.order.id} · ${widget.order.total.toStringAsFixed(2)} €'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _pinController,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              obscureText: true,
-              maxLength: 6,
-              decoration: const InputDecoration(
-                labelText: '6ψήφιος κωδικός manager',
-                border: OutlineInputBorder(),
-                counterText: '',
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _reasonController,
-              maxLength: 200,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Αιτία ακύρωσης',
-                hintText: 'π.χ. Λάθος προϊόν ή ποσότητα',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            if (_formError != null) ...[
-              const SizedBox(height: 8),
-              Text(_formError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            ],
-          ],
-        ),
+      title: const Text('Διαγραφή παραγγελίας'),
+      content: Text(
+        'Θέλετε να διαγράψετε την πώληση της '
+        '${_historyDate(order.createdAt)} '
+        'με ποσό ${_historyAmount(order.total)};\n\n'
+        'Οι ποσότητες και τα αναλώσιμα θα επιστραφούν στο απόθεμα.',
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Πίσω'),
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Όχι'),
         ),
         FilledButton.icon(
-          onPressed: _submit,
-          icon: const Icon(Icons.cancel_outlined),
-          label: const Text('Επιβεβαίωση ακύρωσης'),
+          onPressed: () => Navigator.of(context).pop(true),
+          icon: const Icon(Icons.delete_outline),
+          label: const Text('Ναι, διαγραφή'),
         ),
       ],
     );
@@ -170,20 +121,46 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
     );
   }
 
+  ProductItem? _catalogProduct(PosOrderItem item) {
+    for (final product in widget.products) {
+      if (product.id == item.productCode || product.code == item.productCode) {
+        return product;
+      }
+    }
+    return null;
+  }
+
+  String _productName(PosOrderItem item) {
+    if (item.productName.trim().isNotEmpty) return item.productName;
+    final name = _catalogProduct(item)?.name.trim() ?? '';
+    return name.isEmpty ? 'Μη διαθέσιμο προϊόν' : name;
+  }
+
+  String _variantName(PosOrderItem item) {
+    if (item.variantLabel.trim().isNotEmpty) return item.variantLabel;
+    for (final variant in _catalogProduct(item)?.variants ?? <ProductVariant>[]) {
+      if (variant.id == item.variantCode || variant.code == item.variantCode) {
+        if (variant.name.trim().isNotEmpty) return variant.name;
+        if (variant.label.trim().isNotEmpty) return variant.label;
+      }
+    }
+    return 'Παραλλαγή μη διαθέσιμη';
+  }
+
   String _itemKey(PosOrder order, PosOrderItem item) =>
       'item-${order.id}-${item.productCode}-${item.variantCode}-${item.useSpecialBottle}';
 
-  Future<({String managerPin, String reason})?> _requestCancellationDetails(
+  Future<bool?> _confirmCancellation(
       PosOrder order) async {
-    return showDialog<({String managerPin, String reason})>(
+    return showDialog<bool>(
       context: context,
       builder: (_) => _OrderCancellationDialog(order: order),
     );
   }
 
   Future<void> _cancelOrder(PosOrder order) async {
-    final details = await _requestCancellationDetails(order);
-    if (details == null || !mounted) return;
+    final confirmed = await _confirmCancellation(order);
+    if (confirmed != true || !mounted) return;
 
     setState(() => _cancellingOrderId = order.id);
     try {
@@ -191,8 +168,6 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
         tenantId: widget.tenantId,
         employeeId: widget.employeeId,
         orderId: order.id,
-        managerPin: details.managerPin,
-        reason: details.reason,
       );
       await _reload();
       if (!mounted) return;
@@ -212,12 +187,6 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
     } finally {
       if (mounted) setState(() => _cancellingOrderId = null);
     }
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Ημερομηνία μη διαθέσιμη';
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} '
-        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -307,41 +276,96 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                     spacing: 12,
                                     runSpacing: 8,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text('Παραγγελία ${order.id}',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.w700)),
-                                          Text(
-                                            '${_formatDate(order.createdAt)} · Υπάλληλος ${order.employeeId} · ${order.total.toStringAsFixed(2)} €',
-                                            style: TextStyle(
-                                                color: colors.onSurfaceVariant),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              color: order.status == 'CANCELLED'
-                                                  ? colors.errorContainer
-                                                  : colors.primaryContainer,
-                                              borderRadius: BorderRadius.circular(5),
+                                      ConstrainedBox(
+                                        constraints: const BoxConstraints(maxWidth: 460),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  order.status == 'DELETED'
+                                                      ? Icons.delete_outline
+                                                      : Icons.receipt_long_outlined,
+                                                  color: order.status == 'COMPLETED'
+                                                      ? colors.primary
+                                                      : colors.error,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Text(
+                                                    '${order.status == 'DELETED' ? 'Διαγραφή' : 'Πώληση'} · ${_historyDate(order.createdAt)}',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                              child: Text(
-                                                order.status == 'CANCELLED' ? 'ΑΚΥΡΩΜΕΝΗ' : 'ΟΛΟΚΛΗΡΩΜΕΝΗ',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: order.status == 'CANCELLED'
-                                                      ? colors.onErrorContainer
-                                                      : colors.onPrimaryContainer,
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              _historyAmount(order.total),
+                                              style: TextStyle(
+                                                fontSize: 26,
+                                                fontWeight: FontWeight.w800,
+                                                color: colors.onSurface,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Wrap(
+                                              spacing: 14,
+                                              runSpacing: 6,
+                                              children: [
+                                                _HistoryDetail(
+                                                  icon: Icons.person_outline,
+                                                  text: order.employeeName.trim().isEmpty
+                                                      ? 'Υπάλληλος'
+                                                      : order.employeeName,
+                                                ),
+                                                _HistoryDetail(
+                                                  icon: Icons.shopping_bag_outlined,
+                                                  text: '${order.items.fold<int>(0, (sum, item) => sum + item.quantity)} τεμ.',
+                                                ),
+                                                if (order.paymentMethod != null)
+                                                  _HistoryDetail(
+                                                    icon: order.paymentMethod == PaymentMethod.card
+                                                        ? Icons.credit_card
+                                                        : Icons.payments_outlined,
+                                                    text: order.paymentMethod == PaymentMethod.card
+                                                        ? 'Κάρτα'
+                                                        : 'Μετρητά',
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 10),
+                                            DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                color: order.status != 'COMPLETED'
+                                                    ? colors.errorContainer
+                                                    : colors.primaryContainer,
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                child: Text(
+                                                  order.status == 'DELETED'
+                                                      ? 'ΔΙΑΓΡΑΜΜΕΝΗ'
+                                                      : order.status == 'CANCELLED'
+                                                          ? 'ΑΚΥΡΩΜΕΝΗ'
+                                                          : 'ΟΛΟΚΛΗΡΩΜΕΝΗ',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: order.status != 'COMPLETED'
+                                                        ? colors.onErrorContainer
+                                                        : colors.onPrimaryContainer,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                       FilledButton.tonalIcon(
                                         onPressed: _printingKey == null
@@ -349,7 +373,7 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                                 orderPrintKey,
                                                 order.id,
                                                 order.items,
-                                                'παραγγελία ${order.id}')
+                                                'πώληση της ${_historyDate(order.createdAt)}')
                                             : null,
                                         icon: _printingKey == orderPrintKey
                                             ? const SizedBox(
@@ -386,49 +410,83 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                   ],
                                   const Divider(height: 20),
                                   for (final item in order.items)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4),
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: colors.surfaceContainerLow,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       child: Row(
                                         children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: colors.secondaryContainer,
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              '×${item.quantity}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: colors.onSecondaryContainer,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  '${item.productCode} · ${item.productName.isEmpty ? 'Προϊόν' : item.productName}',
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w600),
+                                                  _productName(item),
+                                                  style: const TextStyle(fontWeight: FontWeight.w700),
                                                 ),
+                                                const SizedBox(height: 4),
                                                 Text(
-                                                  '${item.variantCode}${item.variantLabel.isEmpty ? '' : ' · ${item.variantLabel}'}${item.useSpecialBottle ? ' · ✨ Special Μπουκάλι' : ''} · ${item.quantity} τεμ.',
-                                                  style: TextStyle(
-                                                      color: colors.onSurfaceVariant),
+                                                  _variantName(item),
+                                                  style: TextStyle(color: colors.onSurfaceVariant),
                                                 ),
+                                                if (item.useSpecialBottle)
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 4),
+                                                    child: Text(
+                                                      '✨ Special Μπουκάλι',
+                                                      style: TextStyle(color: colors.primary),
+                                                    ),
+                                                  ),
                                               ],
                                             ),
                                           ),
+                                          const SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                _historyAmount(item.unitPrice * item.quantity),
+                                                style: const TextStyle(fontWeight: FontWeight.w700),
+                                              ),
+                                              Text(
+                                                '${_historyAmount(item.unitPrice)} / τεμ.',
+                                                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                                              ),
+                                            ],
+                                          ),
                                           IconButton(
-                                            tooltip:
-                                                'Εκτύπωση ${item.productCode}',
+                                            tooltip: 'Εκτύπωση ${_productName(item)}',
                                             onPressed: _printingKey == null
                                                 ? () => _print(
                                                       _itemKey(order, item),
                                                       order.id,
                                                       [item],
-                                                      'προϊόν ${item.productCode}',
+                                                      _productName(item),
                                                     )
                                                 : null,
-                                            icon: _printingKey ==
-                                                    _itemKey(order, item)
+                                            icon: _printingKey == _itemKey(order, item)
                                                 ? const SizedBox(
                                                     width: 20,
                                                     height: 20,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                            strokeWidth: 2))
+                                                    child: CircularProgressIndicator(strokeWidth: 2))
                                                 : const Icon(Icons.print),
                                           ),
                                         ],
@@ -448,6 +506,25 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _HistoryDetail extends StatelessWidget {
+  const _HistoryDetail({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        const SizedBox(width: 5),
+        Flexible(child: Text(text)),
+      ],
     );
   }
 }

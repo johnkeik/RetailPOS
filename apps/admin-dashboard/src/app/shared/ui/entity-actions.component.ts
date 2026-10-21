@@ -20,6 +20,7 @@ import { Component, input, output } from '@angular/core';
       </button>
 
       <!-- Toggle Active button -->
+      @if (showToggle()) {
       <button
         type="button"
         class="icon-btn toggle-btn"
@@ -43,6 +44,7 @@ import { Component, input, output } from '@angular/core';
           </svg>
         }
       </button>
+      }
 
       <!-- Delete button -->
       <button
@@ -130,6 +132,7 @@ import { Component, input, output } from '@angular/core';
 })
 export class EntityActionsComponent {
   readonly active = input<boolean>(true);
+  readonly showToggle = input<boolean>(true);
   readonly edit = output<void>();
   readonly toggleActive = output<void>();
   readonly delete = output<void>();

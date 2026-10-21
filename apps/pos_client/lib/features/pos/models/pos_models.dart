@@ -147,8 +147,10 @@ class PosOrder {
     required this.createdAt,
     required this.items,
     this.paymentMethod,
+    this.employeeName = '',
     this.status = 'COMPLETED',
     this.cancellationReason,
+    this.originalOrderId,
     this.isSeeded = false,
   });
 
@@ -158,7 +160,9 @@ class PosOrder {
   final DateTime? createdAt;
   final List<PosOrderItem> items;
   final PaymentMethod? paymentMethod;
+  final String employeeName;
   final String status;
   final String? cancellationReason;
+  final String? originalOrderId;
   final bool isSeeded;
 }

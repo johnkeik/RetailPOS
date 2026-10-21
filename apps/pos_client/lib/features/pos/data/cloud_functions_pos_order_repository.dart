@@ -66,15 +66,11 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required String orderId,
-    required String managerPin,
-    required String reason,
   }) async {
     final payload = {
       'tenantId': tenantId,
       'employeeId': employeeId,
       'orderId': orderId,
-      'managerPin': managerPin,
-      'reason': reason,
     };
 
     if (Platform.isWindows) {
@@ -83,6 +79,30 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     }
 
     await _functions.httpsCallable('cancelOrder').call(payload);
+  }
+
+  @override
+  Future<void> submitExpense({
+    required String tenantId,
+    required String employeeId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
+  }) async {
+    final payload = {
+      'tenantId': tenantId,
+      'employeeId': employeeId,
+      'amount': amount,
+      'paymentMethod': paymentMethod.wireValue,
+      'description': description,
+    };
+
+    if (Platform.isWindows) {
+      await _callWindowsCallable('createExpense', payload);
+      return;
+    }
+
+    await _functions.httpsCallable('createExpense').call(payload);
   }
 
   Future<Map<Object?, Object?>> _callWindowsCallable(
@@ -158,11 +178,37 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
   @override
   Future<List<PosOrder>> loadRecentOrders(
       {required String tenantId, int limit = 50}) async {
-    final snapshot = await _firestore
-        .collection('tenants/$tenantId/orders')
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .get();
+    final snapshots = await Future.wait([
+      _firestore
+          .collection('tenants/$tenantId/orders')
+          .orderBy('createdAt', descending: true)
+          .limit(limit)
+          .get(),
+      _firestore.collection('tenants/$tenantId/employees').get(),
+      _firestore.collection('tenants/$tenantId/products').get(),
+      _firestore.collection('tenants/$tenantId/variantTemplates').get(),
+    ]);
+    final snapshot = snapshots[0];
+    final employeeNames = {
+      for (final employee in snapshots[1].docs)
+        employee.id: (employee.data()['name'] as String? ?? '').trim(),
+    };
+
+    // Include inactive catalog records so older sales remain readable.
+    final productNames = <String, String>{};
+    for (final product in snapshots[2].docs) {
+      final name = (product.data()['name'] as String? ?? '').trim();
+      productNames[product.id] = name;
+      final code = product.data()['productCode'] as String?;
+      if (code != null) productNames[code] = name;
+    }
+    final variantNames = <String, String>{};
+    for (final variant in snapshots[3].docs) {
+      final name = (variant.data()['name'] as String? ?? '').trim();
+      variantNames[variant.id] = name;
+      final code = variant.data()['code'] as String?;
+      if (code != null) variantNames[code] = name;
+    }
 
     return snapshot.docs.map((doc) {
       final data = doc.data();
@@ -173,11 +219,17 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
           productCode: item['productCode'] as String? ??
               item['productId'] as String? ??
               '',
-          productName: item['productName'] as String? ?? '',
+          productName: (item['productName'] as String?)?.trim().isNotEmpty == true
+              ? item['productName'] as String
+              : productNames[item['productId'] ?? item['productCode']] ?? '',
           variantCode: item['variantCode'] as String? ??
               item['variantTemplateId'] as String? ??
+              item['variantId'] as String? ??
               '',
-          variantLabel: item['variantLabel'] as String? ?? '',
+          variantLabel: (item['variantLabel'] as String?)?.trim().isNotEmpty == true
+              ? item['variantLabel'] as String
+              : variantNames[item['variantTemplateId'] ??
+                  item['variantId'] ?? item['variantCode']] ?? '',
           isBulk: item['isBulk'] as bool? ?? false,
           quantity: (item['quantity'] as num? ?? 0).toInt(),
           unitPrice: (item['unitPrice'] as num? ?? 0).toDouble(),
@@ -191,12 +243,15 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
       return PosOrder(
         id: doc.id,
         employeeId: data['employeeId'] as String? ?? '',
+        employeeName: employeeNames[data['employeeId']] ??
+            data['employeeName'] as String? ?? '',
         total: (data['total'] as num? ?? 0).toDouble(),
         createdAt: createdAt,
         items: items,
         paymentMethod: paymentMethodFromWireValue(data['paymentMethod']),
         status: data['status'] as String? ?? 'COMPLETED',
         cancellationReason: data['cancellationReason'] as String?,
+        originalOrderId: data['originalOrderId'] as String?,
         isSeeded: data['seededAt'] != null,
       );
     }).toList();

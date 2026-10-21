@@ -4,40 +4,6 @@
   gap: 16px;
 }
 
-.manager-pin-panel {
-  margin-top: 16px;
-}
-
-.manager-pin-form {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
-  align-items: end;
-  gap: 12px;
-}
-
-.pin-input {
-  max-width: 280px;
-  letter-spacing: 0.2em;
-}
-
-.pin-feedback,
-.pin-note {
-  margin: 10px 0 0;
-  font-size: 0.82rem;
-}
-
-.pin-success {
-  color: #166534;
-}
-
-.pin-error {
-  color: #b91c1c;
-}
-
-.pin-note {
-  color: #64748b;
-}
-
 .panel {
   border: 1px solid #dce3ec;
   border-radius: 8px;
@@ -189,14 +155,4 @@ th {
   margin-top: 6px;
   color: #b91c1c;
   font-size: 0.8rem;
-}
-
-@media (max-width: 640px) {
-  .manager-pin-form {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .manager-pin-form .btn {
-    min-height: 40px;
-  }
 }

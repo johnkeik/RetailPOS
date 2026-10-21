@@ -21,9 +21,17 @@ import 'package:pos_client/features/pos/presentation/pos_home_page.dart';
 import 'package:pos_client/features/pos/presentation/pos_order_history_dialog.dart';
 
 class _HistoryOrderRepository implements PosOrderRepository {
-  const _HistoryOrderRepository({this.productCode = '310047'});
+  const _HistoryOrderRepository({
+    this.productCode = '310047',
+    this.productName = 'Άρωμα δοκιμής',
+    this.variantCode = 'BULK-50',
+    this.variantLabel = '50ml',
+  });
 
   final String productCode;
+  final String productName;
+  final String variantCode;
+  final String variantLabel;
 
   @override
   Future<String> submitOrder({
@@ -41,14 +49,16 @@ class _HistoryOrderRepository implements PosOrderRepository {
       PosOrder(
         id: 'order-1',
         employeeId: 'employee-1',
+        employeeName: 'Μαρία Παπαδοπούλου',
+        paymentMethod: PaymentMethod.card,
         total: 12,
         createdAt: DateTime(2026, 9, 27, 12),
         items: [
           PosOrderItem(
             productCode: productCode,
-            productName: 'Άρωμα δοκιμής',
-            variantCode: 'BULK-50',
-            variantLabel: '50ml',
+            productName: productName,
+            variantCode: variantCode,
+            variantLabel: variantLabel,
             isBulk: true,
             quantity: 2,
             unitPrice: 6,
@@ -63,8 +73,15 @@ class _HistoryOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required String orderId,
-    required String managerPin,
-    required String reason,
+  }) async {}
+
+  @override
+  Future<void> submitExpense({
+    required String tenantId,
+    required String employeeId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
   }) async {}
 }
 
@@ -76,8 +93,8 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
     createdAt: DateTime(2026, 10, 8, 12),
     items: const [],
   );
+  PosOrder? deletionEntry;
   String? cancelledOrderId;
-  String? cancellationReason;
 
   @override
   Future<String> submitOrder({
@@ -93,18 +110,24 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
     required String tenantId,
     int limit = 50,
   }) async =>
-      [order];
+      [if (deletionEntry != null) deletionEntry!, order];
 
   @override
   Future<void> cancelOrder({
     required String tenantId,
     required String employeeId,
     required String orderId,
-    required String managerPin,
-    required String reason,
   }) async {
+    deletionEntry = PosOrder(
+      id: 'deletion-1',
+      originalOrderId: orderId,
+      employeeId: employeeId,
+      total: order.total,
+      createdAt: DateTime(2026, 10, 21),
+      items: order.items,
+      status: 'DELETED',
+    );
     cancelledOrderId = orderId;
-    cancellationReason = reason;
     order = PosOrder(
       id: order.id,
       employeeId: order.employeeId,
@@ -112,9 +135,17 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
       createdAt: order.createdAt,
       items: order.items,
       status: 'CANCELLED',
-      cancellationReason: reason,
     );
   }
+
+  @override
+  Future<void> submitExpense({
+    required String tenantId,
+    required String employeeId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
+  }) async {}
 }
 
 void main() {
@@ -217,9 +248,21 @@ void main() {
     await tester.tap(find.text('Άνοιγμα ιστορικού'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Παραγγελία order-1'), findsOneWidget);
-    expect(find.textContaining('310047 · Άρωμα δοκιμής'), findsOneWidget);
-    expect(find.byTooltip('Εκτύπωση 310047'), findsOneWidget);
+    expect(find.textContaining('order-1'), findsNothing);
+    expect(find.textContaining('employee-1'), findsNothing);
+    expect(find.text('Πώληση · 27/09/2026 · 12:00'), findsOneWidget);
+    expect(find.text('Μαρία Παπαδοπούλου'), findsOneWidget);
+    expect(find.text('12,00 €'), findsNWidgets(2));
+    expect(find.text('2 τεμ.'), findsOneWidget);
+    expect(find.text('Κάρτα'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(find.text('Άρωμα δοκιμής'), findsOneWidget);
+    expect(find.text('50ml'), findsOneWidget);
+    expect(find.text('×2'), findsOneWidget);
+    expect(find.text('6,00 € / τεμ.'), findsOneWidget);
+    expect(find.textContaining('310047'), findsNothing);
+    expect(find.textContaining('BULK-50'), findsNothing);
+    expect(find.byTooltip('Εκτύπωση Άρωμα δοκιμής'), findsOneWidget);
     expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
   });
 
@@ -266,7 +309,7 @@ void main() {
 
     await tester.tap(find.text('Άνοιγμα ιστορικού'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Εκτύπωση 310047'));
+    await tester.tap(find.byTooltip('Εκτύπωση Άρωμα δοκιμής'));
     await tester.pumpAndSettle();
 
     expect(sent?['orderId'], 'order-1');
@@ -292,7 +335,12 @@ void main() {
               onPressed: () => showDialog<void>(
                 context: context,
                 builder: (_) => PosOrderHistoryDialog(
-                  repository: const _HistoryOrderRepository(productCode: 'p1'),
+                  repository: const _HistoryOrderRepository(
+                    productCode: 'p1',
+                    productName: '',
+                    variantCode: 'internal-variant-id',
+                    variantLabel: '',
+                  ),
                   tenantId: 'store001',
                   employeeId: 'employee-1',
                   labelPrinter:
@@ -303,7 +351,16 @@ void main() {
                       code: '310047',
                       name: 'Test',
                       category: 'All',
-                      variants: [],
+                      variants: [
+                        ProductVariant(
+                          id: 'internal-variant-id',
+                          code: 'BULK-50',
+                          name: 'Άρωμα 50 ml',
+                          label: '50 ml',
+                          type: ProductVariantType.bulk,
+                          price: 6,
+                        ),
+                      ],
                       ingredients: 'ΛΩΤΟΣ, ΒΑΝΙΛΙΑ',
                     ),
                   ],
@@ -318,6 +375,10 @@ void main() {
 
     await tester.tap(find.text('Άνοιγμα ιστορικού'));
     await tester.pumpAndSettle();
+    expect(find.text('Test'), findsOneWidget);
+    expect(find.text('Άρωμα 50 ml'), findsOneWidget);
+    expect(find.textContaining('internal-variant-id'), findsNothing);
+    expect(find.textContaining('p1'), findsNothing);
     await tester.tap(find.text('Εκτύπωση παραγγελίας'));
     await tester.pumpAndSettle();
 
@@ -326,7 +387,7 @@ void main() {
     ]);
   });
 
-  testWidgets('manager PIN cancels an order and hides cancel action',
+  testWidgets('cancellation only asks for confirmation and shows a deleted history entry',
       (tester) async {
     final repository = _CancellableHistoryOrderRepository();
     await tester.pumpWidget(
@@ -355,14 +416,19 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ακύρωση'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), '123456');
-    await tester.enterText(find.byType(TextField).at(1), 'Λάθος ποσότητα');
-    await tester.tap(find.text('Επιβεβαίωση ακύρωσης'));
+    expect(find.byType(TextField), findsNothing);
+    expect(find.text('Διαγραφή παραγγελίας'), findsOneWidget);
+    await tester.tap(find.text('Όχι'));
+    await tester.pumpAndSettle();
+    expect(repository.cancelledOrderId, isNull);
+    await tester.tap(find.text('Ακύρωση'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ναι, διαγραφή'));
     await tester.pumpAndSettle();
 
     expect(repository.cancelledOrderId, 'order-cancel-1');
-    expect(repository.cancellationReason, 'Λάθος ποσότητα');
     expect(find.text('ΑΚΥΡΩΜΕΝΗ'), findsOneWidget);
+    expect(find.text('ΔΙΑΓΡΑΜΜΕΝΗ'), findsOneWidget);
     expect(find.text('Ακύρωση'), findsNothing);
   });
 }

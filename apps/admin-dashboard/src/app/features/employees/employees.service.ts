@@ -106,14 +106,6 @@ export class EmployeesService {
     }
   }
 
-  async setManagerPin(pin: string): Promise<void> {
-    const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) {
-      throw new Error('Δεν βρέθηκε πλαίσιο καταστήματος.');
-    }
-    await httpsCallable(this.functions, 'setManagerPin')({ tenantId, pin });
-  }
-
   private normalizeTimestamp(value: unknown): string {
     if (typeof value === 'string') {
       return value;

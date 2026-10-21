@@ -82,6 +82,27 @@ export type CreateOrderInput = {
   paymentMethod?: PaymentMethod;
 };
 
+export type CreateExpenseInput = {
+  tenantId: string;
+  employeeId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  description: string;
+};
+
+export type UpdateExpenseInput = {
+  tenantId: string;
+  expenseId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  description: string;
+};
+
+export type DeleteExpenseInput = {
+  tenantId: string;
+  expenseId: string;
+};
+
 export type SetManagerPinInput = {
   tenantId: string;
   pin: string;
@@ -91,8 +112,6 @@ export type CancelOrderInput = {
   tenantId: string;
   employeeId: string;
   orderId: string;
-  managerPin: string;
-  reason: string;
 };
 
 export type SeedMockOrdersInput = {

@@ -18,12 +18,6 @@ export class EmployeesPageComponent {
   protected readonly searchQuery = signal('');
   protected readonly editingEmployeeId = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
-  protected readonly managerPin = signal('');
-  protected readonly managerPinConfirmation = signal('');
-  protected readonly savingManagerPin = signal(false);
-  protected readonly managerPinStatus = signal<string | null>(null);
-  protected readonly managerPinError = signal<string | null>(null);
-
   protected readonly loading = this.employeesService.loading;
   protected readonly error = this.employeesService.error;
 
@@ -101,33 +95,6 @@ export class EmployeesPageComponent {
     const ok = await this.employeesService.deleteEmployee(employee.id);
     if (ok && this.editingEmployeeId() === employee.id) {
       this.resetForm();
-    }
-  }
-
-  protected async saveManagerPin(): Promise<void> {
-    const pin = this.managerPin();
-    if (!/^\d{6}$/.test(pin)) {
-      this.managerPinError.set('Ο κωδικός πρέπει να αποτελείται από 6 ψηφία.');
-      return;
-    }
-    if (pin !== this.managerPinConfirmation()) {
-      this.managerPinError.set('Οι δύο κωδικοί δεν ταιριάζουν.');
-      return;
-    }
-
-    this.savingManagerPin.set(true);
-    this.managerPinError.set(null);
-    this.managerPinStatus.set(null);
-    try {
-      await this.employeesService.setManagerPin(pin);
-      this.managerPin.set('');
-      this.managerPinConfirmation.set('');
-      this.managerPinStatus.set('Ο κωδικός έγκρισης ακυρώσεων αποθηκεύτηκε.');
-    } catch (error) {
-      console.error(error);
-      this.managerPinError.set('Δεν ήταν δυνατή η αποθήκευση. Βεβαιωθείτε ότι έχετε δικαιώματα διαχειριστή.');
-    } finally {
-      this.savingManagerPin.set(false);
     }
   }
 

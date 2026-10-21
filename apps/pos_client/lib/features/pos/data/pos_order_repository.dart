@@ -17,7 +17,13 @@ abstract class PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required String orderId,
-    required String managerPin,
-    required String reason,
+  });
+
+  Future<void> submitExpense({
+    required String tenantId,
+    required String employeeId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
   });
 }

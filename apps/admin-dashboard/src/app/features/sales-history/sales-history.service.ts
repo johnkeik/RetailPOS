@@ -82,6 +82,8 @@ export class SalesHistoryService {
 
         return {
           id: item.id,
+          originalOrderId: data.originalOrderId,
+          cancellationReason: data.cancellationReason,
           tenantId,
           employeeId,
           employeeName: employeeNames.get(employeeId) || employeeId,

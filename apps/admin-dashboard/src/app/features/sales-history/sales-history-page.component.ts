@@ -30,7 +30,8 @@ export class SalesHistoryPageComponent implements OnInit {
         !query ||
         row.employeeName.toLowerCase().includes(query) ||
         row.employeeId.toLowerCase().includes(query) ||
-        row.id.toLowerCase().includes(query)
+        row.id.toLowerCase().includes(query) ||
+        (row.originalOrderId?.toLowerCase().includes(query) ?? false)
       );
     });
   });

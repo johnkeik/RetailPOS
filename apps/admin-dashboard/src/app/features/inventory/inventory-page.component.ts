@@ -14,8 +14,8 @@ export class InventoryPageComponent implements OnInit {
   private readonly inventoryService = inject(InventoryService);
 
   protected readonly searchQuery = signal('');
-  protected readonly lowStockLiters = signal(5);
-  protected readonly lowStockUnits = signal(5);
+  protected readonly lowStockLiters = signal(0.5);
+  protected readonly lowStockUnits = signal(10);
   protected readonly showLowStockOnly = signal(false);
   protected readonly packagingFilter = signal<PackagingType | 'ALL'>('ALL');
 

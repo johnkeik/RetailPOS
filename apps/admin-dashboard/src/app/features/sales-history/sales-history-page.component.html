@@ -50,7 +50,7 @@
                   [attr.aria-label]="(expandedOrderId() === row.id ? 'Απόκρυψη' : 'Προβολή') + ' παραγγελίας ' + row.id"
                   (click)="toggleDetails(row.id)"
                 >
-                  <span class="order-id">{{ row.id.slice(0, 8) }}</span>
+                  <span class="order-id">{{ (row.originalOrderId || row.id).slice(0, 8) }}</span>
                   <span class="details-toggle-label">{{ expandedOrderId() === row.id ? 'Απόκρυψη' : 'Αναλυτικά' }}</span>
                 </button>
               </td>
@@ -58,8 +58,8 @@
               <td>{{ row.itemCount }}</td>
               <td class="total-cell">{{ formatCurrency(row.total) }}</td>
               <td>
-                <span class="status-badge" [class.status-cancelled]="row.status === 'CANCELLED'">
-                  {{ row.status === 'COMPLETED' ? 'ΟΛΟΚΛΗΡΩΜΕΝΗ' : 'ΑΚΥΡΩΜΕΝΗ' }}
+                <span class="status-badge" [class.status-cancelled]="row.status !== 'COMPLETED'">
+                  {{ row.status === 'DELETED' ? 'ΔΙΑΓΡΑΜΜΕΝΗ' : row.status === 'COMPLETED' ? 'ΟΛΟΚΛΗΡΩΜΕΝΗ' : 'ΑΚΥΡΩΜΕΝΗ' }}
                 </span>
               </td>
             </tr>
@@ -71,6 +71,12 @@
                       <h3>Είδη παραγγελίας</h3>
                       <span>{{ row.items.length }} {{ row.items.length === 1 ? 'γραμμή' : 'γραμμές' }}</span>
                     </div>
+                    @if (row.originalOrderId) {
+                      <p>Αρχική παραγγελία: {{ row.originalOrderId }}</p>
+                    }
+                    @if (row.cancellationReason) {
+                      <p>Αιτία ακύρωσης: {{ row.cancellationReason }}</p>
+                    }
                     @if (row.items.length > 0) {
                       <div class="order-items">
                         <div class="order-items-header" aria-hidden="true">

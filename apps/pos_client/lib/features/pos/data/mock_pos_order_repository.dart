@@ -25,7 +25,14 @@ class MockPosOrderRepository implements PosOrderRepository {
     required String tenantId,
     required String employeeId,
     required String orderId,
-    required String managerPin,
-    required String reason,
+  }) async {}
+
+  @override
+  Future<void> submitExpense({
+    required String tenantId,
+    required String employeeId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
   }) async {}
 }

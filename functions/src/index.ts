@@ -40,3 +40,7 @@ export {createEmployee} from "./employees/create-employee";
 export {updateEmployee} from "./employees/update-employee";
 export {toggleEmployeeActive} from "./employees/toggle-employee-active";
 export {deleteEmployee} from "./employees/delete-employee";
+
+export {createExpense} from "./expenses/create-expense";
+export {updateExpense} from "./expenses/update-expense";
+export {deleteExpense} from "./expenses/delete-expense";

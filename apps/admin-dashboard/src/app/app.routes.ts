@@ -16,6 +16,8 @@ import { StockEntryPageComponent } from './features/stock-movements/stock-entry-
 import { StockMovementsPageComponent } from './features/stock-movements/stock-movements-page.component';
 import { VariantsPageComponent } from './features/variants/variants-page.component';
 import { VariantFormPageComponent } from './features/variants/variant-form-page.component';
+import { ExpensesPageComponent } from './features/expenses/expenses-page.component';
+import { SalesReportPageComponent } from './features/sales-report/sales-report-page.component';
 
 export const routes: Routes = [
 	{
@@ -92,6 +94,14 @@ export const routes: Routes = [
 			{
 				path: 'sales-history',
 				component: SalesHistoryPageComponent
+			},
+			{
+				path: 'sales-report',
+				component: SalesReportPageComponent
+			},
+			{
+				path: 'expenses',
+				component: ExpensesPageComponent
 			}
 		]
 	},

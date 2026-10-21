@@ -3,6 +3,7 @@
   "scripts": {
     "lint": "eslint --ext .ts src",
     "build": "tsc",
+    "test:cancel-order": "npm run build && node --test test/cancel-order.test.cjs",
     "build:watch": "tsc --watch",
     "bootstrap:admin": "node scripts/bootstrap-admin-user.js",
     "serve": "npm run build && firebase emulators:start --only functions",

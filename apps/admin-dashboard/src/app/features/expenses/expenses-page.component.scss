@@ -1,0 +1,142 @@
+.panel {
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.create-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.6fr) minmax(0, 0.6fr) minmax(0, 2fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.text-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.refresh {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.card span {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.card strong {
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+h3 {
+  margin: 16px 0 8px;
+  font-size: 0.95rem;
+  color: #1f2a37;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.description-cell {
+  white-space: normal;
+  min-width: 200px;
+}
+
+.date-cell {
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+
+.total-cell {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount-input {
+  min-width: 80px;
+}
+
+.actions-cell button + button {
+  margin-left: 10px;
+}
+
+.link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #1d4ed8;
+  font: inherit;
+  cursor: pointer;
+}
+
+.link.danger {
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .filters,
+  .create-form,
+  .summary-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

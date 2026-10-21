@@ -11,7 +11,7 @@ export type StockMovementType =
   | 'ADJUSTMENT'
   | 'RETURN'
   | 'LOSS';
-export type OrderStatus = 'COMPLETED' | 'CANCELLED';
+export type OrderStatus = 'COMPLETED' | 'CANCELLED' | 'DELETED';
 export type PaymentMethod = 'CARD' | 'CASH';
 
 // Firestore: tenants/{tenantId}
@@ -175,6 +175,8 @@ export type OrderItem = {
 
 // Firestore: tenants/{tenantId}/orders/{orderId}
 export type Order = {
+  originalOrderId?: string;
+  cancellationReason?: string;
   tenantId: string;
   employeeId: string;
   status: OrderStatus;

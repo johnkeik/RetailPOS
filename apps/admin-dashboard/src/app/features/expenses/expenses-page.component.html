@@ -1,0 +1,156 @@
+<app-page-title
+  title="Έξοδα"
+  subtitle="Έξοδα ημέρας που καταγράφουν οι υπάλληλοι, ανεξάρτητα από τις παραγγελίες."
+/>
+
+<section class="panel">
+  <form
+    class="create-form"
+    #createForm
+    (submit)="$event.preventDefault(); create(emp.value, amt.value, mth.value, dsc.value, createForm)"
+  >
+    <div>
+      <label class="field" for="new-employee">Υπάλληλος</label>
+      <select id="new-employee" class="text-input" #emp>
+        <option value="">Επιλογή...</option>
+        @for (item of activeEmployees(); track item.id) {
+          <option [value]="item.id">{{ item.name }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="field" for="new-amount">Ποσό (€)</label>
+      <input id="new-amount" class="text-input" type="text" inputmode="decimal" #amt />
+    </div>
+    <div>
+      <label class="field" for="new-method">Πληρωμή</label>
+      <select id="new-method" class="text-input" #mth>
+        <option value="CASH">Μετρητά</option>
+        <option value="CARD">Κάρτα</option>
+      </select>
+    </div>
+    <div class="create-description">
+      <label class="field" for="new-description">Περιγραφή</label>
+      <input id="new-description" class="text-input" type="text" maxlength="300" #dsc />
+    </div>
+    <button class="refresh" type="submit">Προσθήκη εξόδου</button>
+  </form>
+  @if (formError()) {
+    <div class="inline-error">{{ formError() }}</div>
+  }
+</section>
+
+<section class="panel">
+  <div class="filters">
+    <div>
+      <label class="field" for="employee">Υπάλληλος</label>
+      <select id="employee" class="text-input" (change)="employeeFilter.set(employee.value)" #employee>
+        <option value="">Όλοι</option>
+        @for (item of employees(); track item.id) {
+          <option [value]="item.id">{{ item.name }}</option>
+        }
+      </select>
+    </div>
+    <div>
+      <label class="field" for="from">Από</label>
+      <input id="from" class="text-input" type="date" (change)="dateFrom.set(from.value)" #from />
+    </div>
+    <div>
+      <label class="field" for="to">Έως</label>
+      <input id="to" class="text-input" type="date" (change)="dateTo.set(to.value)" #to />
+    </div>
+    <button class="refresh" type="button" (click)="refresh()">Ανανέωση</button>
+  </div>
+
+  @if (loading()) {
+    <div class="inline-state">Φόρτωση εξόδων...</div>
+  }
+
+  @if (error()) {
+    <div class="inline-error">{{ error() }}</div>
+  }
+
+  <div class="summary-cards">
+    <div class="card"><span>Σύνολο</span><strong>{{ formatCurrency(totals().total) }}</strong></div>
+    <div class="card"><span>Μετρητά</span><strong>{{ formatCurrency(totals().cash) }}</strong></div>
+    <div class="card"><span>Κάρτα</span><strong>{{ formatCurrency(totals().card) }}</strong></div>
+  </div>
+
+  @if (rows().length > 0) {
+    <h3>Ανά υπάλληλο</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Υπάλληλος</th><th>Εγγραφές</th><th>Σύνολο</th></tr>
+        </thead>
+        <tbody>
+          @for (item of perEmployee(); track item.name) {
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.count }}</td>
+              <td class="total-cell">{{ formatCurrency(item.total) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Αναλυτικά</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ημερομηνία</th>
+            <th>Υπάλληλος</th>
+            <th>Περιγραφή</th>
+            <th>Πληρωμή</th>
+            <th>Ποσό</th>
+            <th>Ενέργειες</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            @if (editingId() === row.id) {
+              <tr>
+                <td class="date-cell">{{ formatDate(row.createdAt) }}</td>
+                <td>{{ row.employeeName }}</td>
+                <td><input class="text-input" type="text" maxlength="300" [value]="row.description" #desc /></td>
+                <td>
+                  <select class="text-input" #method>
+                    <option value="CASH" [selected]="row.paymentMethod === 'CASH'">Μετρητά</option>
+                    <option value="CARD" [selected]="row.paymentMethod === 'CARD'">Κάρτα</option>
+                  </select>
+                </td>
+                <td><input class="text-input amount-input" type="text" inputmode="decimal" [value]="row.amount" #amount /></td>
+                <td class="actions-cell">
+                  <button class="link" type="button" (click)="saveEdit(row.id, amount.value, method.value, desc.value)">Αποθήκευση</button>
+                  <button class="link" type="button" (click)="cancelEdit()">Άκυρο</button>
+                </td>
+              </tr>
+            } @else {
+              <tr>
+                <td class="date-cell">{{ formatDate(row.createdAt) }}</td>
+                <td>{{ row.employeeName }}</td>
+                <td class="description-cell">{{ row.description }}</td>
+                <td>{{ row.paymentMethod === 'CARD' ? 'Κάρτα' : 'Μετρητά' }}</td>
+                <td class="total-cell">{{ formatCurrency(row.amount) }}</td>
+                <td class="actions-col">
+                  <app-entity-actions
+                    [showToggle]="false"
+                    (edit)="startEdit(row.id)"
+                    (delete)="remove(row.id)"
+                  />
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (formError()) {
+      <div class="inline-error">{{ formError() }}</div>
+    }
+  } @else if (!loading()) {
+    <div class="empty-state">Δεν βρέθηκαν έξοδα για το τρέχον φίλτρο.</div>
+  }
+</section>
