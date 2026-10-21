@@ -124,6 +124,7 @@ class _PosExpensePageState extends State<PosExpensePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Καταχώρηση εξόδου · ${widget.employeeName}'),
+        leadingWidth: 72,
       ),
       body: Column(
         children: [
@@ -155,22 +156,30 @@ class _PosExpensePageState extends State<PosExpensePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SegmentedButton<PaymentMethod>(
-                    style: SegmentedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(52)),
-                    segments: const [
-                      ButtonSegment(
-                          value: PaymentMethod.cash,
-                          icon: Icon(Icons.payments_outlined),
-                          label: Text('Μετρητά')),
-                      ButtonSegment(
-                          value: PaymentMethod.card,
-                          icon: Icon(Icons.credit_card),
-                          label: Text('Κάρτα')),
+                  Row(
+                    children: [
+                      for (final method in const [PaymentMethod.cash, PaymentMethod.card]) ...[
+                        if (method == PaymentMethod.card)
+                          const SizedBox(width: 12),
+                        Expanded(
+                          child: Semantics(
+                            selected: _method == method,
+                            child: OutlinedButton.icon(
+                              key: ValueKey('expense-payment-${method.name}'),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(56, 64),
+                                backgroundColor: _method == method ? colors.secondary : colors.surface,
+                                foregroundColor: _method == method ? colors.onSecondary : colors.onSurface,
+                                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                              ),
+                              onPressed: _submitting ? null : () => setState(() => _method = method),
+                              icon: Icon(method == PaymentMethod.cash ? Icons.payments_outlined : Icons.credit_card),
+                              label: Text(method == PaymentMethod.cash ? 'Μετρητά' : 'Κάρτα'),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                    selected: {_method},
-                    onSelectionChanged: (value) =>
-                        setState(() => _method = value.first),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -194,20 +203,27 @@ class _PosExpensePageState extends State<PosExpensePage> {
                       ),
                     ),
                   ),
-                  if (_error != null) ...[
-                    const SizedBox(height: 8),
-                    Text(_error!, style: TextStyle(color: colors.error)),
-                  ],
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(56)),
-                    onPressed: _submitting ? null : _submit,
-                    icon: const Icon(Icons.check),
-                    label: Text(_submitting ? 'Καταχώρηση...' : 'Καταχώρηση'),
-                  ),
+
                 ],
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_error != null) ...[
+                  Text(_error!, style: TextStyle(color: colors.error)),
+                  const SizedBox(height: 8),
+                ],
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(64)),
+                  onPressed: _submitting ? null : _submit,
+                  icon: const Icon(Icons.check),
+                  label: Text(_submitting ? 'Καταχώρηση...' : 'Καταχώρηση'),
+                ),
+              ],
             ),
           ),
           SizedBox(

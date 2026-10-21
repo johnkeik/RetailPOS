@@ -264,21 +264,21 @@ class _PosHomePageState extends State<PosHomePage> {
             children: [
               OutlinedButton.icon(
                 style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
+                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
                 onPressed: _showOrderHistory,
                 icon: const Icon(Icons.history),
                 label: const Text('Ιστορικό'),
               ),
               OutlinedButton.icon(
                 style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
+                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
                 onPressed: _showExpenses,
                 icon: const Icon(Icons.receipt_long_outlined),
                 label: const Text('Έξοδα'),
               ),
               OutlinedButton.icon(
                 style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(48, 52)),
+                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
                 onPressed:
                     widget.onEndSession == null ? null : _confirmEndSession,
                 icon: const Icon(Icons.logout),
@@ -492,7 +492,8 @@ class _PosHomePageState extends State<PosHomePage> {
               child: SizedBox.expand(
                 child: Center(
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         icon,
@@ -500,14 +501,14 @@ class _PosHomePageState extends State<PosHomePage> {
                         color: isSelected ? colors.onSecondary : colors.onSurface,
                       ),
                       const SizedBox(width: 8),
-                      Text(
+                      Flexible(child: Text(
                         label,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: isSelected ? colors.onSecondary : colors.onSurface,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),
@@ -729,7 +730,8 @@ class _PosHomePageState extends State<PosHomePage> {
         borderRadius: BorderRadius.circular(10),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
                 ? colors.primaryContainer.withOpacity(0.55)
@@ -979,15 +981,16 @@ class _PosHomePageState extends State<PosHomePage> {
                                             const Icon(Icons.search, size: 20),
                                         suffixIcon: _codeBuffer.isNotEmpty
                                             ? IconButton(
+                                                tooltip: 'Καθαρισμός αναζήτησης',
                                                 icon: const Icon(Icons.clear,
-                                                    size: 18),
+                                                    size: 24),
                                                 onPressed: _clearCode,
                                               )
                                             : null,
-                                        isDense: true,
+                                        constraints: const BoxConstraints(minHeight: 64),
                                         contentPadding:
                                             const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 10),
+                                                horizontal: 12, vertical: 16),
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -1044,7 +1047,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                                                 selectedProd
                                                                     ?.id;
                                                         return ListTile(
-                                                          dense: true,
+                                                          dense: false,
+                                                          minVerticalPadding: 12,
                                                           selected: isSelected,
                                                           selectedTileColor: colors
                                                               .primaryContainer
@@ -1093,7 +1097,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                     const SizedBox(height: 8),
                                     // ── Permanent Touch Keypad ───────────────
                                     SizedBox(
-                                      height: isWideScreen ? 270 : 240,
+                                      height: 272,
                                       child: _buildKeypadGrid(
                                         fontSize: 24,
                                         gap: 8,
@@ -1252,6 +1256,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                               child: AnimatedContainer(
                                                 duration: const Duration(
                                                     milliseconds: 150),
+                                                constraints: const BoxConstraints(minHeight: 72),
                                                 padding:
                                                     const EdgeInsets.symmetric(
                                                         horizontal: 12,
@@ -1332,7 +1337,7 @@ class _PosHomePageState extends State<PosHomePage> {
 
                                           // Primary Add to Cart Action Button
                                           SizedBox(
-                                            height: 52,
+                                            height: 64,
                                             child: FilledButton(
                                               style: FilledButton.styleFrom(
                                                 shape: RoundedRectangleBorder(
@@ -1382,7 +1387,10 @@ class _PosHomePageState extends State<PosHomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Row(
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     const Text(
                                       'Παραγγελία',
@@ -1391,7 +1399,6 @@ class _PosHomePageState extends State<PosHomePage> {
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
                                     if (_cartLines.isNotEmpty)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
@@ -1433,145 +1440,46 @@ class _PosHomePageState extends State<PosHomePage> {
                                               final lineTotal = line.total;
 
                                               return Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 6),
-                                                child: Row(
+                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                                   children: [
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            line.product.name,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 15,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                            ),
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 2),
-                                                          Text(
-                                                            '${line.variant.name} (${line.variant.label}) · €${line.unitPrice.toStringAsFixed(2)}',
-                                                            style: TextStyle(
-                                                              fontSize: 13,
-                                                              color: colors
-                                                                  .onSurfaceVariant,
-                                                            ),
-                                                          ),
-                                                          if (line
-                                                              .useSpecialBottle) ...[
-                                                            const SizedBox(
-                                                                height: 3),
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                horizontal: 6,
-                                                                vertical: 1,
-                                                              ),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: Colors
-                                                                    .amber
-                                                                    .shade100,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            4),
-                                                                border:
-                                                                    Border.all(
-                                                                  color: Colors
-                                                                      .amber
-                                                                      .shade400,
-                                                                ),
-                                                              ),
-                                                              child: Text(
-                                                                '✨ Special Μπουκάλι (+€${line.variant.specialBottleExtraPrice?.toStringAsFixed(2)})',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 10,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .amber
-                                                                      .shade900,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ],
-                                                      ),
+                                                    Text(line.product.name,
+                                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      '${line.variant.name} (${line.variant.label}) · €${line.unitPrice.toStringAsFixed(2)}',
+                                                      style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
                                                     ),
-                                                    IconButton(
-                                                      onPressed: () =>
-                                                          _decrementLine(line),
-                                                      iconSize: 26,
-                                                      padding: EdgeInsets.zero,
-                                                      constraints:
-                                                          const BoxConstraints(
-                                                        minWidth: 44,
-                                                        minHeight: 44,
+                                                    if (line.useSpecialBottle)
+                                                      Text(
+                                                        '✨ Special Μπουκάλι (+€${line.variant.specialBottleExtraPrice?.toStringAsFixed(2)})',
+                                                        style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
                                                       ),
-                                                      icon: Icon(
-                                                        line.quantity == 1
-                                                            ? Icons
-                                                                .delete_outline
-                                                            : Icons
-                                                                .remove_circle_outline,
-                                                        color: line.quantity == 1
-                                                            ? colors.error
-                                                            : null,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 28,
-                                                      child: Text(
-                                                        '${line.quantity}',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: const TextStyle(
-                                                          fontSize: 17,
-                                                          fontWeight:
-                                                              FontWeight.w800,
+                                                    const SizedBox(height: 8),
+                                                    Row(
+                                                      children: [
+                                                        IconButton.outlined(
+                                                          tooltip: line.quantity == 1 ? 'Αφαίρεση προϊόντος' : 'Μείωση ποσότητας',
+                                                          onPressed: () => _decrementLine(line),
+                                                          icon: Icon(line.quantity == 1 ? Icons.delete_outline : Icons.remove,
+                                                            color: line.quantity == 1 ? colors.error : null),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: () =>
-                                                          _incrementLine(line),
-                                                      iconSize: 26,
-                                                      padding: EdgeInsets.zero,
-                                                      constraints:
-                                                          const BoxConstraints(
-                                                        minWidth: 44,
-                                                        minHeight: 44,
-                                                      ),
-                                                      icon: const Icon(Icons
-                                                          .add_circle_outline),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 76,
-                                                      child: Text(
-                                                        '€${lineTotal.toStringAsFixed(2)}',
-                                                        textAlign:
-                                                            TextAlign.right,
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w700,
+                                                        SizedBox(width: 36,
+                                                          child: Text('${line.quantity}', textAlign: TextAlign.center,
+                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+                                                        IconButton.outlined(
+                                                          tooltip: 'Αύξηση ποσότητας',
+                                                          onPressed: () => _incrementLine(line),
+                                                          icon: const Icon(Icons.add),
                                                         ),
-                                                      ),
+                                                        const SizedBox(width: 8),
+                                                        Expanded(
+                                                          child: Text('€${lineTotal.toStringAsFixed(2)}',
+                                                            textAlign: TextAlign.right,
+                                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
@@ -1589,7 +1497,11 @@ class _PosHomePageState extends State<PosHomePage> {
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
                                       children: [
-                                        Row(
+                                        Wrap(
+                                          alignment: WrapAlignment.spaceBetween,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          spacing: 12,
+                                          runSpacing: 4,
                                           children: [
                                             const Text(
                                               'ΣΥΝΟΛΟ',
@@ -1598,7 +1510,6 @@ class _PosHomePageState extends State<PosHomePage> {
                                                 fontWeight: FontWeight.w800,
                                               ),
                                             ),
-                                            const Spacer(),
                                             Text(
                                               '€${_total.toStringAsFixed(2)}',
                                               style: TextStyle(
@@ -1616,7 +1527,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                 const SizedBox(height: 8),
 
                                 SizedBox(
-                                  height: 56,
+                                  height: 64,
                                   child: DecoratedBox(
                                     position: DecorationPosition.foreground,
                                     decoration: BoxDecoration(
@@ -1650,7 +1561,7 @@ class _PosHomePageState extends State<PosHomePage> {
 
                                 // Complete Sale Button
                                 SizedBox(
-                                  height: 54,
+                                  height: 64,
                                   child: FilledButton(
                                     style: FilledButton.styleFrom(
                                       shape: RoundedRectangleBorder(

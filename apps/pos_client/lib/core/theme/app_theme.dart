@@ -19,6 +19,9 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      visualDensity: VisualDensity.standard,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+      appBarTheme: const AppBarTheme(toolbarHeight: 72),
       colorScheme: colorScheme,
       scaffoldBackgroundColor: const Color(0xFFEFF6FF),
       textTheme: const TextTheme(
@@ -36,6 +39,8 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          minimumSize: const Size(56, 56),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           backgroundColor: colorScheme.secondary,
           foregroundColor: colorScheme.onSecondary,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -44,18 +49,30 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          minimumSize: const Size(56, 56),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           side: BorderSide(color: colorScheme.outline.withOpacity(0.6)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           foregroundColor: colorScheme.onSurface,
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(56, 56),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       listTileTheme: const ListTileThemeData(
-        dense: true,
+        dense: false,
+        minVerticalPadding: 12,
         horizontalTitleGap: 10,
       ),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
+          minimumSize: const Size(56, 56),
+          padding: const EdgeInsets.all(14),
           foregroundColor: colorScheme.primary,
         ),
       ),

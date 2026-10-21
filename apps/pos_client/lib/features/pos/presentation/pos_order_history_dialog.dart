@@ -34,6 +34,7 @@ class _OrderCancellationDialog extends StatelessWidget {
         'με ποσό ${_historyAmount(order.total)};\n\n'
         'Οι ποσότητες και τα αναλώσιμα θα επιστραφούν στο απόθεμα.',
       ),
+      actionsOverflowButtonSpacing: 8,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
@@ -213,12 +214,13 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                             fontSize: 24, fontWeight: FontWeight.w700),
                       ),
                     ),
-                    IconButton(
+                    IconButton.outlined(
                       tooltip: 'Ανανέωση ιστορικού',
                       onPressed: _reload,
                       icon: const Icon(Icons.refresh),
                     ),
-                    IconButton(
+                    const SizedBox(width: 8),
+                    IconButton.outlined(
                       tooltip: 'Κλείσιμο',
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.close),
@@ -483,7 +485,14 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                               ),
                                             ],
                                           ),
-                                          IconButton(
+                                          const SizedBox(width: 10),
+                                          IconButton.filledTonal(
+                                            style: IconButton.styleFrom(
+                                              backgroundColor: colors.secondary,
+                                              foregroundColor: colors.onSecondary,
+                                              disabledBackgroundColor: colors.surfaceContainerHighest,
+                                              disabledForegroundColor: colors.onSurfaceVariant,
+                                            ),
                                             tooltip: 'Εκτύπωση ${_productName(item)}',
                                             onPressed: _printingKey == null
                                                 ? () => _print(
@@ -494,10 +503,13 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                                     )
                                                 : null,
                                             icon: _printingKey == _itemKey(order, item)
-                                                ? const SizedBox(
+                                                ? SizedBox(
                                                     width: 20,
                                                     height: 20,
-                                                    child: CircularProgressIndicator(strokeWidth: 2))
+                                                    child: CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: colors.onSurfaceVariant,
+                                                    ))
                                                 : const Icon(Icons.print),
                                           ),
                                         ],

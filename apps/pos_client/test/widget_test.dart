@@ -12,6 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:pos_client/app/app.dart';
+import 'package:pos_client/core/theme/app_theme.dart';
+import 'package:pos_client/features/pos/presentation/pos_expense_page.dart';
 import 'package:pos_client/features/pos/data/label_print_service.dart';
 import 'package:pos_client/features/pos/data/mock_pos_catalog_repository.dart';
 import 'package:pos_client/features/pos/data/mock_pos_order_repository.dart';
@@ -151,6 +153,16 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
   }) async {}
 }
 
+Finder _buttonWithLabel(String label) => find.ancestor(
+  of: find.text(label),
+  matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+).first;
+
+Finder _iconWithTooltip(String label) => find.ancestor(
+  of: find.byTooltip(label),
+  matching: find.byWidgetPredicate((widget) => widget is IconButton),
+).first;
+
 void main() {
   testWidgets('employee session entry renders', (tester) async {
     tester.view.physicalSize = const Size(1600, 900);
@@ -175,8 +187,9 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: PosHomePage(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: const PosHomePage(
           catalogRepository: MockPosCatalogRepository(),
           orderRepository: MockPosOrderRepository(),
           employeeId: 'employee-1',
@@ -195,8 +208,8 @@ void main() {
     final cashPayment = find.byKey(const ValueKey('payment-cash'));
     expect(cardPayment, findsOneWidget);
     expect(cashPayment, findsOneWidget);
-    expect(tester.getSize(cardPayment).height, 56);
-    expect(tester.getSize(cashPayment).height, 56);
+    expect(tester.getSize(cardPayment).height, 64);
+    expect(tester.getSize(cashPayment).height, 64);
     final initialSelectedColor = tester.widget<Material>(cashPayment).color;
     final initialUnselectedColor = tester.widget<Material>(cardPayment).color;
     expect(initialSelectedColor, isNot(initialUnselectedColor));
@@ -228,6 +241,7 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -265,8 +279,19 @@ void main() {
     expect(find.text('6,00 € / τεμ.'), findsOneWidget);
     expect(find.textContaining('310047'), findsNothing);
     expect(find.textContaining('BULK-50'), findsNothing);
-    expect(find.byTooltip('Εκτύπωση Άρωμα δοκιμής'), findsOneWidget);
+    expect(_iconWithTooltip('Εκτύπωση Άρωμα δοκιμής'), findsOneWidget);
     expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
+    for (final target in [
+      _iconWithTooltip('Ανανέωση ιστορικού'),
+      _iconWithTooltip('Κλείσιμο'),
+      _iconWithTooltip('Εκτύπωση Άρωμα δοκιμής'),
+      _buttonWithLabel('Εκτύπωση παραγγελίας'),
+      _buttonWithLabel('Ακύρωση'),
+    ]) {
+      expect(tester.getSize(target).height, greaterThanOrEqualTo(56));
+      expect(tester.getSize(target).width, greaterThanOrEqualTo(56));
+    }
+
   });
 
   testWidgets('order history reprints a single item with catalog ingredients',
@@ -280,6 +305,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -312,7 +338,9 @@ void main() {
 
     await tester.tap(find.text('Άνοιγμα ιστορικού'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Εκτύπωση Άρωμα δοκιμής'));
+    await tester.ensureVisible(_iconWithTooltip('Εκτύπωση Άρωμα δοκιμής'));
+    await tester.pumpAndSettle();
+    await tester.tap(_iconWithTooltip('Εκτύπωση Άρωμα δοκιμής'));
     await tester.pumpAndSettle();
 
     expect(sent?['orderId'], 'order-1');
@@ -332,6 +360,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -395,6 +424,7 @@ void main() {
     final repository = _CancellableHistoryOrderRepository();
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light(),
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
@@ -439,4 +469,82 @@ void main() {
     expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
     expect(find.text('Ακύρωση'), findsNothing);
   });
+  testWidgets('expense payment controls and keyboard have large touch targets', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    for (final size in [const Size(1024, 768), const Size(1280, 720), const Size(1920, 1080)]) {
+      tester.view.physicalSize = size;
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.light(),
+        home: const PosExpensePage(
+          repository: MockPosOrderRepository(), tenantId: 'store001',
+          employeeId: 'employee-1', employeeName: 'Μαρία',
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final submit = _buttonWithLabel('Καταχώρηση');
+      expect(tester.getSize(submit).height, greaterThanOrEqualTo(64));
+      expect(tester.getBottomRight(submit).dy, lessThan(size.height));
+      expect(submit.hitTestable(), findsOneWidget);
+      final card = find.byKey(const ValueKey('expense-payment-card'));
+      final cash = find.byKey(const ValueKey('expense-payment-cash'));
+      for (final button in [card, cash]) {
+        expect(tester.getSize(button).height, greaterThanOrEqualTo(64));
+        expect(tester.getSize(button).width, greaterThanOrEqualTo(56));
+      }
+      await tester.tap(card);
+      await tester.pump();
+      final key = find.widgetWithText(FilledButton, '1');
+      expect(tester.getSize(key).height, greaterThanOrEqualTo(56));
+      expect(tester.getSize(key).width, greaterThanOrEqualTo(56));
+      await tester.tap(key);
+      await tester.pump();
+      expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, contains('1'));
+      await tester.ensureVisible(find.byType(TextField).last);
+      await tester.tap(find.byType(TextField).last);
+      await tester.pumpAndSettle();
+      final letter = find.widgetWithText(FilledButton, 'ε');
+      expect(tester.getSize(letter).height, greaterThanOrEqualTo(56));
+      expect(tester.getSize(letter).width, greaterThanOrEqualTo(56));
+      await tester.tap(letter);
+      await tester.pump();
+      expect(tester.widget<TextField>(find.byType(TextField).last).controller!.text, 'ε');
+
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('POS touch controls fit 15 inch desktop resolutions', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    for (final size in [const Size(1024, 768), const Size(1280, 720), const Size(1366, 768), const Size(1920, 1080)]) {
+      tester.view.physicalSize = size;
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.light(),
+        home: const PosHomePage(
+          catalogRepository: MockPosCatalogRepository(), orderRepository: MockPosOrderRepository(),
+          employeeId: 'employee-1', employeeName: 'Μαρία Παπαδοπούλου', tenantId: 'store001',
+        ),
+      ));
+      await tester.pumpAndSettle();
+      for (final label in ['Ιστορικό', 'Έξοδα', 'Αποσύνδεση']) {
+        final target = _buttonWithLabel(label);
+        expect(tester.getSize(target).height, greaterThanOrEqualTo(56));
+      }
+      final add = _buttonWithLabel('Προσθήκη — €15.00');
+      expect(tester.getSize(add).height, greaterThanOrEqualTo(64));
+      await tester.tap(add);
+      await tester.pumpAndSettle();
+      final increase = _iconWithTooltip('Αύξηση ποσότητας');
+      expect(tester.getSize(increase).height, greaterThanOrEqualTo(56));
+      expect(tester.getSize(increase).width, greaterThanOrEqualTo(56));
+      await tester.tap(increase);
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Μείωση ποσότητας'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
 }
