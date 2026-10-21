@@ -38,6 +38,9 @@ export type VariantTemplateOption = VariantTemplate & {
 };
 
 export type BulkVariantAssignmentResult = {
+  updatedCount: number;
+  unchangedCount: number;
+  unassignedCount: number;
   assignedCount: number;
   alreadyAssignedCount: number;
   incompatibleCount: number;
@@ -227,7 +230,8 @@ export class ProductsService {
 
   async assignVariantToProducts(
     productIds: string[],
-    variantTemplateId: string
+    variantTemplateId: string,
+    operation: 'ADD' | 'UPDATE_PRICE' = 'ADD'
   ): Promise<BulkVariantAssignmentResult | null> {
     const tenantId = this.tenantContext.tenantId();
     if (!tenantId) {
@@ -240,13 +244,14 @@ export class ProductsService {
       const response = await httpsCallable(this.functions, 'assignVariantToProducts')({
         tenantId,
         productIds,
-        variantTemplateId
+        variantTemplateId,
+        operation
       });
       await this.loadAll();
       return response.data as BulkVariantAssignmentResult;
     } catch (err) {
       console.error(err);
-      this.error.set('Αποτυχία μαζικής ανάθεσης παραλλαγής.');
+      this.error.set('Αποτυχία μαζικής ενημέρωσης παραλλαγής.');
       return null;
     }
   }

@@ -8,7 +8,8 @@ abstract class PosOrderRepository {
     required PaymentMethod paymentMethod,
   });
 
-  Future<List<PosOrder>> loadRecentOrders({
+  /// Loads at most [limit] orders from the current local calendar day.
+  Future<List<PosOrder>> loadTodayOrders({
     required String tenantId,
     int limit = 50,
   });

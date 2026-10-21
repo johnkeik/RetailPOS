@@ -58,7 +58,7 @@ beforeEach(() => {
   nextId = 0;
   records = new Map([
     [orderPath, { status: 'COMPLETED', createdAt: 'sale-time', employeeId: 'seller', total: 30, items: [{ quantity: 2 }] }],
-    [`${prefix}/employees/employee-1`, { active: true }],
+    [`${prefix}/employees/employee-1`, { active: true, name: 'Μαρία Παπαδοπούλου' }],
   ]);
   // Base, essence, regular/special packaging and ready-made product consumption.
   for (const [id, productId, variantId, delta] of [
@@ -77,7 +77,7 @@ beforeEach(() => {
   }
 });
 
-test('cancels without PIN, restores every consumption and adds a linked DELETED entry', async () => {
+test('cancels once, restores all stock and records the canceller in a separate audit event', async () => {
   await cancel();
   for (const [key, expected] of [
     ['perfume-1__perfume', 150], ['perfume-1__essence', 110],
@@ -91,14 +91,22 @@ test('cancels without PIN, restores every consumption and adds a linked DELETED 
     assert.equal(value.isBulkVolume, sale.isBulkVolume);
     assert.equal(value.approvedBy, undefined);
   }
-  assert.equal(records.get(orderPath).status, 'CANCELLED');
-  const deleted = orders().find(([, value]) => value.status === 'DELETED')[1];
-  assert.equal(deleted.originalOrderId, 'order-1');
-  assert.equal(deleted.createdAt, 'cancel-time');
-  assert.equal(deleted.originalCreatedAt, 'sale-time');
-  assert.equal(deleted.employeeId, 'employee-1');
-  assert.equal(deleted.cancellationReason, undefined);
-  assert.deepEqual(deleted.items, [{ quantity: 2 }]);
+  const original = records.get(orderPath);
+  assert.equal(orders().length, 1, 'cancellation must not create a second order');
+  assert.equal(original.status, 'CANCELLED');
+  assert.equal(original.createdAt, 'sale-time');
+  assert.equal(original.employeeId, 'seller');
+  assert.equal(original.cancelledAt, 'cancel-time');
+  assert.equal(original.cancelledByEmployeeId, 'employee-1');
+  assert.equal(original.cancelledByEmployeeName, 'Μαρία Παπαδοπούλου');
+  assert.equal(original.cancelledByUserId, 'pos:employee-1');
+  const events = [...records].filter(([path]) => path.startsWith(`${prefix}/orderEvents/`));
+  assert.equal(events.length, 1);
+  assert.deepEqual(events[0][1], {
+    tenantId: 'store001', orderId: 'order-1', type: 'ORDER_CANCELLED',
+    employeeId: 'employee-1', employeeName: 'Μαρία Παπαδοπούλου',
+    performedByUserId: 'pos:employee-1', createdAt: 'cancel-time',
+  });
   const once = structuredClone([...records]);
   await assert.rejects(cancel(), { code: 'failed-precondition' });
   assert.deepEqual([...records], once, 'repeat cancellation must not restore stock twice');

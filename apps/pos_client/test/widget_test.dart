@@ -43,7 +43,7 @@ class _HistoryOrderRepository implements PosOrderRepository {
       'order-1';
 
   @override
-  Future<List<PosOrder>> loadRecentOrders(
+  Future<List<PosOrder>> loadTodayOrders(
       {required String tenantId, int limit = 50}) async {
     return [
       PosOrder(
@@ -106,7 +106,7 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
       'order-cancel-1';
 
   @override
-  Future<List<PosOrder>> loadRecentOrders({
+  Future<List<PosOrder>> loadTodayOrders({
     required String tenantId,
     int limit = 50,
   }) async =>
@@ -135,6 +135,9 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
       createdAt: order.createdAt,
       items: order.items,
       status: 'CANCELLED',
+      cancelledAt: DateTime(2026, 10, 21, 12, 50),
+      cancelledByEmployeeId: employeeId,
+      cancelledByEmployeeName: 'Μαρία Παπαδοπούλου',
     );
   }
 
@@ -387,7 +390,7 @@ void main() {
     ]);
   });
 
-  testWidgets('cancellation only asks for confirmation and shows a deleted history entry',
+  testWidgets('cancellation shows one card with sale time, cancellation time and canceller',
       (tester) async {
     final repository = _CancellableHistoryOrderRepository();
     await tester.pumpWidget(
@@ -417,18 +420,23 @@ void main() {
     await tester.tap(find.text('Ακύρωση'));
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsNothing);
-    expect(find.text('Διαγραφή παραγγελίας'), findsOneWidget);
+    expect(find.text('Ακύρωση παραγγελίας'), findsOneWidget);
     await tester.tap(find.text('Όχι'));
     await tester.pumpAndSettle();
     expect(repository.cancelledOrderId, isNull);
     await tester.tap(find.text('Ακύρωση'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Ναι, διαγραφή'));
+    await tester.tap(find.text('Ναι, ακύρωση'));
     await tester.pumpAndSettle();
 
     expect(repository.cancelledOrderId, 'order-cancel-1');
     expect(find.text('ΑΚΥΡΩΜΕΝΗ'), findsOneWidget);
-    expect(find.text('ΔΙΑΓΡΑΜΜΕΝΗ'), findsOneWidget);
+    expect(find.text('ΔΙΑΓΡΑΜΜΕΝΗ'), findsNothing);
+    expect(find.text('Πώληση · 08/10/2026 · 12:00'), findsOneWidget);
+    expect(find.textContaining('21/10/2026 · 12:50'), findsOneWidget);
+    expect(find.textContaining('Από: Μαρία Παπαδοπούλου'), findsOneWidget);
+    expect(find.text('12,00 €'), findsOneWidget);
+    expect(find.text('Εκτύπωση παραγγελίας'), findsOneWidget);
     expect(find.text('Ακύρωση'), findsNothing);
   });
 }

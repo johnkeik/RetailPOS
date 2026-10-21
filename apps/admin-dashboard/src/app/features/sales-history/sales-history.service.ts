@@ -67,7 +67,7 @@ export class SalesHistoryService {
         templatesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<VariantTemplate>).name ?? ''])
       );
 
-      const rows: SalesHistoryRow[] = snapshot.docs.map((item) => {
+      const rows: SalesHistoryRow[] = snapshot.docs.filter((item) => item.data()['status'] !== 'DELETED').map((item) => {
         const data = item.data() as Partial<Order>;
         const orderItems = Array.isArray(data.items) ? (data.items as OrderItem[]) : [];
         const employeeId = data.employeeId ?? '-';
@@ -84,6 +84,10 @@ export class SalesHistoryService {
           id: item.id,
           originalOrderId: data.originalOrderId,
           cancellationReason: data.cancellationReason,
+          cancelledAt: data.cancelledAt ? this.normalizeTimestamp(data.cancelledAt) : undefined,
+          cancelledByEmployeeId: data.cancelledByEmployeeId,
+          cancelledByEmployeeName: data.cancelledByEmployeeName ||
+            employeeNames.get(data.cancelledByEmployeeId ?? '') || undefined,
           tenantId,
           employeeId,
           employeeName: employeeNames.get(employeeId) || employeeId,

@@ -74,6 +74,12 @@
                     @if (row.originalOrderId) {
                       <p>Αρχική παραγγελία: {{ row.originalOrderId }}</p>
                     }
+                    @if (row.status === 'CANCELLED') {
+                      <p>
+                        Ακυρώθηκε {{ row.cancelledAt ? formatDate(row.cancelledAt) : 'σε άγνωστη ημερομηνία' }}
+                        · Από: {{ row.cancelledByEmployeeName || 'Μη διαθέσιμο όνομα' }}
+                      </p>
+                    }
                     @if (row.cancellationReason) {
                       <p>Αιτία ακύρωσης: {{ row.cancellationReason }}</p>
                     }

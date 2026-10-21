@@ -65,6 +65,8 @@
 }
 
 .bulk-variant-controls {
+  flex-wrap: wrap;
+
   .field {
     flex: 0 0 auto;
     margin: 0;
@@ -368,4 +370,11 @@ tr:hover td {
     }
   }
 
+}
+
+.bulk-variant-hint {
+  margin: 0;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }

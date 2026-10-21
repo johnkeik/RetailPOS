@@ -149,6 +149,9 @@ class PosOrder {
     this.paymentMethod,
     this.employeeName = '',
     this.status = 'COMPLETED',
+    this.cancelledAt,
+    this.cancelledByEmployeeId,
+    this.cancelledByEmployeeName,
     this.cancellationReason,
     this.originalOrderId,
     this.isSeeded = false,
@@ -162,6 +165,9 @@ class PosOrder {
   final PaymentMethod? paymentMethod;
   final String employeeName;
   final String status;
+  final DateTime? cancelledAt;
+  final String? cancelledByEmployeeId;
+  final String? cancelledByEmployeeName;
   final String? cancellationReason;
   final String? originalOrderId;
   final bool isSeeded;

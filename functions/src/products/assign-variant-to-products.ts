@@ -1,3 +1,4 @@
+import { FieldPath } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { assertRole, resolveActorContext } from "../common/auth";
@@ -18,6 +19,11 @@ export const assignVariantToProducts = onCall(async (request) => {
       "invalid-argument",
       "variantTemplateId and a non-empty productIds array are required."
     );
+  }
+
+  const operation = data.operation ?? "ADD";
+  if (operation !== "ADD" && operation !== "UPDATE_PRICE") {
+    throw new HttpsError("invalid-argument", "Unknown bulk variant operation.");
   }
 
   const productIds = [...new Set(data.productIds)];
@@ -51,6 +57,9 @@ export const assignVariantToProducts = onCall(async (request) => {
   const productSnapshots = await db.getAll(...productRefs);
   const batch = db.batch();
   let assignedCount = 0;
+  let updatedCount = 0;
+  let unchangedCount = 0;
+  let unassignedCount = 0;
   let alreadyAssignedCount = 0;
   let incompatibleCount = 0;
   let missingCount = 0;
@@ -72,7 +81,26 @@ export const assignVariantToProducts = onCall(async (request) => {
       rawAssignments && typeof rawAssignments === "object" && !Array.isArray(rawAssignments) ?
         (rawAssignments as Record<string, ProductVariantAssignment>) :
         {};
-    if (Object.prototype.hasOwnProperty.call(assignments, data.variantTemplateId)) {
+    const isAssigned = Object.prototype.hasOwnProperty.call(assignments, data.variantTemplateId);
+    if (operation === "UPDATE_PRICE") {
+      if (!isAssigned) {
+        unassignedCount++;
+        continue;
+      }
+      if (assignments[data.variantTemplateId]?.sellingPrice === sellingPrice) {
+        unchangedCount++;
+        continue;
+      }
+      // Update just this price; preserve costs, other variants and POS ordering.
+      batch.update(
+        productSnapshot.ref,
+        new FieldPath("variantAssignments", data.variantTemplateId, "sellingPrice"), sellingPrice,
+        "updatedAt", serverTimestamp()
+      );
+      updatedCount++;
+      continue;
+    }
+    if (isAssigned) {
       alreadyAssignedCount++;
       continue;
     }
@@ -101,9 +129,10 @@ export const assignVariantToProducts = onCall(async (request) => {
     assignedCount++;
   }
 
-  if (assignedCount > 0) {
+  if (assignedCount + updatedCount > 0) {
     await batch.commit();
   }
 
-  return { assignedCount, alreadyAssignedCount, incompatibleCount, missingCount };
+  return { assignedCount, updatedCount, unchangedCount, unassignedCount,
+    alreadyAssignedCount, incompatibleCount, missingCount };
 });

@@ -140,7 +140,7 @@ export class ProductsPageComponent {
     this.bulkMessage.set(null);
   }
 
-  protected async bulkAssignVariant(): Promise<void> {
+  protected async bulkAssignVariant(operation: 'ADD' | 'UPDATE_PRICE' = 'ADD'): Promise<void> {
     const productIds = this.selectedProductIds();
     const templateId = this.bulkVariantTemplateId();
     if (!productIds.length || !templateId || this.bulkApplying()) return;
@@ -148,14 +148,22 @@ export class ProductsPageComponent {
     this.bulkApplying.set(true);
     this.bulkMessage.set(null);
     try {
-      const result = await this.productsService.assignVariantToProducts(productIds, templateId);
+      const result = await this.productsService.assignVariantToProducts(productIds, templateId, operation);
       if (!result) return;
 
-      const messages = [
+      const messages = operation === 'UPDATE_PRICE' ? [
+        `Η τιμή ενημερώθηκε σε ${result.updatedCount} προϊόντα.`
+      ] : [
         result.assignedCount > 0
           ? `Η παραλλαγή προστέθηκε σε ${result.assignedCount} προϊόντα.`
           : 'Δεν έγινε νέα ανάθεση.'
       ];
+      if (result.unchangedCount > 0) {
+        messages.push(`${result.unchangedCount} είχαν ήδη την τρέχουσα τιμή.`);
+      }
+      if (result.unassignedCount > 0) {
+        messages.push(`${result.unassignedCount} δεν είχαν την παραλλαγή και παραλείφθηκαν.`);
+      }
       if (result.alreadyAssignedCount > 0) {
         messages.push(`${result.alreadyAssignedCount} είχαν ήδη την παραλλαγή.`);
       }

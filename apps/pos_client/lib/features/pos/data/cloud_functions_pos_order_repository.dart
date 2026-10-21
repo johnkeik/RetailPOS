@@ -176,41 +176,50 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
   }
 
   @override
-  Future<List<PosOrder>> loadRecentOrders(
+  Future<List<PosOrder>> loadTodayOrders(
       {required String tenantId, int limit = 50}) async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    // Construct the next calendar day rather than adding 24 hours (DST).
+    final endOfDay = DateTime(now.year, now.month, now.day + 1);
+    final snapshot = await _firestore
+        .collection('tenants/$tenantId/orders')
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('createdAt', isLessThan: Timestamp.fromDate(endOfDay))
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .get();
+    if (snapshot.docs.isEmpty) return [];
+
     final snapshots = await Future.wait([
-      _firestore
-          .collection('tenants/$tenantId/orders')
-          .orderBy('createdAt', descending: true)
-          .limit(limit)
-          .get(),
       _firestore.collection('tenants/$tenantId/employees').get(),
       _firestore.collection('tenants/$tenantId/products').get(),
       _firestore.collection('tenants/$tenantId/variantTemplates').get(),
     ]);
-    final snapshot = snapshots[0];
     final employeeNames = {
-      for (final employee in snapshots[1].docs)
+      for (final employee in snapshots[0].docs)
         employee.id: (employee.data()['name'] as String? ?? '').trim(),
     };
 
     // Include inactive catalog records so older sales remain readable.
     final productNames = <String, String>{};
-    for (final product in snapshots[2].docs) {
+    for (final product in snapshots[1].docs) {
       final name = (product.data()['name'] as String? ?? '').trim();
       productNames[product.id] = name;
       final code = product.data()['productCode'] as String?;
       if (code != null) productNames[code] = name;
     }
     final variantNames = <String, String>{};
-    for (final variant in snapshots[3].docs) {
+    for (final variant in snapshots[2].docs) {
       final name = (variant.data()['name'] as String? ?? '').trim();
       variantNames[variant.id] = name;
       final code = variant.data()['code'] as String?;
       if (code != null) variantNames[code] = name;
     }
 
-    return snapshot.docs.map((doc) {
+    // Older versions wrote a second DELETED order as an audit record.
+    // Retain it in storage, but only show the original order to employees.
+    return snapshot.docs.where((doc) => doc.data()['status'] != 'DELETED').map((doc) {
       final data = doc.data();
       final rawItems = data['items'] as List<dynamic>? ?? const [];
       final items = rawItems.map((raw) {
@@ -240,6 +249,11 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
       final createdAt =
           createdAtValue is Timestamp ? createdAtValue.toDate() : null;
 
+      final cancelledAtValue = data['cancelledAt'];
+      final cancelledByEmployeeId = data['cancelledByEmployeeId'] as String?;
+      final savedCancellerName =
+          (data['cancelledByEmployeeName'] as String? ?? '').trim();
+
       return PosOrder(
         id: doc.id,
         employeeId: data['employeeId'] as String? ?? '',
@@ -250,6 +264,11 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
         items: items,
         paymentMethod: paymentMethodFromWireValue(data['paymentMethod']),
         status: data['status'] as String? ?? 'COMPLETED',
+        cancelledAt: cancelledAtValue is Timestamp ? cancelledAtValue.toDate() : null,
+        cancelledByEmployeeId: cancelledByEmployeeId,
+        cancelledByEmployeeName: savedCancellerName.isNotEmpty
+            ? savedCancellerName
+            : employeeNames[cancelledByEmployeeId],
         cancellationReason: data['cancellationReason'] as String?,
         originalOrderId: data['originalOrderId'] as String?,
         isSeeded: data['seededAt'] != null,

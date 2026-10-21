@@ -177,6 +177,9 @@ export type OrderItem = {
 export type Order = {
   originalOrderId?: string;
   cancellationReason?: string;
+  cancelledAt?: FirestoreTimestampLike;
+  cancelledByEmployeeId?: string;
+  cancelledByEmployeeName?: string;
   tenantId: string;
   employeeId: string;
   status: OrderStatus;

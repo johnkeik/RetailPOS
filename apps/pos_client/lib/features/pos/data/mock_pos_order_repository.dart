@@ -15,7 +15,7 @@ class MockPosOrderRepository implements PosOrderRepository {
   }
 
   @override
-  Future<List<PosOrder>> loadRecentOrders(
+  Future<List<PosOrder>> loadTodayOrders(
       {required String tenantId, int limit = 50}) async {
     return const [];
   }

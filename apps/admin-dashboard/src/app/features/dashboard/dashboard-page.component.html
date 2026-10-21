@@ -120,7 +120,7 @@
   <header class="section-heading">
     <div>
       <h3>Πρόσφατες παραγγελίες</h3>
-      <p>Οι τελευταίες καταχωρημένες πωλήσεις</p>
+      <p>Οι 5 πιο πρόσφατες παραγγελίες και η κατάστασή τους</p>
     </div>
     <a routerLink="/sales-history">Όλο το ιστορικό</a>
   </header>
@@ -140,17 +140,29 @@
             <th>Είδη</th>
             <th>Πληρωμή</th>
             <th>Σύνολο</th>
+            <th>Κατάσταση</th>
           </tr>
         </thead>
         <tbody>
           @for (order of recentOrders(); track order.id) {
             <tr>
               <td>{{ formatOrderDate(order.createdAt) }}</td>
-              <td><a class="order-link" routerLink="/sales-history">{{ order.id.slice(0, 8) }}</a></td>
+              <td><a class="order-link" routerLink="/sales-history">Προβολή</a></td>
               <td>{{ order.employeeName }}</td>
               <td>{{ order.itemCount }}</td>
               <td>{{ order.paymentMethod === 'CARD' ? 'Κάρτα' : order.paymentMethod === 'CASH' ? 'Μετρητά' : '—' }}</td>
-              <td class="order-total">{{ formatCurrency(order.total) }}</td>
+              <td class="order-total" [class.cancelled-total]="order.status === 'CANCELLED'">{{ formatCurrency(order.total) }}</td>
+              <td>
+                <span class="order-status" [class.cancelled]="order.status === 'CANCELLED'">
+                  {{ order.status === 'CANCELLED' ? 'Ακυρωμένη' : 'Ολοκληρωμένη' }}
+                </span>
+                @if (order.status === 'CANCELLED') {
+                  <span class="cancellation-info">
+                    {{ order.cancelledAt ? formatOrderDate(order.cancelledAt) : 'Άγνωστη ημερομηνία ακύρωσης' }}
+                    <br />Από: {{ order.cancelledByEmployeeName || 'Μη διαθέσιμο όνομα' }}
+                  </span>
+                }
+              </td>
             </tr>
           }
         </tbody>

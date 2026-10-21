@@ -62,7 +62,7 @@
           </button>
         </div>
         <div class="bulk-variant-controls">
-          <label class="field" for="bulkVariantTemplate">Παραλλαγή προς ανάθεση</label>
+          <label class="field" for="bulkVariantTemplate">Παραλλαγή</label>
           <select
             id="bulkVariantTemplate"
             class="text-input"
@@ -85,7 +85,19 @@
           >
             {{ bulkApplying() ? 'Εφαρμογή...' : 'Προσθήκη στα επιλεγμένα' }}
           </button>
+          <button
+            type="button"
+            class="btn ghost"
+            [disabled]="!bulkVariantTemplateId() || bulkApplying()"
+            (click)="bulkAssignVariant('UPDATE_PRICE')"
+          >
+            Ενημέρωση τιμής στα επιλεγμένα
+          </button>
         </div>
+        <p class="bulk-variant-hint">
+          Η ενημέρωση τιμής εφαρμόζει την τρέχουσα τιμή πώλησης της παραλλαγής στα επιλεγμένα προϊόντα που την έχουν ήδη.
+          Αντικαθιστά τυχόν ειδικές τιμές πώλησης· οι τιμές κόστους διατηρούνται.
+        </p>
         @if (bulkMessage()) {
           <p class="bulk-variant-result" role="status">{{ bulkMessage() }}</p>
         }

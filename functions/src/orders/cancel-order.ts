@@ -25,7 +25,7 @@ export const cancelOrder = onCall(async (request) => {
   const tenantId = actor.tenantId;
 
   const orderRef = db.doc(`tenants/${tenantId}/orders/${data.orderId}`);
-  const historyRef = db.collection(`tenants/${tenantId}/orders`).doc();
+  const auditRef = db.collection(`tenants/${tenantId}/orderEvents`).doc();
   const employeeRef = db.doc(`tenants/${tenantId}/employees/${data.employeeId}`);
   const movementQuery = db.collection(`tenants/${tenantId}/stockMovements`)
     .where("orderId", "==", data.orderId);
@@ -95,6 +95,7 @@ export const cancelOrder = onCall(async (request) => {
     }));
 
     const now = serverTimestamp();
+    const cancelledByEmployeeName = String(employeeSnapshot.data()?.["name"] ?? "").trim();
     for (const [inventoryId, delta] of inventoryDeltas) {
       const snapshot = inventorySnapshots.get(inventoryId);
       if (!snapshot) {
@@ -130,25 +131,22 @@ export const cancelOrder = onCall(async (request) => {
       });
     }
 
-    // A separate history entry records the deletion at cancellation time.
-    // It is not a sale and must never contribute to revenue totals.
-    tx.set(historyRef, {
-      ...orderSnapshot.data(),
+    // Keep the audit event separate from orders so one sale has one history row.
+    tx.set(auditRef, {
       tenantId,
-      status: "DELETED",
-      originalOrderId: data.orderId,
+      orderId: data.orderId,
+      type: "ORDER_CANCELLED",
       employeeId: data.employeeId,
-      createdAt: now,
-      originalCreatedAt: orderSnapshot.data()?.["createdAt"] ?? null,
-      cancelledAt: now,
-      cancelledByEmployeeId: data.employeeId,
-      cancelledByUserId: actor.uid
+      employeeName: cancelledByEmployeeName,
+      performedByUserId: actor.uid,
+      createdAt: now
     });
 
     tx.update(orderRef, {
       status: "CANCELLED",
       cancelledAt: now,
       cancelledByEmployeeId: data.employeeId,
+      cancelledByEmployeeName,
       cancelledByUserId: actor.uid
     });
   });

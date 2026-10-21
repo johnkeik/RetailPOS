@@ -514,3 +514,33 @@ td {
     font-size: 0.58rem;
   }
 }
+.order-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.order-status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cancellation-info {
+  display: block;
+  max-width: 230px;
+  margin-top: 5px;
+  color: var(--dashboard-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cancelled-total {
+  color: var(--dashboard-muted);
+  text-decoration: line-through;
+}

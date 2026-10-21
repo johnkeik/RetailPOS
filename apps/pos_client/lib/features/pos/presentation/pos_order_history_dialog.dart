@@ -27,9 +27,9 @@ class _OrderCancellationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Διαγραφή παραγγελίας'),
+      title: const Text('Ακύρωση παραγγελίας'),
       content: Text(
-        'Θέλετε να διαγράψετε την πώληση της '
+        'Θέλετε να ακυρώσετε την πώληση της '
         '${_historyDate(order.createdAt)} '
         'με ποσό ${_historyAmount(order.total)};\n\n'
         'Οι ποσότητες και τα αναλώσιμα θα επιστραφούν στο απόθεμα.',
@@ -42,7 +42,7 @@ class _OrderCancellationDialog extends StatelessWidget {
         FilledButton.icon(
           onPressed: () => Navigator.of(context).pop(true),
           icon: const Icon(Icons.delete_outline),
-          label: const Text('Ναι, διαγραφή'),
+          label: const Text('Ναι, ακύρωση'),
         ),
       ],
     );
@@ -78,13 +78,13 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
   void initState() {
     super.initState();
     _ordersFuture =
-        widget.repository.loadRecentOrders(tenantId: widget.tenantId);
+        widget.repository.loadTodayOrders(tenantId: widget.tenantId);
   }
 
   Future<void> _reload() async {
     setState(() {
       _ordersFuture =
-          widget.repository.loadRecentOrders(tenantId: widget.tenantId);
+          widget.repository.loadTodayOrders(tenantId: widget.tenantId);
     });
   }
 
@@ -208,7 +208,7 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                   children: [
                     const Expanded(
                       child: Text(
-                        'Ιστορικό παραγγελιών',
+                        'Σημερινές παραγγελίες',
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.w700),
                       ),
@@ -224,6 +224,11 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                       icon: const Icon(Icons.close),
                     ),
                   ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Εμφανίζονται έως 50 εγγραφές της σημερινής ημέρας.',
+                  style: TextStyle(color: colors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
                 Expanded(
@@ -249,11 +254,13 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                         );
                       }
 
-                      final orders = snapshot.data ?? const <PosOrder>[];
+                      final orders = (snapshot.data ?? const <PosOrder>[])
+                          .where((order) => order.status != 'DELETED')
+                          .toList();
                       if (orders.isEmpty) {
                         return const Center(
                             child: Text(
-                                'Δεν υπάρχουν καταχωρημένες παραγγελίες.'));
+                                'Δεν υπάρχουν παραγγελίες για σήμερα.'));
                       }
 
                       return ListView.separated(
@@ -284,9 +291,7 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                             Row(
                                               children: [
                                                 Icon(
-                                                  order.status == 'DELETED'
-                                                      ? Icons.delete_outline
-                                                      : Icons.receipt_long_outlined,
+                                                  Icons.receipt_long_outlined,
                                                   color: order.status == 'COMPLETED'
                                                       ? colors.primary
                                                       : colors.error,
@@ -294,7 +299,7 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                                 const SizedBox(width: 10),
                                                 Expanded(
                                                   child: Text(
-                                                    '${order.status == 'DELETED' ? 'Διαγραφή' : 'Πώληση'} · ${_historyDate(order.createdAt)}',
+                                                    'Πώληση · ${_historyDate(order.createdAt)}',
                                                     style: const TextStyle(
                                                       fontSize: 16,
                                                       fontWeight: FontWeight.w700,
@@ -349,11 +354,9 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                               child: Padding(
                                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                                 child: Text(
-                                                  order.status == 'DELETED'
-                                                      ? 'ΔΙΑΓΡΑΜΜΕΝΗ'
-                                                      : order.status == 'CANCELLED'
-                                                          ? 'ΑΚΥΡΩΜΕΝΗ'
-                                                          : 'ΟΛΟΚΛΗΡΩΜΕΝΗ',
+                                                  order.status == 'CANCELLED'
+                                                      ? 'ΑΚΥΡΩΜΕΝΗ'
+                                                      : 'ΟΛΟΚΛΗΡΩΜΕΝΗ',
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w700,
@@ -403,6 +406,14 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                         ),
                                     ],
                                   ),
+                                  if (order.status == 'CANCELLED') ...[
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Ακυρώθηκε ${order.cancelledAt == null ? 'σε άγνωστη ημερομηνία' : 'στις ${_historyDate(order.cancelledAt)}'}'
+                                      ' · Από: ${order.cancelledByEmployeeName?.trim().isNotEmpty == true ? order.cancelledByEmployeeName : 'Μη διαθέσιμο όνομα'}',
+                                      style: TextStyle(color: colors.error),
+                                    ),
+                                  ],
                                   if (order.cancellationReason != null) ...[
                                     const SizedBox(height: 8),
                                     Text('Αιτία ακύρωσης: ${order.cancellationReason}',

@@ -248,6 +248,7 @@ export type UpdateProductInput = {
 };
 
 export type AssignVariantToProductsInput = {
+  operation?: "ADD" | "UPDATE_PRICE";
   tenantId: string;
   productIds: string[];
   variantTemplateId: string;
