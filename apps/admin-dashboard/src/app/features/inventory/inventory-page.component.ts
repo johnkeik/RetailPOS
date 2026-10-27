@@ -2,7 +2,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { PackagingType } from '../../core/types/domain.models';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
-import { InventoryService } from './inventory.service';
+import {
+  InventoryService,
+  LOW_STOCK_ESSENCE_LITERS,
+  LOW_STOCK_PERFUME_LITERS,
+  LOW_STOCK_UNITS
+} from './inventory.service';
 
 @Component({
   selector: 'app-inventory-page',
@@ -14,8 +19,9 @@ export class InventoryPageComponent implements OnInit {
   private readonly inventoryService = inject(InventoryService);
 
   protected readonly searchQuery = signal('');
-  protected readonly lowStockLiters = signal(0.5);
-  protected readonly lowStockUnits = signal(10);
+  protected readonly lowStockPerfumeLiters = signal(LOW_STOCK_PERFUME_LITERS);
+  protected readonly lowStockEssenceLiters = signal(LOW_STOCK_ESSENCE_LITERS);
+  protected readonly lowStockUnits = signal(LOW_STOCK_UNITS);
   protected readonly showLowStockOnly = signal(false);
   protected readonly packagingFilter = signal<PackagingType | 'ALL'>('ALL');
 
@@ -26,11 +32,15 @@ export class InventoryPageComponent implements OnInit {
     void this.inventoryService.loadInventory();
   }
 
-  private lowStockLimit(row: { isBulk: boolean }): number {
-    return row.isBulk ? this.lowStockLiters() * 1000 : this.lowStockUnits();
+  private lowStockLimit(row: { isBulk: boolean; variantTemplateId: string }): number {
+    if (!row.isBulk) return this.lowStockUnits();
+    const liters = row.variantTemplateId === 'essence'
+      ? this.lowStockEssenceLiters()
+      : this.lowStockPerfumeLiters();
+    return liters * 1000;
   }
 
-  protected stockStatus(row: { quantity: number; isBulk: boolean }): 'ok' | 'low' | 'empty' {
+  protected stockStatus(row: { quantity: number; isBulk: boolean; variantTemplateId: string }): 'ok' | 'low' | 'empty' {
     const qty = row.quantity;
     if (qty <= 0) return 'empty';
     if (qty <= this.lowStockLimit(row)) return 'low';
@@ -83,9 +93,14 @@ export class InventoryPageComponent implements OnInit {
     this.searchQuery.set(value);
   }
 
-  protected onLitersThreshold(value: string): void {
+  protected onPerfumeThreshold(value: string): void {
     const parsed = Number(value);
-    this.lowStockLiters.set(Number.isFinite(parsed) ? parsed : 0);
+    this.lowStockPerfumeLiters.set(Number.isFinite(parsed) ? parsed : 0);
+  }
+
+  protected onEssenceThreshold(value: string): void {
+    const parsed = Number(value);
+    this.lowStockEssenceLiters.set(Number.isFinite(parsed) ? parsed : 0);
   }
 
   protected onUnitsThreshold(value: string): void {

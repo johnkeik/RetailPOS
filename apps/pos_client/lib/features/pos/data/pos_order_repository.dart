@@ -6,6 +6,7 @@ abstract class PosOrderRepository {
     required String employeeId,
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
+    double? expectedTotal,
   });
 
   /// Loads at most [limit] orders from the current local calendar day.

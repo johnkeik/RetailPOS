@@ -6,6 +6,9 @@ import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
 import { Consumable, ConsumablePart, InventorySnapshot, PackagingCategory, PackagingType, Product, VariantTemplate } from '../../core/types/domain.models';
 
 export const BULK_SENTINEL = 'bulk';
+export const LOW_STOCK_PERFUME_LITERS = 0.5;
+export const LOW_STOCK_ESSENCE_LITERS = 0.05;
+export const LOW_STOCK_UNITS = 10;
 
 export type ConsumablePartRow = {
   variantTemplateId: string;

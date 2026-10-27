@@ -15,11 +15,39 @@ service cloud.firestore {
       return tenantId.matches('store[0-9]+') || tenantId == 'AromataZoisAgiouDimitriou';
     }
 
+    function isActiveEmployee(tenantId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tenantId == tenantId
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'EMPLOYEE'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.employeeId is string
+        && exists(/databases/$(database)/documents/tenants/$(tenantId)/employees/$(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.employeeId))
+        && get(/databases/$(database)/documents/tenants/$(tenantId)/employees/$(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.employeeId)).data.active != false;
+    }
+
+    function employeeCanReadReceivingData(tenantId, collectionName) {
+      return collectionName in ['brands', 'categories', 'consumables', 'inventory', 'products', 'variantTemplates']
+        && isActiveEmployee(tenantId);
+    }
+
+    function publicPosCanRead(tenantId, collectionName) {
+      return request.auth == null
+        && isBuiltInPosTenant(tenantId)
+        && collectionName in ['categories', 'employees', 'orders', 'products', 'promotions', 'variantTemplates'];
+    }
+
     match /tenants/{tenantId}/{collectionName}/{document=**} {
       allow read: if collectionName in [
         'brands', 'categories', 'consumables', 'employees', 'expenses', 'inventory',
-        'orders', 'products', 'stockMovements', 'variantTemplates', 'variants'
-      ] && (belongsToTenant(tenantId) || isBuiltInPosTenant(tenantId));
+        'orders', 'products', 'promotions', 'stockMovements', 'variantTemplates', 'variants'
+      ] && (belongsToTenant(tenantId) || employeeCanReadReceivingData(tenantId, collectionName) ||
+        publicPosCanRead(tenantId, collectionName));
+      allow write: if false;
+    }
+
+    match /tenants/{tenantId}/employeeAccounts/{employeeId} {
+      allow read: if belongsToTenant(tenantId);
       allow write: if false;
     }
 

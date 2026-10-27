@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   Injector,
+  Input,
   OnInit,
   afterNextRender,
   computed,
@@ -60,6 +61,7 @@ export class StockEntryComponent implements OnInit {
   private readonly stockActions = inject(StockActionsService);
 
   readonly saved = output<void>();
+  @Input() receiveOnly = false;
 
   protected readonly modes: Array<{ value: EntryMode; label: string; hint: string; inputLabel: string }> = [
     {
@@ -96,6 +98,9 @@ export class StockEntryComponent implements OnInit {
   protected readonly pickerSelected = signal<string[]>([]);
 
   protected readonly currentMode = computed(() => this.modes.find((m) => m.value === this.mode()) ?? this.modes[0]);
+  protected readonly visibleModes = computed(() =>
+    this.receiveOnly ? this.modes.filter((mode) => mode.value === 'PURCHASE') : this.modes
+  );
 
   private readonly items = computed<StockItem[]>(() => {
     const templateNames = new Map(this.productsService.variantTemplates().map((t) => [t.id, t.name]));
@@ -187,6 +192,7 @@ export class StockEntryComponent implements OnInit {
   }
 
   protected setMode(mode: EntryMode): void {
+    if (this.receiveOnly && mode !== 'PURCHASE') return;
     this.mode.set(mode);
     this.rows.update((rows) => rows.map((row) => ({ ...row, qty: '', essenceQty: '' })));
     this.errorMessage.set(null);

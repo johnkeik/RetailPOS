@@ -5,16 +5,26 @@
 
 <section class="panel">
   <div class="filters">
-    <label class="field" for="search">Αναζήτηση (υπάλληλος ή ID παραγγελίας)</label>
-    <input
-      id="search"
-      class="text-input"
-      type="text"
-      [value]="searchQuery()"
-      (input)="onSearch(search.value)"
-      #search
-      placeholder="Υπάλληλος ή ID παραγγελίας"
-    />
+    <div>
+      <label class="field" for="search">Αναζήτηση (υπάλληλος ή ID παραγγελίας)</label>
+      <input
+        id="search"
+        class="text-input"
+        type="text"
+        [value]="searchQuery()"
+        (input)="onSearch(search.value)"
+        #search
+        placeholder="Υπάλληλος ή ID παραγγελίας"
+      />
+    </div>
+    <div>
+      <label class="field" for="from">Από</label>
+      <input id="from" class="text-input" type="date" [value]="dateFrom()" (change)="setFrom(from.value)" #from />
+    </div>
+    <div>
+      <label class="field" for="to">Έως</label>
+      <input id="to" class="text-input" type="date" [value]="dateTo()" (change)="setTo(to.value)" #to />
+    </div>
   </div>
 
   @if (loading()) {
@@ -82,6 +92,12 @@
                     }
                     @if (row.cancellationReason) {
                       <p>Αιτία ακύρωσης: {{ row.cancellationReason }}</p>
+                    }
+                    @if (row.discountTotal) {
+                      <p>Αρχική αξία: {{ formatCurrency(row.subtotal ?? row.total + row.discountTotal) }} · Έκπτωση: {{ formatCurrency(row.discountTotal) }}</p>
+                      @for (promotion of row.appliedPromotions ?? []; track promotion.promotionId) {
+                        <p>{{ promotion.name }} · −{{ formatCurrency(promotion.discountTotal) }}</p>
+                      }
                     }
                     @if (row.items.length > 0) {
                       <div class="order-items">

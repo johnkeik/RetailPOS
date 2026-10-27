@@ -1,18 +1,20 @@
 <section class="entry-panel">
   <header class="entry-header">
-    <div class="mode-tabs" role="group" aria-label="Τύπος κίνησης">
-      @for (option of modes; track option.value) {
-        <button
-          type="button"
-          class="mode-tab"
-          [class.active]="mode() === option.value"
-          [attr.aria-pressed]="mode() === option.value"
-          (click)="setMode(option.value)"
-        >
-          {{ option.label }}
-        </button>
-      }
-    </div>
+    @if (!receiveOnly) {
+      <div class="mode-tabs" role="group" aria-label="Τύπος κίνησης">
+        @for (option of visibleModes(); track option.value) {
+          <button
+            type="button"
+            class="mode-tab"
+            [class.active]="mode() === option.value"
+            [attr.aria-pressed]="mode() === option.value"
+            (click)="setMode(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    }
   </header>
 
   <p class="entry-hint">{{ currentMode().hint }}</p>

@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { AuthService } from '../../core/auth/auth.service';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { EmployeeRow, EmployeesService } from './employees.service';
@@ -14,12 +15,18 @@ import { EmployeeRow, EmployeesService } from './employees.service';
 export class EmployeesPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly employeesService = inject(EmployeesService);
+  private readonly authService = inject(AuthService);
 
   protected readonly searchQuery = signal('');
   protected readonly editingEmployeeId = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
+  protected readonly accountMessage = signal<string | null>(null);
+  protected readonly savingEmployee = signal(false);
   protected readonly loading = this.employeesService.loading;
   protected readonly error = this.employeesService.error;
+  protected readonly editingEmployee = computed(() =>
+    this.employeesService.employees().find((employee) => employee.id === this.editingEmployeeId()) ?? null
+  );
 
   protected readonly filteredEmployees = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
@@ -39,6 +46,7 @@ export class EmployeesPageComponent {
   protected readonly employeeForm = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(80)]],
     employeeCode: ['', [Validators.required, Validators.maxLength(20)]],
+    dashboardEmail: ['', [Validators.email]],
     active: [true]
   });
 
@@ -47,6 +55,7 @@ export class EmployeesPageComponent {
   }
 
   protected async saveEmployee(): Promise<void> {
+    if (this.savingEmployee()) return;
     if (this.employeeForm.invalid) {
       this.employeeForm.markAllAsTouched();
       return;
@@ -59,34 +68,86 @@ export class EmployeesPageComponent {
       active: form.active
     };
 
+    if (form.dashboardEmail.trim() && !form.active) {
+      this.formError.set('Ενεργοποιήστε τον υπάλληλο πριν δημιουργήσετε πρόσβαση dashboard.');
+      return;
+    }
+
     this.formError.set(null);
-    const activeId = this.editingEmployeeId();
+    this.accountMessage.set(null);
+    this.savingEmployee.set(true);
+    let employeeId = this.editingEmployeeId();
+    const currentEmployee = this.editingEmployee();
+    const email = form.dashboardEmail.trim();
 
     try {
-      if (activeId) {
-        await this.employeesService.updateEmployee(activeId, input);
+      if (employeeId) {
+        await this.employeesService.updateEmployee(employeeId, input);
       } else {
-        await this.employeesService.createEmployee(input);
+        employeeId = await this.employeesService.createEmployee(input);
+      }
+
+      if (employeeId && email && !currentEmployee?.dashboardEmail) {
+        try {
+          await this.employeesService.createEmployeeAccount(employeeId, email);
+        } catch (error) {
+          console.error(error);
+          this.resetForm();
+          this.accountMessage.set('Ο υπάλληλος αποθηκεύτηκε, αλλά δεν δημιουργήθηκε πρόσβαση. Επεξεργαστείτε τον υπάλληλο για νέα προσπάθεια.');
+          return;
+        }
+
+        try {
+          await this.authService.sendEmployeeSetupEmail(email);
+          this.accountMessage.set(`Δημιουργήθηκε η πρόσβαση και στάλθηκε email ορισμού κωδικού στο ${email}.`);
+        } catch (error) {
+          console.error(error);
+          this.accountMessage.set('Η πρόσβαση δημιουργήθηκε, αλλά δεν στάλθηκε email. Μπορείτε να το ξαναστείλετε από τη λίστα.');
+        }
       }
       this.resetForm();
     } catch (error) {
       console.error(error);
-      this.formError.set('Ο κωδικος υπαλληλου χρησιμοποιειται ηδη.');
+      const code = (error as { code?: string })?.code;
+      this.formError.set(code === 'functions/already-exists'
+        ? 'Ο κωδικός υπαλλήλου ή το email χρησιμοποιείται ήδη.'
+        : 'Αποτυχία αποθήκευσης υπαλλήλου.');
+    } finally {
+      this.savingEmployee.set(false);
     }
   }
 
   protected startEdit(employee: EmployeeRow): void {
     this.editingEmployeeId.set(employee.id);
     this.formError.set(null);
+    this.accountMessage.set(null);
     this.employeeForm.setValue({
       name: employee.name,
       employeeCode: employee.employeeCode,
+      dashboardEmail: employee.dashboardEmail ?? '',
       active: employee.active
     });
   }
 
   protected async toggleActive(employee: EmployeeRow): Promise<void> {
     await this.employeesService.toggleEmployeeActive(employee.id, !employee.active);
+  }
+
+  protected async sendSetupEmail(employee: EmployeeRow): Promise<void> {
+    if (!employee.dashboardEmail || !employee.active) return;
+    this.accountMessage.set(null);
+    try {
+      await this.authService.sendEmployeeSetupEmail(employee.dashboardEmail);
+      this.accountMessage.set(`Στάλθηκε email ορισμού κωδικού στο ${employee.dashboardEmail}.`);
+    } catch (error) {
+      console.error(error);
+      this.accountMessage.set('Αποτυχία αποστολής email. Ελέγξτε τις ρυθμίσεις email του Firebase Authentication.');
+    }
+  }
+
+  protected sendCurrentSetupEmail(): void {
+    const employee = this.editingEmployee();
+    if (employee) void this.sendSetupEmail(employee);
   }
 
   protected async deleteEmployee(employee: EmployeeRow): Promise<void> {
@@ -112,6 +173,7 @@ export class EmployeesPageComponent {
     this.employeeForm.reset({
       name: '',
       employeeCode: '',
+      dashboardEmail: '',
       active: true
     });
   }

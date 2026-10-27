@@ -51,10 +51,16 @@ export const recordStockMovements = onCall(async (request) => {
   });
 
   const actor = await resolveActorContext(request.auth, data.tenantId);
-  assertRole(actor, ["OWNER"]);
+  assertRole(actor, ["OWNER", "EMPLOYEE"]);
+  if (actor.role === "EMPLOYEE" && data.type !== "PURCHASE") {
+    throw new HttpsError("permission-denied", "Οι υπάλληλοι μπορούν να καταχωρίζουν μόνο παραλαβές.");
+  }
 
   const tenantPath = `tenants/${actor.tenantId}`;
-  const performedBy = data.performedByEmployeeId ?? actor.uid;
+  let performedBy = data.performedByEmployeeId ?? actor.uid;
+  if (actor.role === "EMPLOYEE") {
+    performedBy = actor.employeeId ?? actor.uid;
+  }
   const now = serverTimestamp();
 
   await db.runTransaction(async (tx) => {

@@ -408,6 +408,12 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                         ),
                                     ],
                                   ),
+                                  if (order.discountTotal > 0) ...[
+                                    const SizedBox(height: 8),
+                                    Text('Έκπτωση προσφορών: −${_historyAmount(order.discountTotal)}',
+                                      style: TextStyle(color: colors.primary, fontWeight: FontWeight.w700)),
+                                    for (final name in order.promotionNames) Text(name),
+                                  ],
                                   if (order.status == 'CANCELLED') ...[
                                     const SizedBox(height: 10),
                                     Text(
@@ -460,6 +466,9 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                                   _variantName(item),
                                                   style: TextStyle(color: colors.onSurfaceVariant),
                                                 ),
+                                                if (item.discountTotal > 0)
+                                                  Text('Έκπτωση: −${_historyAmount(item.discountTotal)}',
+                                                    style: TextStyle(color: colors.primary)),
                                                 if (item.useSpecialBottle)
                                                   Padding(
                                                     padding: const EdgeInsets.only(top: 4),
@@ -476,7 +485,7 @@ class _PosOrderHistoryDialogState extends State<PosOrderHistoryDialog> {
                                             crossAxisAlignment: CrossAxisAlignment.end,
                                             children: [
                                               Text(
-                                                _historyAmount(item.unitPrice * item.quantity),
+                                                _historyAmount(item.lineTotal),
                                                 style: const TextStyle(fontWeight: FontWeight.w700),
                                               ),
                                               Text(

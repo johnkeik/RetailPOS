@@ -1,6 +1,6 @@
 <app-page-title
   title="Υπάλληλοι"
-  subtitle="Διαχείριση υπαλλήλων που μπορούν να συνδεθούν στο ταμείο (POS)."
+  subtitle="Διαχείριση υπαλλήλων POS και περιορισμένης πρόσβασης παραλαβών στο dashboard."
 />
 
 <section class="employees-layout">
@@ -28,6 +28,9 @@
     @if (error()) {
       <div class="inline-error">{{ error() }}</div>
     }
+    @if (accountMessage()) {
+      <div class="inline-success" role="status">{{ accountMessage() }}</div>
+    }
 
     @if (filteredEmployees().length > 0) {
       <div class="table-wrap">
@@ -36,6 +39,7 @@
           <tr>
             <th>Όνομα</th>
             <th>Κωδικός</th>
+            <th>Πρόσβαση dashboard</th>
             <th>Κατάσταση</th>
             <th class="actions-col">Ενέργειες</th>
           </tr>
@@ -45,6 +49,14 @@
             <tr>
             <td>{{ employee.name }}</td>
             <td>{{ employee.employeeCode }}</td>
+            <td>
+              @if (employee.dashboardEmail) {
+                <span>{{ employee.dashboardEmail }}</span>
+                <button type="button" class="account-link" [disabled]="!employee.active" (click)="sendSetupEmail(employee)">Επαναποστολή συνδέσμου ορισμού κωδικού</button>
+              } @else {
+                <span class="muted">Δεν έχει οριστεί</span>
+              }
+            </td>
             <td>
               <span class="status-chip" [class.inactive]="!employee.active">
                 {{ employee.active ? 'ΕΝΕΡΓΟΣ' : 'ΑΝΕΝΕΡΓΟΣ' }}
@@ -71,7 +83,7 @@
   <article class="panel">
     <header class="panel-header">
       <h3>{{ editingEmployeeId() ? 'Επεξεργασία υπαλλήλου' : 'Δημιουργία υπαλλήλου' }}</h3>
-      <p>Ο κωδικός υπαλλήλου χρησιμοποιείται για είσοδο στο ταμείο (POS).</p>
+      <p>Ο κωδικός υπαλλήλου χρησιμοποιείται στο POS. Η πρόσβαση dashboard είναι μόνο για παραλαβές.</p>
     </header>
 
     <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()" class="form-grid">
@@ -91,6 +103,21 @@
         }
       </div>
 
+      <div>
+        <label class="field" for="dashboardEmail">Email σύνδεσης στο dashboard</label>
+        @if (editingEmployee()?.dashboardEmail) {
+          <input id="dashboardEmail" type="email" class="text-input" [value]="editingEmployee()?.dashboardEmail" readonly />
+          <small class="help-text">Ο υπάλληλος ορίζει τον κωδικό του από το email.</small>
+          <button type="button" class="account-link" [disabled]="!editingEmployee()?.active" (click)="sendCurrentSetupEmail()">Επαναποστολή συνδέσμου ορισμού κωδικού</button>
+        } @else {
+          <input id="dashboardEmail" type="email" class="text-input" formControlName="dashboardEmail" placeholder="employee@example.com" />
+          <small class="help-text">Προαιρετικό. Θα δημιουργηθεί λογαριασμός και θα σταλεί email για ορισμό κωδικού.</small>
+          @if (employeeForm.controls.dashboardEmail.touched && employeeForm.controls.dashboardEmail.invalid) {
+            <small class="error">Συμπληρώστε έγκυρο email.</small>
+          }
+        }
+      </div>
+
       @if (formError()) {
         <div class="inline-error">{{ formError() }}</div>
       }
@@ -101,8 +128,8 @@
       </label>
 
       <div class="button-row">
-        <button type="submit" class="btn primary">
-          {{ editingEmployeeId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία υπαλλήλου' }}
+        <button type="submit" class="btn primary" [disabled]="savingEmployee()" [attr.aria-busy]="savingEmployee()">
+          {{ savingEmployee() ? 'Αποθήκευση...' : editingEmployeeId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία υπαλλήλου' }}
         </button>
         @if (editingEmployeeId()) {
           <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>

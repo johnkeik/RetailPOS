@@ -37,6 +37,7 @@ export {toggleVariantTemplateActive} from "./variants/toggle-variant-template-ac
 export {deleteVariantTemplate} from "./variants/delete-variant-template";
 
 export {createEmployee} from "./employees/create-employee";
+export {createEmployeeAccount} from "./employees/create-employee-account";
 export {updateEmployee} from "./employees/update-employee";
 export {toggleEmployeeActive} from "./employees/toggle-employee-active";
 export {deleteEmployee} from "./employees/delete-employee";
@@ -44,3 +45,7 @@ export {deleteEmployee} from "./employees/delete-employee";
 export {createExpense} from "./expenses/create-expense";
 export {updateExpense} from "./expenses/update-expense";
 export {deleteExpense} from "./expenses/delete-expense";
+
+export {savePromotion} from "./promotions/save-promotion";
+
+export {deletePromotion} from "./promotions/delete-promotion";

@@ -39,6 +39,25 @@
     </div>
   </div>
 
+  <div class="period-filter">
+    <div class="period-presets" role="group" aria-label="Γρήγορη επιλογή περιόδου">
+      <button type="button" [class.active]="selectedPeriod() === 'ALL'" [attr.aria-pressed]="selectedPeriod() === 'ALL'" (click)="selectPeriod('ALL')">Όλο το διάστημα</button>
+      <button type="button" [class.active]="selectedPeriod() === 'TODAY'" [attr.aria-pressed]="selectedPeriod() === 'TODAY'" (click)="selectPeriod('TODAY')">Σήμερα</button>
+      <button type="button" [class.active]="selectedPeriod() === '7D'" [attr.aria-pressed]="selectedPeriod() === '7D'" (click)="selectPeriod('7D')">7 ημέρες</button>
+      <button type="button" [class.active]="selectedPeriod() === '30D'" [attr.aria-pressed]="selectedPeriod() === '30D'" (click)="selectPeriod('30D')">30 ημέρες</button>
+    </div>
+    <div class="date-range">
+      <label class="date-field" for="movement-from">
+        Από
+        <input id="movement-from" class="text-input" type="date" [value]="dateFrom()" (change)="onDateFromChange(from.value)" #from />
+      </label>
+      <label class="date-field" for="movement-to">
+        Έως
+        <input id="movement-to" class="text-input" type="date" [value]="dateTo()" (change)="onDateToChange(to.value)" #to />
+      </label>
+    </div>
+  </div>
+
   @if (loading()) {
     <div class="inline-state">Φόρτωση κινήσεων αποθέματος...</div>
   }
@@ -50,10 +69,10 @@
   <div class="history-toolbar">
     <div class="view-toggle" role="group" aria-label="Τρόπος προβολής κινήσεων">
       <button type="button" [class.active]="viewMode() === 'events'" (click)="viewMode.set('events')">
-        Συναλλαγές
+        Σύνοψη
       </button>
       <button type="button" [class.active]="viewMode() === 'movements'" (click)="viewMode.set('movements')">
-        Αναλυτικές κινήσεις
+        Όλες οι κινήσεις
       </button>
     </div>
     <span class="result-count">
@@ -67,9 +86,10 @@
         <thead>
           <tr>
             <th>Ημερομηνία</th>
-            <th>Συναλλαγή</th>
-            <th>Τύπος</th>
-            <th>Ανάλυση</th>
+            <th>Τι συνέβη</th>
+            <th>Αλλαγή αποθέματος</th>
+            <th>Καταχώρησε</th>
+            <th>Λεπτομέρειες</th>
           </tr>
         </thead>
         <tbody>
@@ -77,6 +97,8 @@
             <tr>
               <td>{{ event.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td>
+                <span class="status-chip" [class]="'status-chip type-' + event.type.toLowerCase()">{{ formatTypeLabel(event.type) }}</span>
+                <strong class="event-summary">{{ event.type === 'SALE' ? 'Πώληση' : event.summary }}</strong>
                 @if (event.orderId) {
                   <button
                     class="event-toggle"
@@ -85,18 +107,27 @@
                     [attr.aria-label]="(expandedEventId() === event.id ? 'Απόκρυψη' : 'Ανάλυση') + ' παραγγελίας ' + event.orderId"
                     (click)="toggleEvent(event.id)"
                   >
-                    <span class="event-summary">{{ event.summary }}</span>
-                    <span class="event-id">#{{ event.orderId.slice(0, 8) }}</span>
+                    <span class="event-id">Παραγγελία #{{ event.orderId.slice(0, 8) }}</span>
                   </button>
-                } @else {
-                  <strong class="event-summary">{{ event.summary }}</strong>
+                  <span class="event-products">{{ event.summary }}</span>
                 }
               </td>
-              <td><span class="status-chip" [class]="'status-chip type-' + event.type.toLowerCase()">{{ formatTypeLabel(event.type) }}</span></td>
+              <td>
+                @for (row of event.rows.slice(0, 2); track row.id) {
+                  <span class="impact-line">
+                    <strong [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</strong>
+                    <span>{{ row.productName }} · {{ row.variantTemplateName }}</span>
+                  </span>
+                }
+                @if (event.rows.length > 2) {
+                  <span class="more-impacts">+{{ event.rows.length - 2 }} ακόμη</span>
+                }
+              </td>
+              <td>{{ event.employeeName }}</td>
               <td>
                 @if (event.orderId) {
                   <button class="detail-link" type="button" (click)="toggleEvent(event.id)">
-                    {{ expandedEventId() === event.id ? 'Απόκρυψη' : 'Προβολή' }} · {{ event.movementCount }} κινήσεις
+                    {{ expandedEventId() === event.id ? 'Απόκρυψη' : 'Προβολή' }} · {{ event.movementCount }} επιπτώσεις
                   </button>
                 } @else {
                   <span class="movement-reason">{{ event.rows[0].reason || '1 κίνηση' }}</span>
@@ -105,10 +136,10 @@
             </tr>
             @if (event.orderId && expandedEventId() === event.id) {
               <tr class="event-details-row">
-                <td colspan="4">
+                <td colspan="5">
                   <section class="event-details" [attr.aria-label]="'Κινήσεις παραγγελίας ' + event.orderId">
                     <div class="event-details-heading">
-                      <strong>Επιπτώσεις στο απόθεμα</strong>
+                      <strong>Αναλυτικές αλλαγές αποθέματος</strong>
                       <span>{{ event.orderId }}</span>
                     </div>
                     <div class="movement-details">
@@ -141,10 +172,11 @@
         <thead>
           <tr>
             <th>Ημερομηνία</th>
-            <th>Είδος / Προϊόν</th>
-            <th>Συστατικό / Παραλλαγή</th>
+            <th>Προϊόν</th>
+            <th>Είδος αποθέματος</th>
             <th>Τύπος</th>
             <th>Μεταβολή</th>
+            <th>Καταχώρησε</th>
             <th>Αιτιολογία</th>
           </tr>
         </thead>
@@ -152,7 +184,7 @@
           @for (row of filteredRows(); track row.id) {
             <tr>
               <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ row.productCode }} - {{ row.productName }}</td>
+              <td>{{ row.productName }} <span class="secondary-text">({{ row.productCode }})</span></td>
               <td>{{ row.variantTemplateName }}</td>
               <td>
                 <span class="status-chip">{{ formatTypeLabel(row.type) }}</span>
@@ -160,6 +192,7 @@
               <td [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">
                 {{ row.displayDelta }}
               </td>
+              <td>{{ row.performedByName || 'Μη διαθέσιμος' }}</td>
               <td>{{ row.reason || '-' }}</td>
             </tr>
           }

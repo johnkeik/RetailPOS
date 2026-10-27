@@ -8,6 +8,7 @@ import { Employee } from '../../core/types/domain.models';
 
 export type EmployeeRow = Employee & {
   id: string;
+  dashboardEmail?: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -41,7 +42,14 @@ export class EmployeesService {
 
     try {
       const employeesRef = collection(this.firestore, `tenants/${tenantId}/employees`);
-      const snapshot = await getDocs(query(employeesRef, orderBy('name', 'asc')));
+      const accountsRef = collection(this.firestore, `tenants/${tenantId}/employeeAccounts`);
+      const [snapshot, accountsSnapshot] = await Promise.all([
+        getDocs(query(employeesRef, orderBy('name', 'asc'))),
+        getDocs(accountsRef)
+      ]);
+      const accountEmails = new Map(
+        accountsSnapshot.docs.map((item) => [item.id, item.data()['email'] as string])
+      );
 
       const rows: EmployeeRow[] = snapshot.docs.map((item) => {
         const data = item.data() as Partial<Employee>;
@@ -51,6 +59,7 @@ export class EmployeesService {
           name: data.name ?? '',
           employeeCode: data.employeeCode ?? '',
           active: data.active ?? true,
+          dashboardEmail: accountEmails.get(item.id),
           createdAt: this.normalizeTimestamp(data.createdAt)
         };
       });
@@ -64,11 +73,20 @@ export class EmployeesService {
     }
   }
 
-  async createEmployee(input: { name: string; employeeCode: string; active: boolean }): Promise<void> {
+  async createEmployee(input: { name: string; employeeCode: string; active: boolean }): Promise<string | null> {
     const tenantId = this.tenantContext.tenantId();
-    if (!tenantId) { this.error.set('Missing tenant context.'); return; }
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return null; }
     this.error.set(null);
-    await httpsCallable(this.functions, 'createEmployee')({ tenantId, ...input });
+    const result = await httpsCallable(this.functions, 'createEmployee')({ tenantId, ...input });
+    await this.loadEmployees();
+    return (result.data as { employeeId: string }).employeeId;
+  }
+
+  async createEmployeeAccount(employeeId: string, email: string): Promise<void> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return; }
+    this.error.set(null);
+    await httpsCallable(this.functions, 'createEmployeeAccount')({ tenantId, employeeId, email });
     await this.loadEmployees();
   }
 

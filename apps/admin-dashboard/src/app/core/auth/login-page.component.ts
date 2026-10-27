@@ -34,7 +34,10 @@ export class LoginPageComponent {
 
     try {
       await this.authService.signIn(email, password);
-      await this.router.navigate(['/dashboard']);
+      const route = this.authService.currentUser()?.role === 'EMPLOYEE'
+        ? '/employee/receiving'
+        : '/dashboard';
+      await this.router.navigate([route]);
     } catch {
       // Error is surfaced through the auth service state.
     }

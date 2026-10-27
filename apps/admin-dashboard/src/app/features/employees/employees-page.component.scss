@@ -68,9 +68,15 @@
   font-size: 0.85rem;
 }
 
+.inline-success {
+  margin-top: 10px;
+  color: #166534;
+  font-size: 0.85rem;
+}
+
 table {
   width: 100%;
-  min-width: 480px;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -131,6 +137,28 @@ th {
 
 .btn.ghost:hover {
   background: #f1f5f9;
+}
+
+.account-link {
+  display: block;
+  min-height: 36px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.help-text,
+.muted {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 0.8rem;
 }
 
 .form-grid {

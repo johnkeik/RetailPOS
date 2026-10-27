@@ -21,6 +21,9 @@ export const cancelOrder = onCall(async (request) => {
   const actor = request.auth?.uid ?
     await resolveActorContext(request.auth, data.tenantId) :
     { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
+  if (request.auth?.uid && actor.role === "EMPLOYEE") {
+    throw new HttpsError("permission-denied", "Ο λογαριασμός dashboard δεν έχει πρόσβαση σε ακυρώσεις πωλήσεων.");
+  }
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
   const tenantId = actor.tenantId;
 

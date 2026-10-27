@@ -2,6 +2,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { assertRole, resolveActorContext, validateTenantScope } from "../common/auth";
 import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
+import { calculatePromotions, Promotion } from "../promotions/promotion-pricing";
 import { BULK_INVENTORY_SENTINEL, CreateOrderInput } from "../types/domain";
 
 // The standard bottle is the first recipe consumable; the special bottle replaces only that one.
@@ -32,6 +33,9 @@ export const createOrder = onCall(async (request) => {
   const actor = request.auth?.uid ?
     await resolveActorContext(request.auth, data.tenantId) :
     { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
+  if (request.auth?.uid && actor.role === "EMPLOYEE") {
+    throw new HttpsError("permission-denied", "Ο λογαριασμός dashboard δεν έχει πρόσβαση σε πωλήσεις.");
+  }
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
 
   const cleanedItems = data.items.map((item) => ({
@@ -47,13 +51,20 @@ export const createOrder = onCall(async (request) => {
       (item) =>
         !item.productId ||
         !item.variantTemplateId ||
-        item.quantity <= 0 ||
-        item.unitPrice < 0
+        !Number.isSafeInteger(item.quantity) || item.quantity <= 0 ||
+        !Number.isFinite(item.unitPrice) || item.unitPrice < 0
     )
   ) {
     throw new HttpsError("invalid-argument", "Invalid order items payload.");
   }
 
+  if (cleanedItems.length > 100 || cleanedItems.reduce((sum, item) => sum + item.quantity, 0) > 1000) {
+    throw new HttpsError("invalid-argument", "Η παραγγελία υπερβαίνει το όριο των 100 γραμμών ή 1.000 τεμαχίων.");
+  }
+  if (data.expectedTotal !== undefined && (!Number.isFinite(data.expectedTotal) || data.expectedTotal < 0)) {
+    throw new HttpsError("invalid-argument", "Μη έγκυρο αναμενόμενο σύνολο.");
+  }
+  let chargedTotal = 0;
   const orderRef = db.collection(`tenants/${actor.tenantId}/orders`).doc();
   const now = serverTimestamp();
 
@@ -63,10 +74,12 @@ export const createOrder = onCall(async (request) => {
     const uniqueProductIds = [...new Set(cleanedItems.map((i) => i.productId))];
     const uniqueTemplateIds = [...new Set(cleanedItems.map((i) => i.variantTemplateId))];
 
-    const [employeeSnap, productSnaps, templateSnaps] = await Promise.all([
+    const [employeeSnap, productSnaps, templateSnaps, promotionSnaps] = await Promise.all([
       tx.get(employeeRef),
       Promise.all(uniqueProductIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/products/${id}`)))),
-      Promise.all(uniqueTemplateIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/variantTemplates/${id}`))))
+      Promise.all(uniqueTemplateIds.map((id) => tx.get(db.doc(`tenants/${actor.tenantId}/variantTemplates/${id}`)))),
+      tx.get(db.collection(`tenants/${actor.tenantId}/promotions`).where("active", "==", true)),
+      tx.get(db.doc(`tenants/${actor.tenantId}/settings/promotionRules`))
     ]);
     if (!employeeSnap.exists || employeeSnap.data()?.["active"] === false) {
       throw new HttpsError("permission-denied", "Ο υπάλληλος δεν βρέθηκε ή είναι ανενεργός.");
@@ -74,6 +87,53 @@ export const createOrder = onCall(async (request) => {
 
     const productMap = new Map(productSnaps.map((s) => [s.id, s.data()]));
     const templateMap = new Map(templateSnaps.map((s) => [s.id, s.data()]));
+
+    for (const item of cleanedItems) {
+      const product = productMap.get(item.productId);
+      const template = templateMap.get(item.variantTemplateId);
+      const assignment = product?.variantAssignments?.[item.variantTemplateId];
+      if (!product || product.active === false || !template || template.active === false || !assignment) {
+        throw new HttpsError("failed-precondition", "Προϊόν ή παραλλαγή μη διαθέσιμα. Ανανεώστε τον κατάλογο.");
+      }
+      if (item.useSpecialBottle && (!template.hasSpecialBottle || !template.specialBottleConsumableId)) {
+        throw new HttpsError("failed-precondition", "Το ειδικό μπουκάλι δεν είναι διαθέσιμο.");
+      }
+      const basePrice = Number(assignment.sellingPrice ?? template.sellingPrice);
+      const extraPrice = item.useSpecialBottle ? Number(template.specialBottleExtraPrice ?? 0) : 0;
+      if (!Number.isFinite(basePrice) || basePrice < 0 || !Number.isFinite(extraPrice) || extraPrice < 0) {
+        throw new HttpsError("failed-precondition", "Μη έγκυρη τιμή καταλόγου.");
+      }
+      const unitCents = Math.round((basePrice + extraPrice) * 100);
+      if (!Number.isSafeInteger(unitCents)) {
+        throw new HttpsError("failed-precondition", "Μη έγκυρη τιμή καταλόγου.");
+      }
+      const unitPrice = unitCents / 100;
+      if (Math.round(item.unitPrice * 100) !== unitCents) {
+        throw new HttpsError("failed-precondition",
+          "Οι τιμές άλλαξαν. Ανανεώστε τον κατάλογο και ελέγξτε την παραγγελία.");
+      }
+      item.unitPrice = unitPrice;
+    }
+    if (!Number.isSafeInteger(cleanedItems.reduce((sum, item) =>
+      sum + Math.round(item.unitPrice * 100) * item.quantity, 0))) {
+      throw new HttpsError("invalid-argument", "Το σύνολο υπερβαίνει το επιτρεπόμενο όριο.");
+    }
+    const promotions = promotionSnaps.docs.map((snapshot) =>
+      ({ ...snapshot.data(), id: snapshot.id } as Promotion));
+    let pricing;
+    try {
+      pricing = calculatePromotions(cleanedItems, promotions);
+    } catch {
+      throw new HttpsError("failed-precondition",
+        "Δεν ήταν δυνατός ο υπολογισμός προσφορών. Ανανεώστε τον κατάλογο.");
+    }
+    if ((pricing.discountTotal > 0 && data.expectedTotal === undefined) ||
+        (data.expectedTotal !== undefined &&
+          Math.round(data.expectedTotal * 100) !== Math.round(pricing.total * 100))) {
+      throw new HttpsError("failed-precondition",
+        "Το σύνολο ή οι προσφορές άλλαξαν. Ανανεώστε τον κατάλογο και ελέγξτε το τελικό ποσό.");
+    }
+    chargedTotal = pricing.total;
 
     // --- Resolve inventory doc IDs and compute deltas ---
     // BULK products:
@@ -206,7 +266,6 @@ export const createOrder = onCall(async (request) => {
     }
 
     // --- Create stock movement records per order item and per deducted component ---
-    let total = 0;
     for (const item of cleanedItems) {
       const product = productMap.get(item.productId);
       const isBulk = product?.packagingCategory === "BULK";
@@ -318,8 +377,6 @@ export const createOrder = onCall(async (request) => {
           createdAt: now
         });
       }
-
-      total += item.quantity * item.unitPrice;
     }
 
     // --- Create order document ---
@@ -328,22 +385,26 @@ export const createOrder = onCall(async (request) => {
       employeeId: data.employeeId || actor.uid,
       status: "COMPLETED",
       ...(data.paymentMethod ? { paymentMethod: data.paymentMethod } : {}),
-      subtotal: total,
-      discountTotal: 0,
-      total,
-      items: cleanedItems.map((item) => ({
+      subtotal: pricing.subtotal,
+      discountTotal: pricing.discountTotal,
+      total: pricing.total,
+      appliedPromotions: pricing.appliedPromotions,
+      employeeName: employeeSnap.data()?.name ?? "",
+      items: cleanedItems.map((item, index) => ({
         productId: item.productId,
         variantId: item.variantTemplateId,
         variantTemplateId: item.variantTemplateId,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         useSpecialBottle: item.useSpecialBottle,
-        lineTotal: item.quantity * item.unitPrice
+        discountTotal: pricing.lineDiscounts[index],
+        lineTotal: (Math.round(item.unitPrice * 100) * item.quantity -
+          Math.round(pricing.lineDiscounts[index] * 100)) / 100
       })),
       createdAt: now
     });
   });
 
-  return { ok: true, orderId: orderRef.id };
+  return { ok: true, orderId: orderRef.id, total: chargedTotal };
 });
 

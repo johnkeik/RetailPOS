@@ -6,6 +6,7 @@ import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
+import '../models/promotion_pricing.dart';
 import 'pos_expense_page.dart';
 import 'pos_order_completion_dialog.dart';
 import 'pos_order_history_dialog.dart';
@@ -40,7 +41,17 @@ class _PosHomePageState extends State<PosHomePage> {
   final List<CartLine> _cartLines = <CartLine>[];
   final TextEditingController _searchController = TextEditingController();
   List<String> _categories = const ['All'];
+  String _giftVariantName(String id) {
+    for (final product in _products) {
+      for (final variant in product.variants) {
+        if (variant.id == id) return variant.name;
+      }
+    }
+    return 'παραλλαγή δώρου';
+  }
+
   List<ProductItem> _products = const [];
+  List<PosPromotion> _promotions = const [];
 
   String _selectedCategory = 'All';
   String _codeBuffer = '';
@@ -50,6 +61,7 @@ class _PosHomePageState extends State<PosHomePage> {
   bool _loadingCatalog = true;
   String? _catalogError;
   bool _submittingOrder = false;
+  double _lastDisplayedTotal = 0;
   PaymentMethod _selectedPaymentMethod = PaymentMethod.cash;
 
   @override
@@ -81,6 +93,22 @@ class _PosHomePageState extends State<PosHomePage> {
         _categories =
             catalog.categories.isEmpty ? const ['All'] : catalog.categories;
         _products = catalog.products;
+        _promotions = catalog.promotions;
+        for (var index = 0; index < _cartLines.length; index++) {
+          final line = _cartLines[index];
+          for (final product in _products) {
+            if (product.id != line.product.id) continue;
+            for (final variant in product.variants) {
+              if (variant.id != line.variant.id) continue;
+              _cartLines[index] = CartLine(
+                  product: product,
+                  variant: variant,
+                  quantity: line.quantity,
+                  useSpecialBottle:
+                      line.useSpecialBottle && variant.hasSpecialBottle);
+            }
+          }
+        }
         _selectedCategory =
             _categories.contains(_selectedCategory) ? _selectedCategory : 'All';
         _loadingCatalog = false;
@@ -167,10 +195,7 @@ class _PosHomePageState extends State<PosHomePage> {
     return null;
   }
 
-  double get _total {
-    return _cartLines.fold(
-        0.0, (sum, line) => sum + (line.unitPrice * line.quantity));
-  }
+  CartPricing get _pricing => priceCart(_cartLines, _promotions);
 
   String _categoryLabel(String category) {
     return category == 'All' ? 'Όλα' : category;
@@ -262,6 +287,14 @@ class _PosHomePageState extends State<PosHomePage> {
             spacing: 8,
             runSpacing: 8,
             children: [
+              OutlinedButton.icon(
+                style:
+                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
+                onPressed:
+                    _loadingCatalog || _submittingOrder ? null : _loadCatalog,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Ανανέωση'),
+              ),
               OutlinedButton.icon(
                 style:
                     OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
@@ -380,6 +413,7 @@ class _PosHomePageState extends State<PosHomePage> {
   }
 
   void _addSelectedToCart() {
+    if (_submittingOrder) return;
     final selected = _selectedProduct;
     final variant = _selectedVariant;
     if (selected == null || variant == null) {
@@ -419,6 +453,7 @@ class _PosHomePageState extends State<PosHomePage> {
   }
 
   void _incrementLine(CartLine line) {
+    if (_submittingOrder) return;
     setState(() {
       final index = _cartLines.indexWhere(
         (item) =>
@@ -440,6 +475,7 @@ class _PosHomePageState extends State<PosHomePage> {
   }
 
   void _decrementLine(CartLine line) {
+    if (_submittingOrder) return;
     setState(() {
       final index = _cartLines.indexWhere(
         (item) =>
@@ -498,15 +534,19 @@ class _PosHomePageState extends State<PosHomePage> {
                       Icon(
                         icon,
                         size: 20,
-                        color: isSelected ? colors.onSecondary : colors.onSurface,
+                        color:
+                            isSelected ? colors.onSecondary : colors.onSurface,
                       ),
                       const SizedBox(width: 8),
-                      Flexible(child: Text(
+                      Flexible(
+                          child: Text(
                         label,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? colors.onSecondary : colors.onSurface,
+                          color: isSelected
+                              ? colors.onSecondary
+                              : colors.onSurface,
                         ),
                       )),
                     ],
@@ -533,6 +573,7 @@ class _PosHomePageState extends State<PosHomePage> {
         employeeId: widget.employeeId,
         lines: _cartLines,
         paymentMethod: _selectedPaymentMethod,
+        expectedTotal: _lastDisplayedTotal,
       );
 
       if (!mounted) {
@@ -619,8 +660,8 @@ class _PosHomePageState extends State<PosHomePage> {
       ),
     );
     if (saved == true && mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Το έξοδο καταχωρήθηκε.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Το έξοδο καταχωρήθηκε.')));
     }
   }
 
@@ -691,7 +732,10 @@ class _PosHomePageState extends State<PosHomePage> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.35),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.35),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.18),
@@ -738,9 +782,8 @@ class _PosHomePageState extends State<PosHomePage> {
                 : colors.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected
-                  ? colors.primary
-                  : colors.outline.withOpacity(0.2),
+              color:
+                  isSelected ? colors.primary : colors.outline.withOpacity(0.2),
               width: isSelected ? 2.0 : 1.0,
             ),
             boxShadow: isSelected
@@ -757,8 +800,12 @@ class _PosHomePageState extends State<PosHomePage> {
             children: [
               // Selection Indicator
               Icon(
-                isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color: isSelected ? colors.primary : colors.outline.withOpacity(0.5),
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: isSelected
+                    ? colors.primary
+                    : colors.outline.withOpacity(0.5),
                 size: 20,
               ),
               const SizedBox(width: 10),
@@ -860,6 +907,8 @@ class _PosHomePageState extends State<PosHomePage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final pricing = _pricing;
+    _lastDisplayedTotal = pricing.total;
 
     return Scaffold(
       body: Container(
@@ -981,13 +1030,15 @@ class _PosHomePageState extends State<PosHomePage> {
                                             const Icon(Icons.search, size: 20),
                                         suffixIcon: _codeBuffer.isNotEmpty
                                             ? IconButton(
-                                                tooltip: 'Καθαρισμός αναζήτησης',
+                                                tooltip:
+                                                    'Καθαρισμός αναζήτησης',
                                                 icon: const Icon(Icons.clear,
                                                     size: 24),
                                                 onPressed: _clearCode,
                                               )
                                             : null,
-                                        constraints: const BoxConstraints(minHeight: 64),
+                                        constraints:
+                                            const BoxConstraints(minHeight: 64),
                                         contentPadding:
                                             const EdgeInsets.symmetric(
                                                 horizontal: 12, vertical: 16),
@@ -1007,7 +1058,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                     Expanded(
                                       child: _loadingCatalog
                                           ? const Center(
-                                              child: CircularProgressIndicator())
+                                              child:
+                                                  CircularProgressIndicator())
                                           : _catalogError != null
                                               ? Center(
                                                   child: Column(
@@ -1048,7 +1100,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                                                     ?.id;
                                                         return ListTile(
                                                           dense: false,
-                                                          minVerticalPadding: 12,
+                                                          minVerticalPadding:
+                                                              12,
                                                           selected: isSelected,
                                                           selectedTileColor: colors
                                                               .primaryContainer
@@ -1067,12 +1120,11 @@ class _PosHomePageState extends State<PosHomePage> {
                                                           title: Text(
                                                             product.name,
                                                             style: TextStyle(
-                                                              fontWeight:
-                                                                  isSelected
-                                                                      ? FontWeight
-                                                                          .w800
-                                                                      : FontWeight
-                                                                          .w600,
+                                                              fontWeight: isSelected
+                                                                  ? FontWeight
+                                                                      .w800
+                                                                  : FontWeight
+                                                                      .w600,
                                                             ),
                                                           ),
                                                           subtitle: Text(
@@ -1132,7 +1184,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                           Container(
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: colors.surfaceContainerHighest
+                                              color: colors
+                                                  .surfaceContainerHighest
                                                   .withOpacity(0.35),
                                               borderRadius:
                                                   BorderRadius.circular(10),
@@ -1226,7 +1279,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                                 : ListView.separated(
                                                     itemCount: variants.length,
                                                     separatorBuilder: (_, __) =>
-                                                        const SizedBox(height: 6),
+                                                        const SizedBox(
+                                                            height: 6),
                                                     itemBuilder:
                                                         (context, index) {
                                                       final v = variants[index];
@@ -1256,7 +1310,9 @@ class _PosHomePageState extends State<PosHomePage> {
                                               child: AnimatedContainer(
                                                 duration: const Duration(
                                                     milliseconds: 150),
-                                                constraints: const BoxConstraints(minHeight: 72),
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        minHeight: 72),
                                                 padding:
                                                     const EdgeInsets.symmetric(
                                                         horizontal: 12,
@@ -1437,47 +1493,124 @@ class _PosHomePageState extends State<PosHomePage> {
                                                 const Divider(height: 1),
                                             itemBuilder: (context, index) {
                                               final line = _cartLines[index];
-                                              final lineTotal = line.total;
+                                              final lineTotal =
+                                                  ((line.unitPrice * 100)
+                                                                  .round() *
+                                                              line.quantity -
+                                                          (pricing.lineDiscounts[
+                                                                      index] *
+                                                                  100)
+                                                              .round()) /
+                                                      100;
 
                                               return Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 12),
                                                 child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .stretch,
                                                   children: [
                                                     Text(line.product.name,
-                                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700)),
                                                     const SizedBox(height: 4),
                                                     Text(
                                                       '${line.variant.name} (${line.variant.label}) · €${line.unitPrice.toStringAsFixed(2)}',
-                                                      style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
+                                                      style: TextStyle(
+                                                          fontSize: 13,
+                                                          color: colors
+                                                              .onSurfaceVariant),
                                                     ),
                                                     if (line.useSpecialBottle)
                                                       Text(
                                                         '✨ Special Μπουκάλι (+€${line.variant.specialBottleExtraPrice?.toStringAsFixed(2)})',
-                                                        style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.amber
+                                                                .shade900),
                                                       ),
+                                                    if (pricing.lineDiscounts[
+                                                            index] >
+                                                        0)
+                                                      Text(
+                                                          'Προσφορά: −€${pricing.lineDiscounts[index].toStringAsFixed(2)}',
+                                                          style: TextStyle(
+                                                              color: colors
+                                                                  .primary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700)),
                                                     const SizedBox(height: 8),
                                                     Row(
                                                       children: [
                                                         IconButton.outlined(
-                                                          tooltip: line.quantity == 1 ? 'Αφαίρεση προϊόντος' : 'Μείωση ποσότητας',
-                                                          onPressed: () => _decrementLine(line),
-                                                          icon: Icon(line.quantity == 1 ? Icons.delete_outline : Icons.remove,
-                                                            color: line.quantity == 1 ? colors.error : null),
+                                                          tooltip: line
+                                                                      .quantity ==
+                                                                  1
+                                                              ? 'Αφαίρεση προϊόντος'
+                                                              : 'Μείωση ποσότητας',
+                                                          onPressed:
+                                                              _submittingOrder
+                                                                  ? null
+                                                                  : () =>
+                                                                      _decrementLine(
+                                                                          line),
+                                                          icon: Icon(
+                                                              line.quantity == 1
+                                                                  ? Icons
+                                                                      .delete_outline
+                                                                  : Icons
+                                                                      .remove,
+                                                              color:
+                                                                  line.quantity ==
+                                                                          1
+                                                                      ? colors
+                                                                          .error
+                                                                      : null),
                                                         ),
-                                                        SizedBox(width: 36,
-                                                          child: Text('${line.quantity}', textAlign: TextAlign.center,
-                                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+                                                        SizedBox(
+                                                            width: 36,
+                                                            child: Text(
+                                                                '${line.quantity}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w800))),
                                                         IconButton.outlined(
-                                                          tooltip: 'Αύξηση ποσότητας',
-                                                          onPressed: () => _incrementLine(line),
-                                                          icon: const Icon(Icons.add),
+                                                          tooltip:
+                                                              'Αύξηση ποσότητας',
+                                                          onPressed:
+                                                              _submittingOrder
+                                                                  ? null
+                                                                  : () =>
+                                                                      _incrementLine(
+                                                                          line),
+                                                          icon: const Icon(
+                                                              Icons.add),
                                                         ),
-                                                        const SizedBox(width: 8),
+                                                        const SizedBox(
+                                                            width: 8),
                                                         Expanded(
-                                                          child: Text('€${lineTotal.toStringAsFixed(2)}',
-                                                            textAlign: TextAlign.right,
-                                                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                                                          child: Text(
+                                                              '€${lineTotal.toStringAsFixed(2)}',
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .right,
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700)),
                                                         ),
                                                       ],
                                                     ),
@@ -1497,9 +1630,39 @@ class _PosHomePageState extends State<PosHomePage> {
                                     padding: const EdgeInsets.all(12),
                                     child: Column(
                                       children: [
+                                        for (final gift
+                                            in pricing.pendingGifts.take(2))
+                                          Text(
+                                              'Δικαιούται δώρο: ${gift.quantity} × ${_giftVariantName(gift.variantTemplateId)} — προσθέστε το στο καλάθι',
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  fontWeight: FontWeight.bold)),
+                                        if (pricing.discountTotal > 0) ...[
+                                          Text(
+                                              'Αρχική αξία: €${pricing.subtotal.toStringAsFixed(2)}'),
+                                          for (final promotion
+                                              in pricing.promotions.take(2))
+                                            Text(
+                                                '${promotion.name}: −€${promotion.discountTotal.toStringAsFixed(2)}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: colors.primary,
+                                                    fontWeight:
+                                                        FontWeight.w700)),
+                                          if (pricing.promotions.length > 2)
+                                            Text(
+                                                '+${pricing.promotions.length - 2} ακόμη προσφορές'),
+                                          Text(
+                                              'Συνολική έκπτωση: −€${pricing.discountTotal.toStringAsFixed(2)}'),
+                                          const SizedBox(height: 8),
+                                        ],
                                         Wrap(
                                           alignment: WrapAlignment.spaceBetween,
-                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
                                           spacing: 12,
                                           runSpacing: 4,
                                           children: [
@@ -1511,7 +1674,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                               ),
                                             ),
                                             Text(
-                                              '€${_total.toStringAsFixed(2)}',
+                                              '€${pricing.total.toStringAsFixed(2)}',
                                               style: TextStyle(
                                                 fontSize: 26,
                                                 fontWeight: FontWeight.w900,
@@ -1594,7 +1757,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                             ],
                                           )
                                         : Text(
-                                            'Ολοκλήρωση Πώλησης (€${_total.toStringAsFixed(2)})',
+                                            'Ολοκλήρωση Πώλησης (€${pricing.total.toStringAsFixed(2)})',
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w800,

@@ -3,6 +3,7 @@ import {
   Auth,
   browserLocalPersistence,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -73,6 +74,10 @@ export class AuthService {
     this.error.set(null);
   }
 
+  async sendEmployeeSetupEmail(email: string): Promise<void> {
+    await sendPasswordResetEmail(this.auth, email.trim());
+  }
+
   private async restoreUser(user: User): Promise<void> {
     try {
       this.currentUser.set(await this.readAdminProfile(user));
@@ -87,11 +92,30 @@ export class AuthService {
 
   private async readAdminProfile(user: User): Promise<AppUser> {
     const profile = await getDoc(doc(this.firestore, 'users', user.uid));
-    const data = profile.data() as { tenantId?: string; role?: string; active?: boolean } | undefined;
-    if (!profile.exists() || data?.active === false || !data?.tenantId || data.role !== 'OWNER') {
-      throw new Error('Ο λογαριασμός δεν έχει ενεργό προφίλ διαχειριστή.');
+    const data = profile.data() as {
+      tenantId?: string;
+      role?: string;
+      active?: boolean;
+      employeeId?: string;
+    } | undefined;
+    if (!profile.exists() || data?.active === false || !data?.tenantId) {
+      throw new Error('Ο λογαριασμός δεν έχει ενεργό προφίλ.');
     }
 
+    if (data.role === 'EMPLOYEE') {
+      if (!data.employeeId) throw new Error('Ο λογαριασμός υπαλλήλου δεν είναι συνδεδεμένος.');
+      return {
+        uid: user.uid,
+        tenantId: data.tenantId,
+        role: 'EMPLOYEE',
+        email: user.email ?? '',
+        employeeId: data.employeeId
+      };
+    }
+
+    if (data.role !== 'OWNER') {
+      throw new Error('Ο λογαριασμός δεν έχει εξουσιοδοτημένο ρόλο.');
+    }
     return {
       uid: user.uid,
       tenantId: data.tenantId,

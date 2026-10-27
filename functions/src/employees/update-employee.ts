@@ -1,3 +1,4 @@
+import { getAuth } from "firebase-admin/auth";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { assertRole, resolveActorContext } from "../common/auth";
@@ -24,12 +25,30 @@ export const updateEmployee = onCall(async (request) => {
   }
 
   const employeeRef = db.doc(`tenants/${actor.tenantId}/employees/${data.employeeId}`);
-  await employeeRef.update({
+  const employeeSnapshot = await employeeRef.get();
+  if (!employeeSnapshot.exists) {
+    throw new HttpsError("not-found", "Ο υπάλληλος δεν βρέθηκε.");
+  }
+
+  const accountRef = db.doc(`tenants/${actor.tenantId}/employeeAccounts/${data.employeeId}`);
+  const accountSnapshot = await accountRef.get();
+  const authUid = accountSnapshot.data()?.["authUid"] as string | undefined;
+  const active = Boolean(data.active);
+  if (authUid) {
+    await getAuth().updateUser(authUid, { displayName: data.name.trim(), disabled: !active });
+  }
+
+  const batch = db.batch();
+  batch.update(employeeRef, {
     name: data.name.trim(),
     employeeCode: data.employeeCode.trim(),
-    active: Boolean(data.active),
+    active,
     updatedAt: serverTimestamp()
   });
+  if (authUid) {
+    batch.update(db.doc(`users/${authUid}`), { active });
+  }
+  await batch.commit();
 
   return { ok: true };
 });

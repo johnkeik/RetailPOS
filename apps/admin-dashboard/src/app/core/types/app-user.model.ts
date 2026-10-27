@@ -5,4 +5,5 @@ export type AppUser = {
   tenantId: string;
   role: AppUserRole;
   email: string;
+  employeeId?: string;
 };

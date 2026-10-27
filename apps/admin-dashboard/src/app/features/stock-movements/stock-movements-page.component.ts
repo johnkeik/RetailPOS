@@ -6,6 +6,12 @@ import { StockMovementType } from '../../core/types/domain.models';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { StockMovementRow, StockMovementsService } from './stock-movements.service';
 
+function toInputDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 type StockMovementEvent = {
   id: string;
   createdAt: StockMovementRow['createdAt'];
@@ -13,6 +19,7 @@ type StockMovementEvent = {
   orderId?: string;
   summary: string;
   movementCount: number;
+  employeeName: string;
   rows: StockMovementRow[];
 };
 
@@ -27,6 +34,9 @@ export class StockMovementsPageComponent implements OnInit {
 
   protected readonly searchQuery = signal('');
   protected readonly selectedType = signal<StockMovementType | 'ALL'>('ALL');
+  protected readonly dateFrom = signal('');
+  protected readonly dateTo = signal('');
+  protected readonly selectedPeriod = signal<'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM'>('ALL');
   protected readonly viewMode = signal<'events' | 'movements'>('events');
   protected readonly expandedEventId = signal<string | null>(null);
   protected readonly justSaved = signal(history.state?.saved === true);
@@ -52,18 +62,26 @@ export class StockMovementsPageComponent implements OnInit {
   protected readonly filteredRows = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
     const selectedType = this.selectedType();
+    const from = this.dateFrom()
+      ? new Date(`${this.dateFrom()}T00:00:00`).getTime()
+      : Number.NEGATIVE_INFINITY;
+    const to = this.dateTo()
+      ? new Date(`${this.dateTo()}T23:59:59.999`).getTime()
+      : Number.POSITIVE_INFINITY;
 
     return this.service.movementRows().filter((row) => {
+      const createdAt = new Date(row.createdAt).getTime();
       const matchSearch =
         !query ||
         row.productName.toLowerCase().includes(query) ||
         row.productCode.toLowerCase().includes(query) ||
         row.variantTemplateName.toLowerCase().includes(query) ||
+        row.performedByName?.toLowerCase().includes(query) ||
         row.orderId?.toLowerCase().includes(query) ||
         row.reason?.toLowerCase().includes(query);
 
       const matchType = selectedType === 'ALL' || row.type === selectedType;
-      return matchSearch && matchType;
+      return matchSearch && matchType && createdAt >= from && createdAt <= to;
     });
   });
 
@@ -94,6 +112,7 @@ export class StockMovementsPageComponent implements OnInit {
           ? products.join(' · ') || `Παραγγελία ${first.orderId}`
           : `${first.productCode} · ${first.productName}`,
         movementCount: rows.length,
+        employeeName: first.performedByName || 'Μη διαθέσιμος',
         rows
       } satisfies StockMovementEvent;
     });
@@ -105,6 +124,32 @@ export class StockMovementsPageComponent implements OnInit {
 
   protected onTypeChange(value: string): void {
     this.selectedType.set(value as StockMovementType | 'ALL');
+  }
+
+  protected selectPeriod(period: 'ALL' | 'TODAY' | '7D' | '30D'): void {
+    this.selectedPeriod.set(period);
+    if (period === 'ALL') {
+      this.dateFrom.set('');
+      this.dateTo.set('');
+      return;
+    }
+
+    const to = new Date();
+    const from = new Date(to);
+    const days = period === 'TODAY' ? 1 : period === '7D' ? 7 : 30;
+    from.setDate(from.getDate() - days + 1);
+    this.dateFrom.set(toInputDate(from));
+    this.dateTo.set(toInputDate(to));
+  }
+
+  protected onDateFromChange(value: string): void {
+    this.dateFrom.set(value);
+    this.selectedPeriod.set('CUSTOM');
+  }
+
+  protected onDateToChange(value: string): void {
+    this.dateTo.set(value);
+    this.selectedPeriod.set('CUSTOM');
   }
 
   protected toggleEvent(eventId: string): void {

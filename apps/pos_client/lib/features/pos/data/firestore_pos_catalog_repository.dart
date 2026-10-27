@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/pos_models.dart';
+import '../models/promotion_pricing.dart';
 import 'pos_catalog_repository.dart';
 
 class FirestorePosCatalogRepository implements PosCatalogRepository {
@@ -18,10 +19,12 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
     final categoriesFuture = categoriesRef.get();
     final productsFuture = productsRef.get();
     final templatesFuture = templatesRef.get();
+    final promotionsFuture = _firestore.collection('tenants/$tenantId/promotions').where('active', isEqualTo: true).get();
 
     final categoriesSnapshot = await categoriesFuture;
     final productsSnapshot = await productsFuture;
     final templatesSnapshot = await templatesFuture;
+    final promotionsSnapshot = await promotionsFuture;
 
     final categoryById = <String, String>{};
     final categoryNames = <String>[];
@@ -146,6 +149,7 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
     return PosCatalog(
       categories: ['All', ...categoryNames],
       products: products,
+      promotions: promotionsSnapshot.docs.map((doc) => PosPromotion.fromMap(doc.id, doc.data())).toList(),
     );
   }
 

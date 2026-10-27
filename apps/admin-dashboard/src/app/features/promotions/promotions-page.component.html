@@ -1,0 +1,58 @@
+<app-page-title title="Προσφορές" subtitle="Συνδυασμοί παραλλαγών με έκπτωση ή συγκεκριμένο δώρο." />
+@if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+@if (variantsError()) { <p class="error" role="alert">{{ variantsError() }}</p> }
+@if (message()) { <p class="success" role="status">{{ message() }}</p> }
+<div class="layout">
+  <section class="panel">
+    <h2>Οι προσφορές σας</h2>
+    @if (loading()) { <p>Φόρτωση προσφορών…</p> }
+    @for (row of rows(); track row.id) {
+      <article class="offer">
+        <div class="offer-heading"><h3>{{ row.name }}</h3><span class="badge" [class.inactive]="status(row) !== 'Ενεργή'">{{ status(row) }}</span></div>
+        @if (row.kind === 'GIFT_VARIANT') {
+          <strong>Αγορά {{ row.groupSize }} τεμαχίων → δώρο 1 {{ giftName(row) }}</strong>
+        } @else { <strong>{{ row.groupSize === 2 ? 'Στα 2 της ίδιας παραλλαγής, το φθηνότερο −50%' : 'Στα 3 της ίδιας παραλλαγής, το φθηνότερο δωρεάν' }}</strong> }
+        <p>{{ variantNames(row) }}</p>
+        <p>{{ row.repeat ? 'Επανάληψη ανά πλήρη ομάδα' : 'Μία εφαρμογή ανά παραγγελία' }}</p>
+        <small>Από: {{ date(row.startsAt) }}<br />Έως: {{ date(row.endsAt) }}</small>
+        <div class="actions">
+          <button type="button" class="danger" (click)="delete(row)" [disabled]="saving()">Διαγραφή</button>
+          <button type="button" (click)="edit(row)" [disabled]="saving()">Επεξεργασία</button>
+          <button type="button" (click)="toggle(row)" [disabled]="saving()">{{ row.active ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}</button>
+        </div>
+      </article>
+    } @empty { @if (!loading()) { <p>Δεν υπάρχουν προσφορές. Δημιουργήστε την πρώτη από τη φόρμα.</p> } }
+  </section>
+  <section class="panel">
+    <h2>{{ editingId() ? 'Επεξεργασία προσφοράς' : 'Νέα προσφορά' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label>Όνομα προσφοράς<input formControlName="name" maxlength="120" placeholder="π.χ. Πάρε 3, πλήρωσε 2" /></label>
+      <label>Τύπος προσφοράς<select formControlName="rule"><option value="2">2 τεμάχια ίδιας παραλλαγής → το φθηνότερο στη μισή τιμή</option><option value="3">3 τεμάχια ίδιας παραλλαγής → το φθηνότερο δωρεάν</option><option value="gift">Αγορά Χ τεμαχίων → δώρο άλλη παραλλαγή</option></select></label>
+      @if (form.controls.rule.value === 'gift') {
+        <label>Πόσα τεμάχια αγοράζει;<input type="number" min="1" max="20" step="1" formControlName="giftQuantity" /></label>
+        <label>Παραλλαγή δώρου<select formControlName="giftVariantTemplateId">
+          <option value="">Επιλέξτε παραλλαγή</option>
+          @for (variant of giftVariants(); track variant.id) {
+            <option [value]="variant.id" [disabled]="selectedIds().includes(variant.id)">{{ variant.name }}</option>
+          }
+        </select></label>
+        <p class="hint">Επιλέξτε παρακάτω τις παραλλαγές αγοράς. Το δώρο προστίθεται στο καλάθι από τον υπάλληλο, από το προϊόν που επιλέγει ο πελάτης. Αν υπάρχουν περισσότερα δώρα από όσα δικαιούται, επιλέγεται ο συνδυασμός με τη μεγαλύτερη συνολική έκπτωση.</p>
+      }
+      <label>Αναζήτηση παραλλαγών<input type="search" [value]="search()" (input)="search.set(searchInput.value)" #searchInput placeholder="Όνομα ή κωδικός" /></label>
+      <fieldset><legend>Παραλλαγές αγοράς · {{ selectedIds().length }} επιλεγμένες</legend>
+        <div class="variants">
+          @for (variant of variants(); track variant.id) {
+            <label class="check"><input type="checkbox" [checked]="selectedIds().includes(variant.id)" (change)="toggleVariant(variant.id)" /><span>{{ variant.name }} <small>· {{ variant.size ?? 1 }} {{ variant.unit }}{{ variant.active ? '' : ' · Ανενεργή' }}</small></span></label>
+          } @empty { <p>Δεν βρέθηκαν παραλλαγές.</p> }
+        </div>
+      </fieldset>
+      <p class="hint">{{ form.controls.rule.value === 'gift' ? 'Συνδυάζονται οι επιλεγμένες παραλλαγές αγοράς από οποιαδήποτε προϊόντα.' : 'Κάθε επιλεγμένη παραλλαγή μετράει χωριστά, ακόμη και σε διαφορετικά προϊόντα. Μπορείτε να επιλέξετε μαζί 30, 50 και 100 ml: ένα 30 ml και ένα 50 ml δεν σχηματίζουν ομάδα.' }} {{ form.controls.rule.value === 'gift' ? 'Το δώρο δεν μετράει στα τεμάχια αγοράς.' : 'Οι ομάδες σχηματίζονται από τα ακριβότερα τεμάχια πρώτα.' }} Η έκπτωση περιλαμβάνει και τυχόν χρέωση ειδικού μπουκαλιού.</p>
+      <label class="check"><input type="checkbox" formControlName="repeat" />Επανάληψη ανά πλήρη ομάδα αγοράς</label>
+      <label class="check"><input type="checkbox" formControlName="active" />Ενεργή προσφορά</label>
+      <div class="dates"><label>Έναρξη (προαιρετική)<input type="datetime-local" formControlName="startsAt" /></label><label>Λήξη (προαιρετική)<input type="datetime-local" formControlName="endsAt" /></label></div>
+      <p class="hint">Οι ώρες ακολουθούν την τοπική ώρα αυτού του υπολογιστή. Επιτρέπονται κοινές παραλλαγές σε προσφορές. Κάθε τεμάχιο συμμετέχει σε μία μόνο προσφορά· το POS επιλέγει τον συνδυασμό με τη μεγαλύτερη συνολική έκπτωση.</p>
+      @if (formError()) { <p class="error" role="alert">{{ formError() }}</p> }
+      <div class="actions"><button class="primary" type="submit" [disabled]="saving()">{{ saving() ? 'Αποθήκευση…' : 'Αποθήκευση προσφοράς' }}</button>@if (editingId()) { <button type="button" (click)="reset()" [disabled]="saving()">Ακύρωση</button> }</div>
+    </form>
+  </section>
+</div>

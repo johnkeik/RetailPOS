@@ -3,7 +3,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
 import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
-import { Consumable, PackagingCategory, Product, StockMovement, VariantTemplate } from '../../core/types/domain.models';
+import { Consumable, Employee, PackagingCategory, Product, StockMovement, VariantTemplate } from '../../core/types/domain.models';
 
 export type StockMovementRow = StockMovement & {
   id: string;
@@ -14,6 +14,7 @@ export type StockMovementRow = StockMovement & {
   isBulk: boolean;
   isConsumable?: boolean;
   displayDelta: string;
+  performedByName?: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -49,13 +50,19 @@ export class StockMovementsService {
       const productsRef = collection(this.firestore, `tenants/${tenantId}/products`);
       const templatesRef = collection(this.firestore, `tenants/${tenantId}/variantTemplates`);
       const consumablesRef = collection(this.firestore, `tenants/${tenantId}/consumables`);
+      const employeesRef = collection(this.firestore, `tenants/${tenantId}/employees`);
 
-      const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot] = await Promise.all([
+      const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot, employeesSnapshot] = await Promise.all([
         getDocs(query(movementsRef, orderBy('createdAt', 'desc'))),
         getDocs(query(productsRef, orderBy('name', 'asc'))),
         getDocs(query(templatesRef, orderBy('name', 'asc'))),
-        getDocs(query(consumablesRef, orderBy('name', 'asc')))
+        getDocs(query(consumablesRef, orderBy('name', 'asc'))),
+        getDocs(employeesRef)
       ]);
+
+      const employeeNames = new Map(
+        employeesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Employee>).name ?? item.id])
+      );
 
       const productsById = new Map(
         productsSnapshot.docs.map((item) => {
@@ -193,7 +200,12 @@ export class StockMovementsService {
         };
       });
 
-      this.movementRows.set(rows);
+      this.movementRows.set(rows.map((row) => ({
+        ...row,
+        performedByName: row.performedByEmployeeId
+          ? employeeNames.get(row.performedByEmployeeId) ?? row.performedByEmployeeId
+          : undefined
+      })));
     } catch (error) {
       console.error(error);
       this.error.set('Αποτυχία φόρτωσης κινήσεων αποθέματος.');

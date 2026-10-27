@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './core/auth/auth.guard';
+import { employeeGuard, ownerGuard } from './core/auth/auth.guard';
 import { LoginPageComponent } from './core/auth/login-page.component';
 import { AdminShellComponent } from './core/layout/admin-shell.component';
 import { BrandsPageComponent } from './features/brands/brands-page.component';
@@ -18,6 +18,7 @@ import { VariantsPageComponent } from './features/variants/variants-page.compone
 import { VariantFormPageComponent } from './features/variants/variant-form-page.component';
 import { ExpensesPageComponent } from './features/expenses/expenses-page.component';
 import { SalesReportPageComponent } from './features/sales-report/sales-report-page.component';
+import { EmployeeReceivingPageComponent } from './features/stock-movements/employee-receiving-page.component';
 
 export const routes: Routes = [
 	{
@@ -25,11 +26,17 @@ export const routes: Routes = [
 		component: LoginPageComponent
 	},
 	{
+		path: 'employee/receiving',
+		component: EmployeeReceivingPageComponent,
+		canActivate: [employeeGuard]
+	},
+	{
 		path: '',
 		component: AdminShellComponent,
-		canActivate: [authGuard],
-		canActivateChild: [authGuard],
+		canActivate: [ownerGuard],
+		canActivateChild: [ownerGuard],
 		children: [
+			{ path: 'promotions', loadComponent: () => import('./features/promotions/promotions-page.component').then((module) => module.PromotionsPageComponent) },
 			{
 				path: '',
 				pathMatch: 'full',

@@ -18,6 +18,8 @@ import 'package:pos_client/features/pos/data/label_print_service.dart';
 import 'package:pos_client/features/pos/data/mock_pos_catalog_repository.dart';
 import 'package:pos_client/features/pos/data/mock_pos_order_repository.dart';
 import 'package:pos_client/features/pos/data/pos_order_repository.dart';
+import 'package:pos_client/features/pos/data/pos_catalog_repository.dart';
+import 'package:pos_client/features/pos/models/promotion_pricing.dart';
 import 'package:pos_client/features/pos/models/pos_models.dart';
 import 'package:pos_client/features/pos/presentation/pos_home_page.dart';
 import 'package:pos_client/features/pos/presentation/pos_order_history_dialog.dart';
@@ -41,6 +43,7 @@ class _HistoryOrderRepository implements PosOrderRepository {
     required String employeeId,
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
+    double? expectedTotal,
   }) async =>
       'order-1';
 
@@ -104,6 +107,7 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
     required String employeeId,
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
+    double? expectedTotal,
   }) async =>
       'order-cancel-1';
 
@@ -151,6 +155,30 @@ class _CancellableHistoryOrderRepository implements PosOrderRepository {
     required PaymentMethod paymentMethod,
     required String description,
   }) async {}
+}
+
+class _OfferCatalogRepository implements PosCatalogRepository {
+  @override
+  Future<PosCatalog> loadCatalog(String tenantId) async {
+    const variant = ProductVariant(id: 'offer-variant', code: 'OFFER', name: 'Χύμα 50 ml', label: '50 ml',
+      type: ProductVariantType.bulk, price: 12);
+    return const PosCatalog(categories: ['All'], products: [
+      ProductItem(id: 'offer-product', code: '100', name: 'Άρωμα προσφοράς', category: 'All', variants: [variant])
+    ], promotions: [PosPromotion(id: 'offer', name: 'Πάρε 3, πλήρωσε 2', variantTemplateIds: ['offer-variant'],
+      groupSize: 3, discountPercent: 100)]);
+  }
+}
+
+class _OfferOrderRepository extends MockPosOrderRepository {
+  double? expectedTotal;
+  int? quantity;
+  @override
+  Future<String> submitOrder({required String tenantId, required String employeeId,
+    required List<CartLine> lines, required PaymentMethod paymentMethod, double? expectedTotal}) async {
+    this.expectedTotal = expectedTotal;
+    quantity = lines.fold<int>(0, (sum, line) => sum + line.quantity);
+    return 'offer-order';
+  }
 }
 
 Finder _buttonWithLabel(String label) => find.ancestor(
@@ -542,6 +570,39 @@ void main() {
       await tester.tap(increase);
       await tester.pumpAndSettle();
       expect(find.byTooltip('Μείωση ποσότητας'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('promotion preview recalculates quantities and sends the displayed total at checkout', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    for (final size in [const Size(1024, 768), const Size(1280, 720)]) {
+      tester.view.physicalSize = size;
+      final repository = _OfferOrderRepository();
+      final printer = LabelPrintService(baseUrl: 'http://print', client: MockClient((request) async =>
+        http.Response(jsonEncode({'success': true, 'labelsSubmitted': 6}), 200)));
+      await tester.pumpWidget(MaterialApp(theme: AppTheme.light(), home: PosHomePage(
+        catalogRepository: _OfferCatalogRepository(), orderRepository: repository, labelPrintService: printer,
+        employeeId: 'employee', employeeName: 'Μαρία', tenantId: 'store001',
+      )));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(_buttonWithLabel('Προσθήκη — €12.00'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Πάρε 3, πλήρωσε 2: −€12.00'), findsOneWidget);
+      expect(_buttonWithLabel('Ολοκλήρωση Πώλησης (€24.00)').hitTestable(), findsOneWidget);
+      await tester.tap(_iconWithTooltip('Μείωση ποσότητας'));
+      await tester.pumpAndSettle();
+      expect(find.text('Πάρε 3, πλήρωσε 2: −€12.00'), findsNothing);
+      await tester.tap(_iconWithTooltip('Αύξηση ποσότητας'));
+      await tester.pumpAndSettle();
+      await tester.tap(_buttonWithLabel('Ολοκλήρωση Πώλησης (€24.00)'));
+      await tester.pumpAndSettle();
+      expect(repository.expectedTotal, 24);
+      expect(repository.quantity, 3);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     }

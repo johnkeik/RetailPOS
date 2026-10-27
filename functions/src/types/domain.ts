@@ -14,6 +14,7 @@ export type ActorContext = {
   uid: string;
   tenantId: string;
   role: AppUserRole;
+  employeeId?: string;
 };
 
 export type StockMutationInput = {
@@ -76,6 +77,7 @@ export type OrderItemInput = {
 export type PaymentMethod = "CARD" | "CASH";
 
 export type CreateOrderInput = {
+  expectedTotal?: number;
   tenantId: string;
   employeeId: string;
   items: OrderItemInput[];
@@ -209,6 +211,12 @@ export type ToggleEmployeeActiveInput = {
 export type DeleteEmployeeInput = {
   tenantId: string;
   employeeId: string;
+};
+
+export type CreateEmployeeAccountInput = {
+  tenantId: string;
+  employeeId: string;
+  email: string;
 };
 
 export type ProductVariantAssignment = {

@@ -6,6 +6,10 @@
 }
 
 .filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 180px));
+  gap: 12px;
+  align-items: end;
   margin-bottom: 12px;
 }
 
@@ -223,6 +227,10 @@ th {
 }
 
 @media (max-width: 640px) {
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .panel {
     padding: 12px;
   }

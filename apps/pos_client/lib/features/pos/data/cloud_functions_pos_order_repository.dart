@@ -31,11 +31,13 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     required String employeeId,
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
+    double? expectedTotal,
   }) async {
     final payload = {
       'tenantId': tenantId,
       'employeeId': employeeId,
       'paymentMethod': paymentMethod.wireValue,
+      if (expectedTotal != null) 'expectedTotal': expectedTotal,
       'items': lines
           .map(
             (line) => {
@@ -243,6 +245,7 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
           quantity: (item['quantity'] as num? ?? 0).toInt(),
           unitPrice: (item['unitPrice'] as num? ?? 0).toDouble(),
           useSpecialBottle: item['useSpecialBottle'] as bool? ?? false,
+          discountTotal: (item['discountTotal'] as num? ?? 0).toDouble(),
         );
       }).toList();
       final createdAtValue = data['createdAt'];
@@ -260,6 +263,9 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
         employeeName: employeeNames[data['employeeId']] ??
             data['employeeName'] as String? ?? '',
         total: (data['total'] as num? ?? 0).toDouble(),
+        subtotal: (data['subtotal'] as num?)?.toDouble(),
+        discountTotal: (data['discountTotal'] as num? ?? 0).toDouble(),
+        promotionNames: (data['appliedPromotions'] as List? ?? []).map((entry) => (entry as Map)['name'] as String).toList(),
         createdAt: createdAt,
         items: items,
         paymentMethod: paymentMethodFromWireValue(data['paymentMethod']),

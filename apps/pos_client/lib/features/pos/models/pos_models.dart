@@ -1,3 +1,5 @@
+import 'promotion_models.dart';
+
 enum ProductVariantType { packaged, bulk }
 
 enum PaymentMethod { card, cash }
@@ -88,10 +90,12 @@ class PosCatalog {
   const PosCatalog({
     required this.categories,
     required this.products,
+    this.promotions = const [],
   });
 
   final List<String> categories;
   final List<ProductItem> products;
+  final List<PosPromotion> promotions;
 }
 
 class CartLine {
@@ -127,8 +131,11 @@ class PosOrderItem {
     required this.quantity,
     required this.unitPrice,
     this.useSpecialBottle = false,
+    this.discountTotal = 0,
   });
 
+  final double discountTotal;
+  double get lineTotal => ((unitPrice * 100).round() * quantity - (discountTotal * 100).round()) / 100;
   final String productCode;
   final String productName;
   final String variantCode;
@@ -148,6 +155,9 @@ class PosOrder {
     required this.items,
     this.paymentMethod,
     this.employeeName = '',
+    this.subtotal,
+    this.discountTotal = 0,
+    this.promotionNames = const [],
     this.status = 'COMPLETED',
     this.cancelledAt,
     this.cancelledByEmployeeId,
@@ -163,6 +173,9 @@ class PosOrder {
   final DateTime? createdAt;
   final List<PosOrderItem> items;
   final PaymentMethod? paymentMethod;
+  final double? subtotal;
+  final double discountTotal;
+  final List<String> promotionNames;
   final String employeeName;
   final String status;
   final DateTime? cancelledAt;

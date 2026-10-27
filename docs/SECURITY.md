@@ -25,7 +25,7 @@ User document:
 users/{uid}
 # Security Model
 
-## Admin users
+## Dashboard users
 
 Firebase Authentication identifies the Admin account. Authorization comes from the
 server-managed `users/{uid}` profile, not from the client:
@@ -39,8 +39,9 @@ server-managed `users/{uid}` profile, not from the client:
 ```
 
 The Admin client may read only its own profile. Cloud Functions validate the
-profile, tenant, role, and active status for every business mutation. The dashboard
-and all child routes require an active `OWNER` profile.
+profile, tenant, role, and active status for every business mutation. OWNER users
+can access the Admin dashboard. EMPLOYEE users are routed to the stock-receiving
+page only.
 
 ## First owner bootstrap
 
@@ -61,12 +62,29 @@ Firestore Emulator when bootstrapping local data.
 ## Roles
 
 - `OWNER`: Admin dashboard access and management mutations.
-- `EMPLOYEE`: POS sales and permitted employee operations; no Admin dashboard access.
+- `EMPLOYEE`: POS access plus the dashboard stock-receiving page. Dashboard
+	employees can submit only `PURCHASE` stock movements; authenticated employee
+	accounts cannot create sales, cancel orders, or create expenses.
+
+## Employee dashboard accounts
+
+- An OWNER provisions the Firebase Authentication user through a Cloud Function.
+- The employee signs in with their email and chooses a password through the
+	Firebase password-reset/setup email. Passwords are never stored in Firestore.
+- `users/{uid}` stores the server-managed tenant, role, employee ID, and active
+	status. The matching `tenants/{tenantId}/employeeAccounts/{employeeId}` document
+	stores the private email/Auth UID mapping and is readable only by the OWNER.
+- Do not add email or Auth UID to `employees/{employeeId}`: the unauthenticated POS
+	reads that collection to validate its employee-code session.
+- Deactivating or deleting an employee disables or deletes the linked Auth account.
 
 ## Firestore access
 
 - Client writes are denied; business mutations go through Cloud Functions.
-- Admin reads require an active OWNER profile for the requested tenant.
+- OWNER reads require an active OWNER profile for the requested tenant.
+- EMPLOYEE reads are limited to the catalog and current inventory required for
+	stock receiving. Stock movements, orders, expenses, and employee account mappings
+	are not readable by employee accounts.
 - The POS uses a built-in `tenantId` and directly reads that store's operational
 	collections to validate employee codes and load the catalog. Those reads,
 	including employee codes, are not authenticated. Do not treat `tenantId` as a

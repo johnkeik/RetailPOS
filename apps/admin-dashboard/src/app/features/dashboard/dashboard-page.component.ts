@@ -2,13 +2,16 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
-import { InventoryRow, InventoryService } from '../inventory/inventory.service';
+import {
+  InventoryRow,
+  InventoryService,
+  LOW_STOCK_ESSENCE_LITERS,
+  LOW_STOCK_PERFUME_LITERS,
+  LOW_STOCK_UNITS
+} from '../inventory/inventory.service';
 import { SalesHistoryService } from '../sales-history/sales-history.service';
 import { DashboardTempSeedService } from './dashboard-temp-seed.service';
 import { mockCatalogData } from './temp-data/mock-catalog.data';
-
-const LOW_STOCK_LITERS = 0.5;
-const LOW_STOCK_UNITS = 10;
 
 @Component({
   selector: 'app-dashboard-page',
@@ -25,6 +28,8 @@ export class DashboardPageComponent {
   protected readonly seedStatus = this.tempSeedService.status;
   protected readonly seedError = this.tempSeedService.error;
   protected readonly productCategories = mockCatalogData.categories;
+  protected readonly stockThresholdDescription =
+    `Όρια: βάση ${LOW_STOCK_PERFUME_LITERS.toLocaleString('el-GR')} L · εσάνς ${LOW_STOCK_ESSENCE_LITERS.toLocaleString('el-GR')} L · ${LOW_STOCK_UNITS} τεμ.`;
   protected readonly inventoryLoading = this.inventoryService.loading;
   protected readonly salesLoading = this.salesHistoryService.loading;
   protected readonly inventoryError = this.inventoryService.error;
@@ -170,12 +175,20 @@ export class DashboardPageComponent {
   }
 
   protected isBelowStockThreshold(row: InventoryRow): boolean {
-    const threshold = row.isBulk ? LOW_STOCK_LITERS * 1000 : LOW_STOCK_UNITS;
+    const threshold = this.lowStockLimit(row);
     return row.quantity <= threshold;
   }
 
   private stockRatio(row: InventoryRow): number {
-    const threshold = row.isBulk ? LOW_STOCK_LITERS * 1000 : LOW_STOCK_UNITS;
+    const threshold = this.lowStockLimit(row);
     return row.quantity / threshold;
+  }
+
+  private lowStockLimit(row: InventoryRow): number {
+    if (!row.isBulk) return LOW_STOCK_UNITS;
+    const liters = row.variantTemplateId === 'essence'
+      ? LOW_STOCK_ESSENCE_LITERS
+      : LOW_STOCK_PERFUME_LITERS;
+    return liters * 1000;
   }
 }

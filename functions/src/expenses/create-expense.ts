@@ -26,6 +26,9 @@ export const createExpense = onCall(async (request) => {
   const actor = request.auth?.uid ?
     await resolveActorContext(request.auth, data.tenantId) :
     { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
+  if (request.auth?.uid && actor.role === "EMPLOYEE") {
+    throw new HttpsError("permission-denied", "Ο λογαριασμός dashboard δεν έχει πρόσβαση σε έξοδα.");
+  }
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
 
   const employeeSnap = await db.doc(`tenants/${actor.tenantId}/employees/${data.employeeId}`).get();

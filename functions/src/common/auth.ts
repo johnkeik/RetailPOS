@@ -37,7 +37,12 @@ export async function resolveActorContext(
     throw new HttpsError("permission-denied", "User profile not found.");
   }
 
-  const userData = userSnap.data() as { tenantId?: string; role?: string; active?: boolean } | undefined;
+  const userData = userSnap.data() as {
+    tenantId?: string;
+    role?: string;
+    active?: boolean;
+    employeeId?: string;
+  } | undefined;
   const tenantId = userData?.tenantId;
   const role = userData?.role;
 
@@ -54,10 +59,24 @@ export async function resolveActorContext(
     throw new HttpsError("permission-denied", "User account is disabled.");
   }
 
+  if (role === "EMPLOYEE") {
+    const employeeId = userData.employeeId;
+    if (!employeeId) {
+      throw new HttpsError("permission-denied", "Employee profile is incomplete.");
+    }
+    const employee = await db.doc(`tenants/${tenantId}/employees/${employeeId}`).get();
+    const account = await db.doc(`tenants/${tenantId}/employeeAccounts/${employeeId}`).get();
+    if (!employee.exists || employee.data()?.active === false ||
+      !account.exists || account.data()?.authUid !== auth.uid) {
+      throw new HttpsError("permission-denied", "Employee account is disabled or unlinked.");
+    }
+  }
+
   return {
     uid: auth.uid,
     tenantId,
-    role
+    role,
+    ...(role === "EMPLOYEE" ? {employeeId: userData.employeeId} : {})
   };
 }
 

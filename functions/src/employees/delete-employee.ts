@@ -1,3 +1,4 @@
+import { getAuth } from "firebase-admin/auth";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { assertRole, resolveActorContext } from "../common/auth";
@@ -29,6 +30,16 @@ export const deleteEmployee = onCall(async (request) => {
   }
 
   const employeeRef = db.doc(`tenants/${actor.tenantId}/employees/${data.employeeId}`);
+  const accountRef = db.doc(`tenants/${actor.tenantId}/employeeAccounts/${data.employeeId}`);
+  const accountSnapshot = await accountRef.get();
+  const authUid = accountSnapshot.data()?.["authUid"] as string | undefined;
+  if (authUid) {
+    await getAuth().deleteUser(authUid).catch((error: { code?: string }) => {
+      if (error.code !== "auth/user-not-found") throw error;
+    });
+    await db.doc(`users/${authUid}`).delete();
+    await accountRef.delete();
+  }
   await employeeRef.delete();
 
   return { ok: true };

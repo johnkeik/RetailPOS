@@ -34,16 +34,30 @@
     </div>
 
     <div>
-      <label class="field" for="lowStockLiters">Όριο χαμηλού αποθέματος (λίτρα)</label>
+      <label class="field" for="lowStockPerfumeLiters">Όριο χαμηλού αρώματος (λίτρα)</label>
       <input
-        id="lowStockLiters"
+        id="lowStockPerfumeLiters"
         class="text-input"
         type="number"
         min="0"
         step="0.1"
-        [value]="lowStockLiters()"
-        (input)="onLitersThreshold(lowStockLitersInput.value)"
-        #lowStockLitersInput
+        [value]="lowStockPerfumeLiters()"
+        (input)="onPerfumeThreshold(perfumeLitersInput.value)"
+        #perfumeLitersInput
+      />
+    </div>
+
+    <div>
+      <label class="field" for="lowStockEssenceLiters">Όριο χαμηλής εσάνς (λίτρα)</label>
+      <input
+        id="lowStockEssenceLiters"
+        class="text-input"
+        type="number"
+        min="0"
+        step="0.1"
+        [value]="lowStockEssenceLiters()"
+        (input)="onEssenceThreshold(essenceLitersInput.value)"
+        #essenceLitersInput
       />
     </div>
 

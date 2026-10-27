@@ -170,6 +170,7 @@ export type OrderItem = {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  discountTotal?: number;
   useSpecialBottle?: boolean;
 };
 
@@ -186,6 +187,7 @@ export type Order = {
   paymentMethod?: PaymentMethod;
   subtotal?: number;
   discountTotal?: number;
+  appliedPromotions?: Array<{ promotionId: string; name: string; discountedQuantity: number; discountTotal: number }>;
   total: number;
   items: OrderItem[];
   createdAt: FirestoreTimestampLike;

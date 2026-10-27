@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -29,28 +30,30 @@ export class VariantFormPageComponent {
   protected readonly saving = signal(false);
   protected readonly consumables = this.consumablesService.consumables;
   protected readonly selectedConsumablesMap = signal<Record<string, number>>({});
-  protected readonly isFormBulk = computed(() => this.variantForm.controls.packagingType.value === 'BULK');
-  protected readonly activeConsumables = computed(() => this.consumables().filter((item) => item.active));
-  protected readonly recipeTotalMl = computed(() =>
-    (Number(this.variantForm.controls.perfumeMl.value) || 0) +
-    (Number(this.variantForm.controls.essenceMl.value) || 0)
-  );
-
   protected readonly variantForm = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
     code: ['', [Validators.maxLength(60)]],
-    size: [''],
+    size: this.formBuilder.control<number | null>(null),
     unit: ['ml', [Validators.required, Validators.maxLength(10)]],
     packagingType: ['BULK' as PackagingType, [Validators.required]],
-    costPrice: [''],
+    costPrice: this.formBuilder.control<number | null>(null),
     sellingPrice: [0, [Validators.required, Validators.min(0)]],
-    perfumeMl: [''],
-    essenceMl: [''],
+    perfumeMl: this.formBuilder.control<number | null>(null),
+    essenceMl: this.formBuilder.control<number | null>(null),
     hasSpecialBottle: [false],
     specialBottleConsumableId: [''],
-    specialBottleExtraPrice: [''],
+    specialBottleExtraPrice: this.formBuilder.control<number | null>(null),
     active: [true]
   });
+
+  private readonly formValues = toSignal(this.variantForm.valueChanges, {
+    initialValue: this.variantForm.getRawValue()
+  });
+  protected readonly isFormBulk = computed(() => this.formValues().packagingType === 'BULK');
+  protected readonly activeConsumables = computed(() => this.consumables().filter((item) => item.active));
+  protected readonly recipeTotalMl = computed(() =>
+    (this.formValues().perfumeMl ?? 0) + (this.formValues().essenceMl ?? 0)
+  );
 
   async ngOnInit(): Promise<void> {
     this.loading.set(true);
@@ -90,9 +93,9 @@ export class VariantFormPageComponent {
   }
 
   protected onRecipeInputBlur(): void {
-    const currentSize = this.variantForm.controls.size.value.trim();
+    const currentSize = this.variantForm.controls.size.value;
     const totalMl = this.recipeTotalMl();
-    if (!currentSize && totalMl > 0) this.variantForm.controls.size.setValue(String(totalMl));
+    if (currentSize === null && totalMl > 0) this.variantForm.controls.size.setValue(totalMl);
   }
 
   protected async saveVariant(): Promise<void> {
@@ -103,17 +106,10 @@ export class VariantFormPageComponent {
     }
 
     const form = this.variantForm.getRawValue();
-    const normalizedCost = form.costPrice.trim();
-    const normalizedPerfume = form.perfumeMl.trim();
-    const normalizedEssence = form.essenceMl.trim();
-    const normalizedSpecialExtra = form.specialBottleExtraPrice.trim();
     const isBulk = form.packagingType === 'BULK';
-    const rawSize = form.size.trim();
-    let sizeNumber: number | undefined;
-    if (rawSize) sizeNumber = Number(rawSize);
-    else if (isBulk && (normalizedPerfume || normalizedEssence)) {
-      sizeNumber = (Number(normalizedPerfume) || 0) + (Number(normalizedEssence) || 0);
-    }
+    const sizeNumber = form.size ?? (isBulk && (form.perfumeMl !== null || form.essenceMl !== null)
+      ? (form.perfumeMl ?? 0) + (form.essenceMl ?? 0)
+      : undefined);
 
     const recipeConsumables: VariantRecipeConsumable[] = isBulk
       ? Object.entries(this.selectedConsumablesMap()).map(([consumableId, quantity]) => ({
@@ -127,17 +123,17 @@ export class VariantFormPageComponent {
       size: sizeNumber,
       unit: form.unit.trim().toLowerCase(),
       packagingType: form.packagingType,
-      costPrice: normalizedCost ? Number(normalizedCost) : undefined,
+      costPrice: form.costPrice ?? undefined,
       sellingPrice: Number(form.sellingPrice),
-      perfumeMl: isBulk && normalizedPerfume ? Number(normalizedPerfume) : undefined,
-      essenceMl: isBulk && normalizedEssence ? Number(normalizedEssence) : undefined,
+      perfumeMl: isBulk ? form.perfumeMl ?? undefined : undefined,
+      essenceMl: isBulk ? form.essenceMl ?? undefined : undefined,
       recipeConsumables,
       hasSpecialBottle: isBulk && Boolean(form.hasSpecialBottle),
       specialBottleConsumableId: isBulk && form.hasSpecialBottle && form.specialBottleConsumableId
         ? form.specialBottleConsumableId
         : undefined,
-      specialBottleExtraPrice: isBulk && form.hasSpecialBottle && normalizedSpecialExtra
-        ? Number(normalizedSpecialExtra)
+      specialBottleExtraPrice: isBulk && form.hasSpecialBottle
+        ? form.specialBottleExtraPrice ?? undefined
         : undefined,
       active: form.active
     };
@@ -178,18 +174,16 @@ export class VariantFormPageComponent {
     this.variantForm.setValue({
       name: variant.name,
       code: variant.code ?? '',
-      size: variant.size !== undefined ? String(variant.size) : '',
+      size: variant.size ?? null,
       unit: variant.unit,
       packagingType: variant.packagingType,
-      costPrice: variant.costPrice !== undefined ? String(variant.costPrice) : '',
+      costPrice: variant.costPrice ?? null,
       sellingPrice: variant.sellingPrice,
-      perfumeMl: variant.perfumeMl !== undefined ? String(variant.perfumeMl) : '',
-      essenceMl: variant.essenceMl !== undefined ? String(variant.essenceMl) : '',
+      perfumeMl: variant.perfumeMl ?? null,
+      essenceMl: variant.essenceMl ?? null,
       hasSpecialBottle: Boolean(variant.hasSpecialBottle),
       specialBottleConsumableId: variant.specialBottleConsumableId ?? '',
-      specialBottleExtraPrice: variant.specialBottleExtraPrice !== undefined
-        ? String(variant.specialBottleExtraPrice)
-        : '',
+      specialBottleExtraPrice: variant.specialBottleExtraPrice ?? null,
       active: variant.active
     });
   }
