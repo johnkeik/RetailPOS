@@ -14,12 +14,16 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
   Future<PosCatalog> loadCatalog(String tenantId) async {
     final categoriesRef = _firestore.collection('tenants/$tenantId/categories');
     final productsRef = _firestore.collection('tenants/$tenantId/products');
-    final templatesRef = _firestore.collection('tenants/$tenantId/variantTemplates');
+    final templatesRef =
+        _firestore.collection('tenants/$tenantId/variantTemplates');
 
     final categoriesFuture = categoriesRef.get();
     final productsFuture = productsRef.get();
     final templatesFuture = templatesRef.get();
-    final promotionsFuture = _firestore.collection('tenants/$tenantId/promotions').where('active', isEqualTo: true).get();
+    final promotionsFuture = _firestore
+        .collection('tenants/$tenantId/promotions')
+        .where('active', isEqualTo: true)
+        .get();
 
     final categoriesSnapshot = await categoriesFuture;
     final productsSnapshot = await productsFuture;
@@ -42,7 +46,12 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
       categoryById[doc.id] = name;
       categoryNames.add(name);
     }
-    categoryNames.sort();
+    categoryNames.sort((left, right) {
+      final rankDifference = _categoryRank(left) - _categoryRank(right);
+      return rankDifference != 0
+          ? rankDifference
+          : left.toLowerCase().compareTo(right.toLowerCase());
+    });
 
     final templateById = <String, Map<String, dynamic>>{};
     for (final doc in templatesSnapshot.docs) {
@@ -68,7 +77,8 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
       }
 
       final variantAssignments =
-          (data['variantAssignments'] as Map<Object?, Object?>? ?? const <Object?, Object?>{});
+          (data['variantAssignments'] as Map<Object?, Object?>? ??
+              const <Object?, Object?>{});
       final rawVariantOrder = data['variantOrder'];
       final variantOrder = rawVariantOrder is List
           ? rawVariantOrder.map((id) => id.toString()).toList()
@@ -90,7 +100,8 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
           continue;
         }
 
-        final assignment = (entry.value as Map<Object?, Object?>? ?? const <Object?, Object?>{});
+        final assignment = (entry.value as Map<Object?, Object?>? ??
+            const <Object?, Object?>{});
         final templateCode = (template['code'] as String? ?? templateId).trim();
         final price = (assignment['sellingPrice'] as num?)?.toDouble() ??
             (template['sellingPrice'] as num?)?.toDouble() ??
@@ -99,10 +110,13 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
         final perfumeMl = (template['perfumeMl'] as num?)?.toInt();
         final essenceMl = (template['essenceMl'] as num?)?.toInt();
         final hasSpecialBottle = template['hasSpecialBottle'] == true;
-        final specialBottleConsumableId = template['specialBottleConsumableId'] as String?;
-        final specialBottleExtraPrice = (template['specialBottleExtraPrice'] as num?)?.toDouble();
+        final specialBottleConsumableId =
+            template['specialBottleConsumableId'] as String?;
+        final specialBottleExtraPrice =
+            (template['specialBottleExtraPrice'] as num?)?.toDouble();
 
-        final templateName = (template['name'] as String? ?? templateCode).trim();
+        final templateName =
+            (template['name'] as String? ?? templateCode).trim();
 
         variants.add(
           ProductVariant(
@@ -137,7 +151,8 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
           id: doc.id,
           code: productCode,
           name: name,
-          category: categoryById[data['categoryId'] as String? ?? ''] ?? 'Uncategorized',
+          category: categoryById[data['categoryId'] as String? ?? ''] ??
+              'Uncategorized',
           variants: variants,
           ingredients: (data['ingredients'] as String? ?? '').trim(),
         ),
@@ -149,7 +164,9 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
     return PosCatalog(
       categories: ['All', ...categoryNames],
       products: products,
-      promotions: promotionsSnapshot.docs.map((doc) => PosPromotion.fromMap(doc.id, doc.data())).toList(),
+      promotions: promotionsSnapshot.docs
+          .map((doc) => PosPromotion.fromMap(doc.id, doc.data()))
+          .toList(),
     );
   }
 
@@ -160,6 +177,33 @@ class FirestorePosCatalogRepository implements PosCatalogRepository {
     }
 
     return left.label.compareTo(right.label);
+  }
+
+  static int _categoryRank(String category) {
+    switch (category.trim().toLowerCase()) {
+      case 'ανδρικά':
+      case 'mens':
+      case 'men':
+        return 0;
+      case 'γυναικεία':
+      case 'womens':
+      case 'women':
+        return 1;
+      case 'unisex':
+        return 2;
+      case 'prive':
+      case 'privé':
+        return 3;
+      case 'αραβικά':
+      case 'arabic':
+        return 4;
+      case 'αρωματικά χώρου':
+      case 'home fragrance':
+      case 'room fragrance':
+        return 5;
+      default:
+        return 6;
+    }
   }
 
   static ProductVariantType _variantType(String? packagingType) {
