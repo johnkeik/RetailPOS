@@ -77,11 +77,11 @@ test('server calculates discount, stores snapshots and consumes all units; cance
   await assert.rejects(cancelOrder.run(request), { code: 'failed-precondition' });
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 10);
 });
-test('free items still require sufficient stock', async () => {
+test('orders are not blocked by insufficient stock; inventory goes negative', async () => {
   records.get(`${root}/inventory/p__v`).quantity = 2;
-  const before = structuredClone([...records]);
-  await assert.rejects(checkout(), { code: 'failed-precondition' });
-  assert.deepEqual([...records], before);
+  const result = await checkout();
+  assert.ok(records.get(`${root}/orders/${result.orderId}`));
+  assert.equal(records.get(`${root}/inventory/p__v`).quantity, -1);
 });
 test('rejects manipulated prices, totals, stale promotions and non-integer quantities without writes', async () => {
   const before = structuredClone([...records]);

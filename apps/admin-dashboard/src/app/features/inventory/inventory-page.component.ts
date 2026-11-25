@@ -63,10 +63,10 @@ export class InventoryPageComponent implements OnInit {
     return {
       total: rows.length,
       lowStock: rows.filter((r) => {
-        if (r.quantity === 0) return false;
+        if (r.quantity <= 0) return false;
         return r.quantity <= this.lowStockLimit(r);
       }).length,
-      outOfStock: rows.filter((r) => r.quantity === 0).length
+      outOfStock: rows.filter((r) => r.quantity <= 0).length
     };
   });
 
