@@ -1,6 +1,7 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
-import { assertRole, resolveActorContext, validateTenantScope } from "../common/auth";
+import { assertRole, validateTenantScope } from "../common/auth";
+import {resolvePosActor} from "../pos/device-auth";
 import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { calculatePromotions, Promotion } from "../promotions/promotion-pricing";
 import { BULK_INVENTORY_SENTINEL, CreateOrderInput } from "../types/domain";
@@ -30,12 +31,7 @@ export const createOrder = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Invalid payment method.");
   }
 
-  const actor = request.auth?.uid ?
-    await resolveActorContext(request.auth, data.tenantId) :
-    { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
-  if (request.auth?.uid && actor.role === "EMPLOYEE") {
-    throw new HttpsError("permission-denied", "Ο λογαριασμός dashboard δεν έχει πρόσβαση σε πωλήσεις.");
-  }
+  const actor = await resolvePosActor(request.auth, data.tenantId, data.employeeId);
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
 
   const cleanedItems = data.items.map((item) => ({

@@ -1,5 +1,4 @@
 param(
-  [string]$TenantId = 'AromataZoisAgiouDimitriou',
   [string]$FlutterRoot = $env:FLUTTER_ROOT,
   [string]$DotnetRoot = $env:DOTNET_ROOT,
   [string]$IsccPath = $env:ISCC_PATH
@@ -52,7 +51,7 @@ if ($LASTEXITCODE -ne 0 -or $dotnetSdks -notmatch '(?m)^8\.\d+\.\d+') {
 
 Write-Host "Using $($flutterVersion.Trim().Split("`n")[0])"
 Write-Host "Using .NET SDK 8 from $DotnetRoot"
-& (Join-Path $PSScriptRoot 'package-windows.ps1') -TenantId $TenantId
+& (Join-Path $PSScriptRoot 'package-windows.ps1')
 if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
   throw "Windows package build failed with exit code $LASTEXITCODE"
 }

@@ -1,7 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/firebase/firebase_config.dart';
 import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
@@ -18,7 +17,7 @@ class PosHomePage extends StatefulWidget {
     required this.orderRepository,
     required this.employeeId,
     required this.employeeName,
-    this.tenantId = kPosTenantId,
+    required this.tenantId,
     this.onEndSession,
     this.labelPrintService,
   });

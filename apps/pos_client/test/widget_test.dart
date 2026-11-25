@@ -1,3 +1,4 @@
+import 'package:pos_client/features/pos/auth/pos_device_auth.dart';
 // This is a basic Flutter widget test.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
@@ -191,6 +192,20 @@ Finder _iconWithTooltip(String label) => find.ancestor(
   matching: find.byWidgetPredicate((widget) => widget is IconButton),
 ).first;
 
+class _ActivatedDevice implements PosDeviceAuth {
+  @override
+  String get tenantId => 'activated-shop';
+  const _ActivatedDevice();
+  @override
+  Future<bool> restore() async => true;
+  @override
+  Future<void> activate(String email, String password) async {}
+  @override
+  Future<PosEmployeeSession> loginEmployee(String code) async => const PosEmployeeSession('employee', 'Employee');
+  @override
+  Future<void> lock() async {}
+}
+
 void main() {
   testWidgets('employee session entry renders', (tester) async {
     tester.view.physicalSize = const Size(1600, 900);
@@ -198,12 +213,14 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(const RetailPosApp(
+      deviceAuth: _ActivatedDevice(),
       catalogRepository: MockPosCatalogRepository(),
       orderRepository: MockPosOrderRepository(),
     ));
     await tester.pumpAndSettle();
 
     expect(find.text('Εναρξη Συνεδριας'), findsOneWidget);
+    expect(find.text('Καταστημα: activated-shop'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Εναρξη'), findsOneWidget);
   });

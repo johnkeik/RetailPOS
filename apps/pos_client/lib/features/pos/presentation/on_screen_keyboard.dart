@@ -6,8 +6,10 @@ class OnScreenKeyboard extends StatefulWidget {
     super.key,
     required this.onText,
     required this.onBackspace,
+    this.initialGreekLayout = true,
   });
 
+  final bool initialGreekLayout;
   final ValueChanged<String> onText;
   final VoidCallback onBackspace;
 
@@ -28,7 +30,13 @@ class _OnScreenKeyboardState extends State<OnScreenKeyboard> {
     ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
   ];
 
-  bool _greekLayout = true;
+  late bool _greekLayout = widget.initialGreekLayout;
+  bool _symbols = false;
+  static const _symbolRows = [
+    ['@', '#', r'$', '%', '&', '*', '(', ')', '_', '+'],
+    ['!', '?', '/', ':', ';', "'", '"', '=', '[', ']'],
+    ['\\', '|', '{', '}', '<', '>', '~', '^', '`'],
+  ];
   bool _shift = false;
 
   Widget _key(String label,
@@ -61,8 +69,9 @@ class _OnScreenKeyboardState extends State<OnScreenKeyboard> {
 
   @override
   Widget build(BuildContext context) {
-    final rows = _greekLayout ? _greek : _latin;
-    return Container(
+    final rows = _symbols ? _symbolRows : (_greekLayout ? _greek : _latin);
+    return ExcludeFocus(
+        child: Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       padding: const EdgeInsets.all(4),
       child: Column(
@@ -99,6 +108,8 @@ class _OnScreenKeyboardState extends State<OnScreenKeyboard> {
                 _key(_greekLayout ? 'EN' : 'ΕΛ',
                     flex: 3,
                     onTap: () => setState(() => _greekLayout = !_greekLayout)),
+                _key(_symbols ? 'ABC' : '!@#',
+                    flex: 3, onTap: () => setState(() => _symbols = !_symbols)),
                 _key(',', flex: 2),
                 _key(' ', flex: 10, child: const Icon(Icons.space_bar)),
                 _key('.', flex: 2),
@@ -108,7 +119,7 @@ class _OnScreenKeyboardState extends State<OnScreenKeyboard> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -156,7 +167,8 @@ class OnScreenNumpad extends StatelessWidget {
           ),
         );
 
-    return Container(
+    return ExcludeFocus(
+        child: Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       padding: const EdgeInsets.all(4),
       child: Column(
@@ -176,6 +188,29 @@ class OnScreenNumpad extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
+}
+
+/// Apply touch input at the current cursor/selection without losing hardware focus.
+void insertKeyboardText(TextEditingController controller, String text) {
+  final selection = controller.selection;
+  final start = selection.isValid ? selection.start : controller.text.length;
+  final end = selection.isValid ? selection.end : controller.text.length;
+  controller.value = TextEditingValue(
+    text: controller.text.replaceRange(start, end, text),
+    selection: TextSelection.collapsed(offset: start + text.length),
+  );
+}
+
+void backspaceKeyboardText(TextEditingController controller) {
+  final selection = controller.selection;
+  final start = selection.isValid ? selection.start : controller.text.length;
+  final end = selection.isValid ? selection.end : controller.text.length;
+  if (start == 0 && end == 0) return;
+  final from = start == end ? start - 1 : start;
+  controller.value = TextEditingValue(
+    text: controller.text.replaceRange(from, end, ''),
+    selection: TextSelection.collapsed(offset: from),
+  );
 }

@@ -1,66 +1,112 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
+import '../auth/pos_device_auth.dart';
+import 'pos_activation_page.dart';
 import 'package:flutter/material.dart';
 
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import 'pos_home_page.dart';
 
-class _EmployeeIdentity {
-  const _EmployeeIdentity({required this.id, required this.name});
-
-  final String id;
-  final String name;
-}
-
-/// Shows a lightweight employee-code entry screen before the POS home page.
-/// The device itself is provisioned per store (tenantId baked in at build time);
-/// this screen only identifies which employee is operating it for the audit trail.
-/// The typed code is matched against tenants/{tenantId}/employees (managed by the admin).
 class EmployeeSessionGate extends StatefulWidget {
   const EmployeeSessionGate({
     super.key,
     required this.catalogRepository,
     required this.orderRepository,
-    required this.tenantId,
-    FirebaseFirestore? firestore,
-  }) : _firestore = firestore;
+    PosDeviceAuth? auth,
+  }) : _auth = auth;
 
   final PosCatalogRepository catalogRepository;
   final PosOrderRepository orderRepository;
-  final String tenantId;
-  final FirebaseFirestore? _firestore;
+  final PosDeviceAuth? _auth;
 
   @override
   State<EmployeeSessionGate> createState() => _EmployeeSessionGateState();
 }
 
 class _EmployeeSessionGateState extends State<EmployeeSessionGate> {
-  _EmployeeIdentity? _employee;
+  PosEmployeeSession? _employee;
+  late final PosDeviceAuth _auth = widget._auth ?? FirebasePosDeviceAuth();
+  bool _restoring = true;
+  bool _activated = false;
+  String? _restoreError;
 
-  void _startSession(_EmployeeIdentity employee) {
+  @override
+  void initState() {
+    super.initState();
+    _restore();
+  }
+
+  Future<void> _restore() async {
+    setState(() {
+      _restoring = true;
+      _restoreError = null;
+    });
+    try {
+      final activated = await _auth.restore();
+      if (mounted) {
+        setState(() {
+          _activated = activated;
+          _restoring = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _restoring = false;
+          _restoreError =
+              'Δεν ήταν δυνατή η σύνδεση. Ελέγξτε το δίκτυο και δοκιμάστε ξανά.';
+        });
+      }
+    }
+  }
+
+  void _startSession(PosEmployeeSession employee) {
     setState(() => _employee = employee);
   }
 
   void _endSession() {
     setState(() => _employee = null);
+    _restore();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_restoring) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_restoreError != null) {
+      return Scaffold(
+          body: Center(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(_restoreError!),
+        FilledButton(onPressed: _restore, child: const Text('Δοκιμή ξανά')),
+        TextButton(
+            onPressed: () => setState(() {
+                  _restoreError = null;
+                  _activated = false;
+                }),
+            child: const Text('Ενεργοποίηση με λογαριασμό διαχειριστή')),
+      ])));
+    }
+    if (!_activated) {
+      return PosActivationPage(
+          auth: _auth, onActivated: () => setState(() => _activated = true));
+    }
     final employee = _employee;
 
     if (employee == null) {
       return _EmployeeLoginView(
-        tenantId: widget.tenantId,
-        firestore: widget._firestore,
+        tenantId: _auth.tenantId!,
+        auth: _auth,
         onSuccess: _startSession,
+        onActivate: () => setState(() => _activated = false),
       );
     }
 
     return PosHomePage(
       catalogRepository: widget.catalogRepository,
       orderRepository: widget.orderRepository,
-      tenantId: widget.tenantId,
+      tenantId: _auth.tenantId!,
       employeeId: employee.id,
       employeeName: employee.name,
       onEndSession: _endSession,
@@ -71,13 +117,15 @@ class _EmployeeSessionGateState extends State<EmployeeSessionGate> {
 class _EmployeeLoginView extends StatefulWidget {
   const _EmployeeLoginView({
     required this.tenantId,
-    required this.firestore,
+    required this.auth,
     required this.onSuccess,
+    required this.onActivate,
   });
 
   final String tenantId;
-  final FirebaseFirestore? firestore;
-  final ValueChanged<_EmployeeIdentity> onSuccess;
+  final PosDeviceAuth auth;
+  final ValueChanged<PosEmployeeSession> onSuccess;
+  final VoidCallback onActivate;
 
   @override
   State<_EmployeeLoginView> createState() => _EmployeeLoginViewState();
@@ -95,7 +143,7 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
   }
 
   void _appendDigit(String digit) {
-    if (_checking) return;
+    if (_checking || _controller.text.length >= 12) return;
     _controller.text += digit;
     setState(() => _error = null);
   }
@@ -118,7 +166,8 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: Text(label, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+      child: Text(label,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
     );
   }
 
@@ -156,6 +205,7 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
   }
 
   Future<void> _submit() async {
+    if (_checking) return;
     final employeeCode = _controller.text.trim();
     if (employeeCode.isEmpty) {
       setState(() => _error = 'Εισαγαγετε τον κωδικο υπαλληλου.');
@@ -168,32 +218,8 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
     });
 
     try {
-      final firestore = widget.firestore ?? FirebaseFirestore.instance;
-      final snapshot = await firestore
-          .collection('tenants/${widget.tenantId}/employees')
-          .where('employeeCode', isEqualTo: employeeCode)
-          .where('active', isEqualTo: true)
-          .limit(1)
-          .get();
-
-      if (!mounted) {
-        return;
-      }
-
-      if (snapshot.docs.isEmpty) {
-        setState(() {
-          _checking = false;
-          _error = 'Ο κωδικός δεν βρέθηκε ή ο υπάλληλος είναι ανενεργός.';
-        });
-        return;
-      }
-
-      final employee = snapshot.docs.first;
-      final name = (employee.data()['name'] as String? ?? '').trim();
-      widget.onSuccess(_EmployeeIdentity(
-        id: employee.id,
-        name: name.isEmpty ? employeeCode : name,
-      ));
+      final employee = await widget.auth.loginEmployee(employeeCode);
+      if (mounted) widget.onSuccess(employee);
     } catch (error) {
       if (!mounted) {
         return;
@@ -202,7 +228,8 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
       debugPrint('POS employee validation failed: ${error.runtimeType}');
       setState(() {
         _checking = false;
-        _error = 'Αποτυχία ελέγχου κωδικού υπαλλήλου. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.';
+        _error =
+            'Αποτυχία ελέγχου κωδικού υπαλλήλου. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.';
       });
     }
   }
@@ -234,7 +261,8 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                       const Text(
                         'Εναρξη Συνεδριας',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            fontSize: 26, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 6),
                       Text(
@@ -247,8 +275,15 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                         controller: _controller,
                         autofocus: true,
                         enabled: !_checking,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(12)
+                        ],
+                        obscureText: true,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w700),
                         decoration: const InputDecoration(
                           labelText: 'Κωδικος υπαλληλου',
                           border: OutlineInputBorder(),
@@ -256,7 +291,7 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                         onSubmitted: (_) => _submit(),
                       ),
                       const SizedBox(height: 12),
-                      _buildKeypad(),
+                      ExcludeFocus(child: _buildKeypad()),
                       if (_error != null) ...[
                         const SizedBox(height: 8),
                         Text(
@@ -275,10 +310,19 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
                               ? const SizedBox(
                                   width: 26,
                                   height: 26,
-                                  child: CircularProgressIndicator(strokeWidth: 3),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 3),
                                 )
-                              : const Text('Εναρξη', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                              : const Text('Εναρξη',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700)),
                         ),
+                      ),
+                      TextButton(
+                        onPressed: _checking ? null : widget.onActivate,
+                        child: const Text(
+                            'Ενεργοποίηση με λογαριασμό διαχειριστή'),
                       ),
                     ],
                   ),
@@ -291,4 +335,3 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
     );
   }
 }
-

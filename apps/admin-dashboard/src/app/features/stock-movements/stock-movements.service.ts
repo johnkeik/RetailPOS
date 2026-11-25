@@ -1,8 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
-import { FIREBASE_FIRESTORE } from '../../core/firebase/firebase.providers';
+import { FIREBASE_FIRESTORE, FIREBASE_FUNCTIONS } from '../../core/firebase/firebase.providers';
 import { Consumable, Employee, PackagingCategory, Product, StockMovement, VariantTemplate } from '../../core/types/domain.models';
 
 export type StockMovementRow = StockMovement & {
@@ -20,6 +21,7 @@ export type StockMovementRow = StockMovement & {
 @Injectable({ providedIn: 'root' })
 export class StockMovementsService {
   private readonly firestore = inject(FIREBASE_FIRESTORE);
+  private readonly functions = inject(FIREBASE_FUNCTIONS);
   private readonly tenantContext = inject(TenantContextService);
 
   readonly movementRows = signal<StockMovementRow[]>([]);
@@ -52,17 +54,36 @@ export class StockMovementsService {
       const consumablesRef = collection(this.firestore, `tenants/${tenantId}/consumables`);
       const employeesRef = collection(this.firestore, `tenants/${tenantId}/employees`);
 
-      const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot, employeesSnapshot] = await Promise.all([
+      const accountsRef = collection(this.firestore, `tenants/${tenantId}/employeeAccounts`);
+
+      const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot, employeesSnapshot, accountsSnapshot] = await Promise.all([
         getDocs(query(movementsRef, orderBy('createdAt', 'desc'))),
         getDocs(query(productsRef, orderBy('name', 'asc'))),
         getDocs(query(templatesRef, orderBy('name', 'asc'))),
         getDocs(query(consumablesRef, orderBy('name', 'asc'))),
-        getDocs(employeesRef)
+        getDocs(employeesRef),
+        getDocs(accountsRef)
       ]);
 
       const employeeNames = new Map(
-        employeesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Employee>).name ?? item.id])
+        employeesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Employee>).name?.trim() || 'Υπάλληλος'])
       );
+
+      // Dashboard receiving can record an Auth UID rather than an employee document ID.
+      for (const account of accountsSnapshot.docs) {
+        const uid = account.data()['authUid'];
+        const name = employeeNames.get(account.id);
+        if (typeof uid === 'string' && name) employeeNames.set(uid, name);
+      }
+      const unresolvedIds = [...new Set(movementsSnapshot.docs
+        .map((item) => item.data()['performedByEmployeeId'])
+        .filter((id): id is string => typeof id === 'string' && !!id && !employeeNames.has(id)))];
+      const resolveNames = httpsCallable<{tenantId: string; actorIds: string[]}, {names: Record<string, string>}>(
+        this.functions, 'getTenantActorNames');
+      for (let offset = 0; offset < unresolvedIds.length; offset += 100) {
+        const result = await resolveNames({tenantId, actorIds: unresolvedIds.slice(offset, offset + 100)});
+        for (const [id, name] of Object.entries(result.data.names)) employeeNames.set(id, name);
+      }
 
       const productsById = new Map(
         productsSnapshot.docs.map((item) => {
@@ -203,7 +224,9 @@ export class StockMovementsService {
       this.movementRows.set(rows.map((row) => ({
         ...row,
         performedByName: row.performedByEmployeeId
-          ? employeeNames.get(row.performedByEmployeeId) ?? row.performedByEmployeeId
+          ? employeeNames.get(row.performedByEmployeeId)
+            ?? employeeNames.get(row.performedByEmployeeId.replace(/^pos:/, ''))
+            ?? 'Μη διαθέσιμος'
           : undefined
       })));
     } catch (error) {

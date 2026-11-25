@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
@@ -24,6 +25,8 @@ class PosExpensePage extends StatefulWidget {
 }
 
 class _PosExpensePageState extends State<PosExpensePage> {
+  final _amountFocus = FocusNode();
+  final _descriptionFocus = FocusNode();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   late TextEditingController _active = _amountController;
@@ -32,7 +35,22 @@ class _PosExpensePageState extends State<PosExpensePage> {
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    _amountFocus.addListener(() {
+      if (_amountFocus.hasFocus) setState(() => _active = _amountController);
+    });
+    _descriptionFocus.addListener(() {
+      if (_descriptionFocus.hasFocus) {
+        setState(() => _active = _descriptionController);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _amountFocus.dispose();
+    _descriptionFocus.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
     super.dispose();
@@ -41,6 +59,7 @@ class _PosExpensePageState extends State<PosExpensePage> {
   bool get _amountActive => identical(_active, _amountController);
 
   void _insert(String text) {
+    if (_submitting) return;
     final c = _active;
     final sel = c.selection;
     final start = sel.isValid ? sel.start : c.text.length;
@@ -58,6 +77,7 @@ class _PosExpensePageState extends State<PosExpensePage> {
   }
 
   void _backspace() {
+    if (_submitting) return;
     final c = _active;
     final sel = c.selection;
     final start = sel.isValid ? sel.start : c.text.length;
@@ -136,7 +156,17 @@ class _PosExpensePageState extends State<PosExpensePage> {
                 children: [
                   TextField(
                     controller: _amountController,
-                    readOnly: true,
+                    focusNode: _amountFocus,
+                    enabled: !_submitting,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      TextInputFormatter.withFunction((oldValue, newValue) =>
+                          RegExp(r'^\d{0,6}([.,]\d{0,2})?$')
+                                  .hasMatch(newValue.text)
+                              ? newValue
+                              : oldValue)
+                    ],
                     showCursor: true,
                     autofocus: true,
                     onTap: () => setState(() => _active = _amountController),
@@ -148,9 +178,8 @@ class _PosExpensePageState extends State<PosExpensePage> {
                       border: const OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                            color: _amountActive
-                                ? colors.primary
-                                : colors.outline,
+                            color:
+                                _amountActive ? colors.primary : colors.outline,
                             width: _amountActive ? 2 : 1),
                       ),
                     ),
@@ -158,7 +187,10 @@ class _PosExpensePageState extends State<PosExpensePage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      for (final method in const [PaymentMethod.cash, PaymentMethod.card]) ...[
+                      for (final method in const [
+                        PaymentMethod.cash,
+                        PaymentMethod.card
+                      ]) ...[
                         if (method == PaymentMethod.card)
                           const SizedBox(width: 12),
                         Expanded(
@@ -168,13 +200,24 @@ class _PosExpensePageState extends State<PosExpensePage> {
                               key: ValueKey('expense-payment-${method.name}'),
                               style: OutlinedButton.styleFrom(
                                 minimumSize: const Size(56, 64),
-                                backgroundColor: _method == method ? colors.secondary : colors.surface,
-                                foregroundColor: _method == method ? colors.onSecondary : colors.onSurface,
-                                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                                backgroundColor: _method == method
+                                    ? colors.secondary
+                                    : colors.surface,
+                                foregroundColor: _method == method
+                                    ? colors.onSecondary
+                                    : colors.onSurface,
+                                textStyle: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w700),
                               ),
-                              onPressed: _submitting ? null : () => setState(() => _method = method),
-                              icon: Icon(method == PaymentMethod.cash ? Icons.payments_outlined : Icons.credit_card),
-                              label: Text(method == PaymentMethod.cash ? 'Μετρητά' : 'Κάρτα'),
+                              onPressed: _submitting
+                                  ? null
+                                  : () => setState(() => _method = method),
+                              icon: Icon(method == PaymentMethod.cash
+                                  ? Icons.payments_outlined
+                                  : Icons.credit_card),
+                              label: Text(method == PaymentMethod.cash
+                                  ? 'Μετρητά'
+                                  : 'Κάρτα'),
                             ),
                           ),
                         ),
@@ -184,7 +227,9 @@ class _PosExpensePageState extends State<PosExpensePage> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: _descriptionController,
-                    readOnly: true,
+                    focusNode: _descriptionFocus,
+                    enabled: !_submitting,
+                    inputFormatters: [LengthLimitingTextInputFormatter(300)],
                     showCursor: true,
                     minLines: 3,
                     maxLines: 3,
@@ -196,14 +241,12 @@ class _PosExpensePageState extends State<PosExpensePage> {
                       border: const OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                            color: _amountActive
-                                ? colors.outline
-                                : colors.primary,
+                            color:
+                                _amountActive ? colors.outline : colors.primary,
                             width: _amountActive ? 1 : 2),
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -218,7 +261,8 @@ class _PosExpensePageState extends State<PosExpensePage> {
                   const SizedBox(height: 8),
                 ],
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(64)),
+                  style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(64)),
                   onPressed: _submitting ? null : _submit,
                   icon: const Icon(Icons.check),
                   label: Text(_submitting ? 'Καταχώρηση...' : 'Καταχώρηση'),

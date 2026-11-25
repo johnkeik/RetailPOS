@@ -1,6 +1,3 @@
-param(
-  [string]$TenantId = 'AromataZoisAgiouDimitriou'
-)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $env:CMAKE_POLICY_VERSION_MINIMUM = '3.5'
@@ -11,7 +8,7 @@ if ($LASTEXITCODE -ne 0) {
   Pop-Location
   throw "flutter pub get failed with exit code $LASTEXITCODE"
 }
-flutter build windows --release --dart-define=POS_TENANT_ID=$TenantId
+flutter build windows --release
 if ($LASTEXITCODE -ne 0) {
   Pop-Location
   throw "flutter build windows failed with exit code $LASTEXITCODE"

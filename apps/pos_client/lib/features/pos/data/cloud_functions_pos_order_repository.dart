@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:http/http.dart' as http;
@@ -122,7 +124,11 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
             '/$functionName',
           );
     final request = {'data': data};
-    final headers = {'Content-Type': 'application/json'};
+    final token = await FirebaseAuth.instance.currentUser?.getIdToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
 
     late final http.Response response;
     try {
@@ -186,7 +192,8 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     final endOfDay = DateTime(now.year, now.month, now.day + 1);
     final snapshot = await _firestore
         .collection('tenants/$tenantId/orders')
-        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('createdAt',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('createdAt', isLessThan: Timestamp.fromDate(endOfDay))
         .orderBy('createdAt', descending: true)
         .limit(limit)
@@ -194,25 +201,19 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     if (snapshot.docs.isEmpty) return [];
 
     final snapshots = await Future.wait([
-      _firestore.collection('tenants/$tenantId/employees').get(),
       _firestore.collection('tenants/$tenantId/products').get(),
       _firestore.collection('tenants/$tenantId/variantTemplates').get(),
     ]);
-    final employeeNames = {
-      for (final employee in snapshots[0].docs)
-        employee.id: (employee.data()['name'] as String? ?? '').trim(),
-    };
-
     // Include inactive catalog records so older sales remain readable.
     final productNames = <String, String>{};
-    for (final product in snapshots[1].docs) {
+    for (final product in snapshots[0].docs) {
       final name = (product.data()['name'] as String? ?? '').trim();
       productNames[product.id] = name;
       final code = product.data()['productCode'] as String?;
       if (code != null) productNames[code] = name;
     }
     final variantNames = <String, String>{};
-    for (final variant in snapshots[2].docs) {
+    for (final variant in snapshots[1].docs) {
       final name = (variant.data()['name'] as String? ?? '').trim();
       variantNames[variant.id] = name;
       final code = variant.data()['code'] as String?;
@@ -221,7 +222,9 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
 
     // Older versions wrote a second DELETED order as an audit record.
     // Retain it in storage, but only show the original order to employees.
-    return snapshot.docs.where((doc) => doc.data()['status'] != 'DELETED').map((doc) {
+    return snapshot.docs
+        .where((doc) => doc.data()['status'] != 'DELETED')
+        .map((doc) {
       final data = doc.data();
       final rawItems = data['items'] as List<dynamic>? ?? const [];
       final items = rawItems.map((raw) {
@@ -230,17 +233,21 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
           productCode: item['productCode'] as String? ??
               item['productId'] as String? ??
               '',
-          productName: (item['productName'] as String?)?.trim().isNotEmpty == true
+          productName: (item['productName'] as String?)?.trim().isNotEmpty ==
+                  true
               ? item['productName'] as String
               : productNames[item['productId'] ?? item['productCode']] ?? '',
           variantCode: item['variantCode'] as String? ??
               item['variantTemplateId'] as String? ??
               item['variantId'] as String? ??
               '',
-          variantLabel: (item['variantLabel'] as String?)?.trim().isNotEmpty == true
-              ? item['variantLabel'] as String
-              : variantNames[item['variantTemplateId'] ??
-                  item['variantId'] ?? item['variantCode']] ?? '',
+          variantLabel:
+              (item['variantLabel'] as String?)?.trim().isNotEmpty == true
+                  ? item['variantLabel'] as String
+                  : variantNames[item['variantTemplateId'] ??
+                          item['variantId'] ??
+                          item['variantCode']] ??
+                      '',
           isBulk: item['isBulk'] as bool? ?? false,
           quantity: (item['quantity'] as num? ?? 0).toInt(),
           unitPrice: (item['unitPrice'] as num? ?? 0).toDouble(),
@@ -260,21 +267,23 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
       return PosOrder(
         id: doc.id,
         employeeId: data['employeeId'] as String? ?? '',
-        employeeName: employeeNames[data['employeeId']] ??
-            data['employeeName'] as String? ?? '',
+        employeeName: data['employeeName'] as String? ?? '',
         total: (data['total'] as num? ?? 0).toDouble(),
         subtotal: (data['subtotal'] as num?)?.toDouble(),
         discountTotal: (data['discountTotal'] as num? ?? 0).toDouble(),
-        promotionNames: (data['appliedPromotions'] as List? ?? []).map((entry) => (entry as Map)['name'] as String).toList(),
+        promotionNames: (data['appliedPromotions'] as List? ?? [])
+            .map((entry) => (entry as Map)['name'] as String)
+            .toList(),
         createdAt: createdAt,
         items: items,
         paymentMethod: paymentMethodFromWireValue(data['paymentMethod']),
         status: data['status'] as String? ?? 'COMPLETED',
-        cancelledAt: cancelledAtValue is Timestamp ? cancelledAtValue.toDate() : null,
+        cancelledAt:
+            cancelledAtValue is Timestamp ? cancelledAtValue.toDate() : null,
         cancelledByEmployeeId: cancelledByEmployeeId,
         cancelledByEmployeeName: savedCancellerName.isNotEmpty
             ? savedCancellerName
-            : employeeNames[cancelledByEmployeeId],
+            : cancelledByEmployeeId,
         cancellationReason: data['cancellationReason'] as String?,
         originalOrderId: data['originalOrderId'] as String?,
         isSeeded: data['seededAt'] != null,

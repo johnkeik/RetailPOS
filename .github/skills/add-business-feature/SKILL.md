@@ -25,7 +25,7 @@ architecture rules.
    - `.github/instructions/ui.instructions.md`
 2. Ask: can an **existing** collection/service/component be extended instead of adding a
    new one? Only add new structure for a current, concrete need.
-3. Check `docs/DOMAIN-MODEL.md` and `docs/MVP_SCOPE.md` to confirm the feature is in MVP scope.
+3. Check `docs/ARCHITECTURE.md` for the current domain model and `docs/SAAS_READINESS.md` for product scope and priorities.
 
 ## Implementation Order (mirrors existing modules, e.g. `functions/src/brands/*`, `functions/src/inventory/*`)
 

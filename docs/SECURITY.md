@@ -1,94 +1,39 @@
-# Security Rules
+# Implemented security model and gaps
 
+Source-derived review: 8 November 2026; POS device/session implementation updated 12 November 2026. This describes checked-in rules and handlers, not deployed policy. No live users, security documents, PIN hashes or credentials were inspected.
 
-## Main principle
+## Authenticated dashboard
 
+Firebase email/password identifies an account. `users/{uid}` supplies one tenant, OWNER/EMPLOYEE and active state; profiles are server-managed and clients can get only their own profile. `resolveActorContext` rejects missing profiles, mismatched tenants, unsupported roles and explicitly inactive users. For EMPLOYEE it also checks active employee state and the private account's Auth UID link. See `functions/src/common/auth.ts`, `apps/admin-dashboard/src/app/core/auth/`, and `firestore.rules`.
 
-Users can only access data belonging to their tenant.
+Owners can read the allowlisted tenant collections, manage catalog/staff/stock/promotions/expenses and set a manager PIN. Linked dashboard employees can read receiving catalog/inventory and submit PURCHASE movements through `recordStockMovements`; adjustments/losses are denied. Authenticated EMPLOYEE calls to sales, cancellation and expense creation are explicitly rejected. This dashboard account is distinct from the cashier code session.
 
+Owner bootstrap resolves an existing Auth account and creates its OWNER profile; it requires explicit email, tenant and project arguments. It returns successfully for an existing matching active OWNER profile and refuses a conflicting profile. See `functions/scripts/bootstrap-admin-user.js`.
 
-Every query must be tenant scoped.
+## Registered POS devices and employee sessions
 
+Manager activation requires a fresh Firebase email/password login (within five minutes) and an active OWNER profile for the shop assigned to the manager. `activatePosDevice` creates a separate Firebase device UID and a server-managed `tenants/{tenantId}/devices/{deviceUid}` record. No license/activation key is required. The manager is signed out after registration; the till uses its own identity, without owner permissions.
 
+Flutter stores a random 256-bit device resume credential using `flutter_secure_storage` (Windows Credential Manager for the selected Windows plugin). Firestore stores only its SHA-256 hash. `resumePosDevice` validates the credential and active device record, clears any previous employee session, and issues a Firebase custom token. The app resumes after restart but always returns to employee login. Losing local credentials requires manager activation again. A copied device credential can impersonate that device; secure storage reduces this risk but is not hardware attestation.
 
----
+`startPosEmployeeSession` verifies the numeric employee code server-side, requires exactly one active matching employee and issues a token bound to that employee and a new session ID. Device login attempts are transactionally limited to ten per 15-minute window, including successful attempts; resuming cannot reset the limit. Existing codes remain in employee documents, owner-readable only; they are not downloaded by the till. Keep codes unique, numeric and no longer than 12 digits.
 
-# Authentication
+Firestore POS reads require a matching shop, active device, current employee/session claims and active employee. Only categories, orders, products, promotions and variant templates are readable by tills. Employees, device records, inventory and other operational collections are not exposed to device clients. No unauthenticated operational read grant remains. History uses saved employee names rather than downloading employee codes.
 
+`createOrder`, `cancelOrder` and `createExpense` now reject unauthenticated calls. `resolvePosActor` checks the active device and exact employee/session binding; OWNER calls remain permitted and receiving-only dashboard EMPLOYEE accounts remain denied. Windows sends a Firebase ID token in the authorization header. These checks are required in handlers because Admin SDK operations bypass Firestore rules.
 
-Firebase Authentication manages users.
+To revoke a PC, set its device record's `active` field to `false` through trusted administrative access. Subsequent protected server access and resume attempts fail. Switching employee invalidates the previous session. Revocation does not erase data already displayed or cached locally. There is no automatic inactivity timeout or subscription enforcement in this implementation, and no dashboard device-management screen yet. Cancellation and expense permissions remain available to authenticated cashiers; manager approval policy is unchanged.
 
+Implementation: `functions/src/pos/device-auth.ts`, Flutter `features/pos/auth/pos_device_auth.dart`, `employee_session_gate.dart`, `pos_activation_page.dart`, and `firestore.rules`. This is checked-in behavior, not a claim that production has been updated. See [activation and release](OPERATIONS.md#pos-device-activation-and-release).
 
-User document:
+## Manager PIN and cancellation
 
+`setManagerPin` is OWNER-only and stores a scrypt hash with random salt in a private document. `assertManagerPin` implements five failures followed by a 15-minute lockout, but no current cancellation handler invokes it. Cancellation UI asks for confirmation, not manager credentials. Do not claim manager-approved cancellation. Sources: `functions/src/common/manager-pin.ts`, `security/set-manager-pin.ts`, `orders/cancel-order.ts`, and `apps/pos_client/lib/features/pos/presentation/pos_order_history_dialog.dart`.
 
-users/{uid}
-# Security Model
+## Local development and remaining assurance
 
-## Dashboard users
+`resolveActorContext` grants an unauthenticated OWNER actor when `FUNCTIONS_EMULATOR=true`. This is a development bypass and means emulator success alone does not prove production authorization. Synthetic order seeding is separately emulator-only.
 
-Firebase Authentication identifies the Admin account. Authorization comes from the
-server-managed `users/{uid}` profile, not from the client:
+Backend unit tests use in-memory substitutes. `functions/test/integration/pos.rules.cjs` exercises actual local Firestore rules for public/wrong-shop reads, stale sessions, employee/device revocation and denied writes. `pos-handshake.cjs` exercises activation and employee token exchange over local emulator HTTP. These suites are not production or Windows-machine certification. Some handlers interpolate IDs with less validation than promotion handlers; do not assume universal input/path validation. No callable App Check enforcement was found.
 
-```json
-{
-	"tenantId": "store001",
-	"role": "OWNER",
-	"active": true
-}
-```
-
-The Admin client may read only its own profile. Cloud Functions validate the
-profile, tenant, role, and active status for every business mutation. OWNER users
-can access the Admin dashboard. EMPLOYEE users are routed to the stock-receiving
-page only.
-
-## First owner bootstrap
-
-1. Create the owner's Firebase Authentication account in the Firebase Auth Console
-	 (or Auth Emulator UI for local development).
-2. From `functions/`, run:
-
-	 ```sh
-	 npm run bootstrap:admin -- owner@example.com store001 YOUR_FIREBASE_PROJECT_ID
-	 ```
-
-The command requires an explicit project ID, resolves an existing Auth account by
-email, and creates `users/{uid}` as an active OWNER. It refuses to overwrite an
-existing profile and does not create or handle passwords. It uses Application
-Default Credentials for a live project; point Firebase Admin SDK to the Auth and
-Firestore Emulator when bootstrapping local data.
-
-## Roles
-
-- `OWNER`: Admin dashboard access and management mutations.
-- `EMPLOYEE`: POS access plus the dashboard stock-receiving page. Dashboard
-	employees can submit only `PURCHASE` stock movements; authenticated employee
-	accounts cannot create sales, cancel orders, or create expenses.
-
-## Employee dashboard accounts
-
-- An OWNER provisions the Firebase Authentication user through a Cloud Function.
-- The employee signs in with their email and chooses a password through the
-	Firebase password-reset/setup email. Passwords are never stored in Firestore.
-- `users/{uid}` stores the server-managed tenant, role, employee ID, and active
-	status. The matching `tenants/{tenantId}/employeeAccounts/{employeeId}` document
-	stores the private email/Auth UID mapping and is readable only by the OWNER.
-- Do not add email or Auth UID to `employees/{employeeId}`: the unauthenticated POS
-	reads that collection to validate its employee-code session.
-- Deactivating or deleting an employee disables or deletes the linked Auth account.
-
-## Firestore access
-
-- Client writes are denied; business mutations go through Cloud Functions.
-- OWNER reads require an active OWNER profile for the requested tenant.
-- EMPLOYEE reads are limited to the catalog and current inventory required for
-	stock receiving. Stock movements, orders, expenses, and employee account mappings
-	are not readable by employee accounts.
-- The POS uses a built-in `tenantId` and directly reads that store's operational
-	collections to validate employee codes and load the catalog. Those reads,
-	including employee codes, are not authenticated. Do not treat `tenantId` as a
-	secret or use this access model where store data must be confidential.
-- Manager-approved cancellation runs in a Cloud Function and atomically writes
-	RETURN movements, restores inventory, and marks the order cancelled. Movements
-	are never deleted.
+The local print service binds localhost by checked-in configuration and has no API authentication. It should not be exposed to a store LAN without a designed access model. See `print-service/MiniPOS.PrintService/{Program.cs,appsettings.json}`.

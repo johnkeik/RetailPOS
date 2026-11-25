@@ -49,3 +49,7 @@ export {deleteExpense} from "./expenses/delete-expense";
 export {savePromotion} from "./promotions/save-promotion";
 
 export {deletePromotion} from "./promotions/delete-promotion";
+
+export {activatePosDevice, resumePosDevice, startPosEmployeeSession} from "./pos/device-auth";
+
+export {getTenantActorNames} from "./users/get-tenant-actor-names";

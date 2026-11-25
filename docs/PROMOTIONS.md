@@ -1,8 +1,11 @@
 # Προσφορές παραλλαγών
 
+Source check: 8 November 2026. Implementation evidence: `functions/src/promotions/{save-promotion,delete-promotion,promotion-pricing,promotion-allocation}.ts`, `functions/src/orders/create-order.ts`, `apps/pos_client/lib/features/pos/models/promotion_pricing.dart`, admin promotion components/services, and `test-fixtures/promotions.json`. Backend tests passed; Dart/browser suites did not complete in this environment. This describes implemented behavior, not verified live-store usage. See [review evidence](SAAS_READINESS.md#verification).
+
 Ο διαχειριστής διαχειρίζεται προσφορές από `/promotions`: όνομα, επιλέξιμα πρότυπα παραλλαγών, κανόνας, επανάληψη, ενεργή κατάσταση και προαιρετικό χρονικό διάστημα.
 
 Υποστηρίζονται:
+
 - 2 τεμάχια της ίδιας παραλλαγής: το φθηνότερο με 50% έκπτωση.
 - 3 τεμάχια της ίδιας παραλλαγής: το φθηνότερο δωρεάν.
 - Αγορά Χ τεμαχίων (1–20): μία ξεχωριστή, επιλεγμένη παραλλαγή δώρο. Παράδειγμα: 2 Premium 30ml + 1 Simple 30ml στο καλάθι → το Simple δωρεάν. Το δώρο δεν μετράει στην ποσότητα αγοράς. Ο υπάλληλος επιλέγει το προϊόν και προσθέτει το δώρο στο καλάθι· το POS εμφανίζει υπενθύμιση για εκκρεμή δώρα. Με επανάληψη, 4 Premium δικαιούνται 2 Simple. Αν προστεθούν περισσότερα δώρα, επιλέγεται ο συνδυασμός με τη μεγαλύτερη συνολική έκπτωση μέχρι το δικαιούμενο πλήθος. Το απόθεμα αφαιρείται και για τα δώρα.

@@ -11,7 +11,7 @@ const snapshot = (path, data) => ({
   id: path.split('/').pop(), exists: data !== undefined, data: () => data,
 });
 const db = {
-  doc: (path) => ({ path }),
+  doc: (path) => ({ path, get: async () => snapshot(path, records.get(path)) }),
   collection: (path) => ({
     doc: () => ({ path: `${path}/new-${++nextId}` }),
     where: (field, op, value) => ({ path, field, value }),
@@ -48,7 +48,7 @@ require.cache[firestorePath] = { id: firestorePath, filename: firestorePath, loa
   db, serverTimestamp: () => 'cancel-time', inventoryDocId: (product, variant) => `${product}__${variant}`,
 } };
 const { cancelOrder } = require('../lib/orders/cancel-order');
-const cancel = (overrides = {}) => cancelOrder.run({ data: {
+const cancel = (overrides = {}) => cancelOrder.run({ auth: { uid: 'owner' }, data: {
   tenantId: 'store001', employeeId: 'employee-1', orderId: 'order-1', ...overrides,
 } });
 const movements = () => [...records].filter(([path]) => path.startsWith(`${prefix}/stockMovements/`));
@@ -57,6 +57,7 @@ const orders = () => [...records].filter(([path]) => path.startsWith(`${prefix}/
 beforeEach(() => {
   nextId = 0;
   records = new Map([
+    ['users/owner', { tenantId: 'store001', role: 'OWNER', active: true }],
     [orderPath, { status: 'COMPLETED', createdAt: 'sale-time', employeeId: 'seller', total: 30, items: [{ quantity: 2 }] }],
     [`${prefix}/employees/employee-1`, { active: true, name: 'Μαρία Παπαδοπούλου' }],
   ]);
@@ -99,13 +100,13 @@ test('cancels once, restores all stock and records the canceller in a separate a
   assert.equal(original.cancelledAt, 'cancel-time');
   assert.equal(original.cancelledByEmployeeId, 'employee-1');
   assert.equal(original.cancelledByEmployeeName, 'Μαρία Παπαδοπούλου');
-  assert.equal(original.cancelledByUserId, 'pos:employee-1');
+  assert.equal(original.cancelledByUserId, 'owner');
   const events = [...records].filter(([path]) => path.startsWith(`${prefix}/orderEvents/`));
   assert.equal(events.length, 1);
   assert.deepEqual(events[0][1], {
     tenantId: 'store001', orderId: 'order-1', type: 'ORDER_CANCELLED',
     employeeId: 'employee-1', employeeName: 'Μαρία Παπαδοπούλου',
-    performedByUserId: 'pos:employee-1', createdAt: 'cancel-time',
+    performedByUserId: 'owner', createdAt: 'cancel-time',
   });
   const once = structuredClone([...records]);
   await assert.rejects(cancel(), { code: 'failed-precondition' });

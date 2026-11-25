@@ -1,6 +1,7 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
-import { assertRole, resolveActorContext, validateTenantScope } from "../common/auth";
+import { assertRole, validateTenantScope } from "../common/auth";
+import {resolvePosActor} from "../pos/device-auth";
 import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { CancelOrderInput } from "../types/domain";
 
@@ -18,12 +19,7 @@ export const cancelOrder = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Λείπουν στοιχεία ακύρωσης.");
   }
   validateTenantScope(data.tenantId);
-  const actor = request.auth?.uid ?
-    await resolveActorContext(request.auth, data.tenantId) :
-    { uid: `pos:${data.employeeId}`, tenantId: data.tenantId, role: "EMPLOYEE" as const };
-  if (request.auth?.uid && actor.role === "EMPLOYEE") {
-    throw new HttpsError("permission-denied", "Ο λογαριασμός dashboard δεν έχει πρόσβαση σε ακυρώσεις πωλήσεων.");
-  }
+  const actor = await resolvePosActor(request.auth, data.tenantId, data.employeeId);
   assertRole(actor, ["OWNER", "EMPLOYEE"]);
   const tenantId = actor.tenantId;
 

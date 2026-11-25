@@ -37,7 +37,7 @@ const { deletePromotion } = require('../lib/promotions/delete-promotion');
 const { savePromotion } = require('../lib/promotions/save-promotion');
 const rule = { name: 'Πάρε 3, πλήρωσε 2', variantTemplateIds: ['v'], groupSize: 3,
   discountPercent: 100, repeat: true, active: true, startsAt: null, endsAt: null };
-const checkout = (changes = {}) => createOrder.run({ data: {
+const checkout = (changes = {}) => createOrder.run({ auth: { uid: 'owner' }, data: {
   tenantId: 'store001', employeeId: 'seller', paymentMethod: 'CASH', expectedTotal: 16,
   items: [{ productId: 'p', variantTemplateId: 'v', unitPrice: 8, quantity: 3 }], ...changes,
 } });
@@ -71,7 +71,7 @@ test('server calculates discount, stores snapshots and consumes all units; cance
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 7);
   records.get(`${root}/promotions/offer`).name = 'Renamed';
   assert.equal(order.appliedPromotions[0].name, rule.name);
-  const request = { data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } };
+  const request = { auth: { uid: 'owner' }, data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } };
   await cancelOrder.run(request);
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 10);
   await assert.rejects(cancelOrder.run(request), { code: 'failed-precondition' });
@@ -109,7 +109,7 @@ test('bulk recipe and special bottle stock are deducted/restored for every deliv
   assert.equal(records.get(`${root}/inventory/p__essence`).quantity, 94);
   assert.equal(records.get(`${root}/inventory/special__consumable`).quantity, 97);
   assert.equal(records.get(`${root}/inventory/bottle__consumable`).quantity, 100);
-  await cancelOrder.run({ data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
+  await cancelOrder.run({ auth: { uid: 'owner' }, data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
   for (const key of ['p__perfume', 'p__essence', 'bottle__consumable', 'special__consumable']) {
     assert.equal(records.get(`${root}/inventory/${key}`).quantity, 100);
   }
@@ -150,7 +150,7 @@ test('distinct gift consumes stock, records zero line total and is restored on c
   assert.equal(order.items[1].lineTotal, 0);
   assert.equal(order.items[1].discountTotal, 5);
   assert.equal(records.get(`${root}/inventory/p__gift`).quantity, 9);
-  await cancelOrder.run({ data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
+  await cancelOrder.run({ auth: { uid: 'owner' }, data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
   assert.equal(records.get(`${root}/inventory/p__gift`).quantity, 10);
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 10);
 });
@@ -204,7 +204,7 @@ test('checkout combines gift and standalone offers while consuming and restoring
   assert.equal(order.discountTotal, 10);
   assert.equal(order.appliedPromotions.length, 2);
   assert.equal(records.get(`${root}/inventory/p__gift`).quantity, 6);
-  await cancelOrder.run({ data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
+  await cancelOrder.run({ auth: { uid: 'owner' }, data: { tenantId: 'store001', employeeId: 'canceller', orderId: result.orderId } });
   assert.equal(records.get(`${root}/inventory/p__gift`).quantity, 10);
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 10);
 });

@@ -1,12 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-
-// Baked into the build per store, e.g.:
-//   flutter build apk --dart-define=POS_TENANT_ID=store007
-// One tenant == one store for the current MVP scope (see docs/MVP_SCOPE.md).
-const String kPosTenantId = String.fromEnvironment('POS_TENANT_ID', defaultValue: 'store001');
 
 class PosFirebaseConfig {
   const PosFirebaseConfig._();
@@ -47,6 +43,7 @@ class PosFirebaseConfig {
 
 bool _firestoreEmulatorConfigured = false;
 bool _functionsEmulatorConfigured = false;
+bool _authEmulatorConfigured = false;
 
 Future<void> initializePosFirebase() async {
   final app = Firebase.apps.isEmpty
@@ -55,6 +52,14 @@ Future<void> initializePosFirebase() async {
 
   if (!PosFirebaseConfig.useEmulators) {
     return;
+  }
+
+  if (!_authEmulatorConfigured) {
+    await FirebaseAuth.instanceFor(app: app).useAuthEmulator(
+      PosFirebaseConfig.emulatorHost,
+      9099,
+    );
+    _authEmulatorConfigured = true;
   }
 
   if (!_firestoreEmulatorConfigured) {
