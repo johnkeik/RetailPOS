@@ -109,6 +109,84 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     await _functions.httpsCallable('createExpense').call(payload);
   }
 
+  @override
+  Future<List<PosExpense>> loadTodayExpenses({
+    required String tenantId,
+    required String employeeId,
+  }) async {
+    final now = DateTime.now();
+    // Construct the next calendar day rather than adding 24 hours (DST).
+    final payload = {
+      'tenantId': tenantId,
+      'employeeId': employeeId,
+      'fromMillis': DateTime(now.year, now.month, now.day).millisecondsSinceEpoch,
+      'toMillis':
+          DateTime(now.year, now.month, now.day + 1).millisecondsSinceEpoch,
+    };
+    final result = await _call('listTodayExpenses', payload);
+    final items = result['expenses'] as List<Object?>? ?? const [];
+    return items.whereType<Map<Object?, Object?>>().map((item) {
+      final createdAtMillis = item['createdAtMillis'];
+      return PosExpense(
+        id: item['id'] as String,
+        amount: (item['amount'] as num? ?? 0).toDouble(),
+        paymentMethod: paymentMethodFromWireValue(item['paymentMethod']) ??
+            PaymentMethod.cash,
+        description: item['description'] as String? ?? '',
+        createdAt: createdAtMillis is num
+            ? DateTime.fromMillisecondsSinceEpoch(createdAtMillis.toInt())
+            : null,
+        voided: item['status'] == 'VOIDED',
+        edited: item['edited'] == true,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> updateExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
+  }) async {
+    await _call('updateExpense', {
+      'tenantId': tenantId,
+      'employeeId': employeeId,
+      'expenseId': expenseId,
+      'amount': amount,
+      'paymentMethod': paymentMethod.wireValue,
+      'description': description,
+    });
+  }
+
+  @override
+  Future<void> voidExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+  }) async {
+    await _call('deleteExpense', {
+      'tenantId': tenantId,
+      'employeeId': employeeId,
+      'expenseId': expenseId,
+    });
+  }
+
+  /// Calls a callable through the HTTP fallback on Windows, where the plugin is unavailable.
+  Future<Map<Object?, Object?>> _call(
+    String functionName,
+    Map<String, Object?> payload,
+  ) async {
+    if (Platform.isWindows) {
+      return _callWindowsCallable(functionName, payload);
+    }
+    final result = await _functions.httpsCallable(functionName).call(payload);
+    final data = result.data;
+    return data is Map ? Map<Object?, Object?>.from(data) : const {};
+  }
+
   Future<Map<Object?, Object?>> _callWindowsCallable(
     String functionName,
     Map<String, Object?> data,

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../data/pos_order_repository.dart';
 import '../models/pos_models.dart';
 import 'on_screen_keyboard.dart';
+import 'pos_expense_history_dialog.dart';
 
 class PosExpensePage extends StatefulWidget {
   const PosExpensePage({
@@ -13,12 +14,16 @@ class PosExpensePage extends StatefulWidget {
     required this.tenantId,
     required this.employeeId,
     required this.employeeName,
+    this.expense,
   });
 
   final PosOrderRepository repository;
   final String tenantId;
   final String employeeId;
   final String employeeName;
+
+  /// When set, the page edits this expense instead of creating a new one.
+  final PosExpense? expense;
 
   @override
   State<PosExpensePage> createState() => _PosExpensePageState();
@@ -30,13 +35,19 @@ class _PosExpensePageState extends State<PosExpensePage> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   late TextEditingController _active = _amountController;
-  PaymentMethod _method = PaymentMethod.cash;
+  late PaymentMethod _method = widget.expense?.paymentMethod ?? PaymentMethod.cash;
   bool _submitting = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    final expense = widget.expense;
+    if (expense != null) {
+      _amountController.text =
+          expense.amount.toStringAsFixed(2).replaceAll('.', ',');
+      _descriptionController.text = expense.description;
+    }
     _amountFocus.addListener(() {
       if (_amountFocus.hasFocus) setState(() => _active = _amountController);
     });
@@ -113,27 +124,57 @@ class _PosExpensePageState extends State<PosExpensePage> {
       _error = null;
     });
     try {
-      await widget.repository.submitExpense(
-        tenantId: widget.tenantId,
-        employeeId: widget.employeeId,
-        amount: amount,
-        paymentMethod: _method,
-        description: description,
-      );
+      final expense = widget.expense;
+      if (expense == null) {
+        await widget.repository.submitExpense(
+          tenantId: widget.tenantId,
+          employeeId: widget.employeeId,
+          amount: amount,
+          paymentMethod: _method,
+          description: description,
+        );
+      } else {
+        await widget.repository.updateExpense(
+          tenantId: widget.tenantId,
+          employeeId: widget.employeeId,
+          expenseId: expense.id,
+          amount: amount,
+          paymentMethod: _method,
+          description: description,
+        );
+      }
       if (mounted) Navigator.of(context).pop(true);
     } on FirebaseFunctionsException catch (error) {
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = error.message ?? 'Αποτυχία καταχώρησης εξόδου.';
+        _error = error.message ?? _failureMessage;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = 'Αποτυχία καταχώρησης εξόδου. Ελέγξτε τη σύνδεση.';
+        _error = '$_failureMessage Ελέγξτε τη σύνδεση.';
       });
     }
+  }
+
+  bool get _editing => widget.expense != null;
+
+  String get _failureMessage => _editing
+      ? 'Αποτυχία αποθήκευσης αλλαγών.'
+      : 'Αποτυχία καταχώρησης εξόδου.';
+
+  Future<void> _showTodayExpenses() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => PosExpenseHistoryDialog(
+        repository: widget.repository,
+        tenantId: widget.tenantId,
+        employeeId: widget.employeeId,
+        employeeName: widget.employeeName,
+      ),
+    );
   }
 
   @override
@@ -143,8 +184,22 @@ class _PosExpensePageState extends State<PosExpensePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Καταχώρηση εξόδου · ${widget.employeeName}'),
+        title: Text(
+            '${_editing ? 'Επεξεργασία εξόδου' : 'Καταχώρηση εξόδου'} · ${widget.employeeName}'),
         leadingWidth: 72,
+        actions: [
+          if (!_editing)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: OutlinedButton.icon(
+                style:
+                    OutlinedButton.styleFrom(minimumSize: const Size(56, 52)),
+                onPressed: _submitting ? null : _showTodayExpenses,
+                icon: const Icon(Icons.history),
+                label: const Text('Σημερινά έξοδα'),
+              ),
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -265,7 +320,9 @@ class _PosExpensePageState extends State<PosExpensePage> {
                       minimumSize: const Size.fromHeight(64)),
                   onPressed: _submitting ? null : _submit,
                   icon: const Icon(Icons.check),
-                  label: Text(_submitting ? 'Καταχώρηση...' : 'Καταχώρηση'),
+                  label: Text(_editing
+                      ? (_submitting ? 'Αποθήκευση...' : 'Αποθήκευση αλλαγών')
+                      : (_submitting ? 'Καταχώρηση...' : 'Καταχώρηση')),
                 ),
               ],
             ),

@@ -94,6 +94,8 @@ export type CreateExpenseInput = {
 
 export type UpdateExpenseInput = {
   tenantId: string;
+  /** Sent by the POS: the session employee making the change. */
+  employeeId?: string;
   expenseId: string;
   amount: number;
   paymentMethod: PaymentMethod;
@@ -102,7 +104,16 @@ export type UpdateExpenseInput = {
 
 export type DeleteExpenseInput = {
   tenantId: string;
+  /** Sent by the POS: the session employee making the change. */
+  employeeId?: string;
   expenseId: string;
+};
+
+export type ListTodayExpensesInput = {
+  tenantId: string;
+  employeeId: string;
+  fromMillis: number;
+  toMillis: number;
 };
 
 export type SetManagerPinInput = {

@@ -45,6 +45,7 @@ export {deleteEmployee} from "./employees/delete-employee";
 export {createExpense} from "./expenses/create-expense";
 export {updateExpense} from "./expenses/update-expense";
 export {deleteExpense} from "./expenses/delete-expense";
+export {listTodayExpenses} from "./expenses/list-today-expenses";
 
 export {savePromotion} from "./promotions/save-promotion";
 

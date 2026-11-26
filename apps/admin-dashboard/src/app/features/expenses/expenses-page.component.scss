@@ -15,7 +15,7 @@
 
 .filters {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto auto;
   gap: 12px;
   align-items: end;
   margin-bottom: 12px;
@@ -118,6 +118,49 @@ td {
 
 .actions-cell button + button {
   margin-left: 10px;
+}
+
+.voided-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: #334155;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.description-text {
+  display: block;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-edited {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-voided {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.voided-row td {
+  color: #94a3b8;
+}
+
+.voided-row .description-text,
+.voided-row .total-cell {
+  text-decoration: line-through;
 }
 
 .link {

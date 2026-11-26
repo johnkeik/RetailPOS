@@ -91,6 +91,9 @@ test('duplicate employee codes fail closed and unauthenticated mutations are den
     ['orders/create-order', 'createOrder', {items: [{}]}],
     ['orders/cancel-order', 'cancelOrder', {orderId: 'order'}],
     ['expenses/create-expense', 'createExpense', {amount: 1, paymentMethod: 'CASH', description: 'Test'}],
+    ['expenses/update-expense', 'updateExpense', {expenseId: 'x', amount: 1, paymentMethod: 'CASH', description: 'Test'}],
+    ['expenses/delete-expense', 'deleteExpense', {expenseId: 'x'}],
+    ['expenses/list-today-expenses', 'listTodayExpenses', {fromMillis: 0, toMillis: 1000}],
   ]) {
     const callable = require('../lib/' + file)[name];
     await assert.rejects(callable.run({data: {tenantId: shop, employeeId: 'e1', ...data}}), {code: 'unauthenticated'});

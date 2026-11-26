@@ -185,3 +185,23 @@ class PosOrder {
   final String? originalOrderId;
   final bool isSeeded;
 }
+
+class PosExpense {
+  const PosExpense({
+    required this.id,
+    required this.amount,
+    required this.paymentMethod,
+    required this.description,
+    required this.createdAt,
+    this.voided = false,
+    this.edited = false,
+  });
+
+  final String id;
+  final double amount;
+  final PaymentMethod paymentMethod;
+  final String description;
+  final DateTime? createdAt;
+  final bool voided;
+  final bool edited;
+}

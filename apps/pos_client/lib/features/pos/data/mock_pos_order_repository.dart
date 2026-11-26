@@ -36,4 +36,29 @@ class MockPosOrderRepository implements PosOrderRepository {
     required PaymentMethod paymentMethod,
     required String description,
   }) async {}
+
+  @override
+  Future<List<PosExpense>> loadTodayExpenses({
+    required String tenantId,
+    required String employeeId,
+  }) async {
+    return const [];
+  }
+
+  @override
+  Future<void> updateExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
+  }) async {}
+
+  @override
+  Future<void> voidExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+  }) async {}
 }

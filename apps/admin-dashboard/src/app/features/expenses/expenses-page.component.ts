@@ -23,6 +23,7 @@ export class ExpensesPageComponent implements OnInit {
   protected readonly employeeFilter = signal('');
   protected readonly dateFrom = signal('');
   protected readonly dateTo = signal('');
+  protected readonly showVoided = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
 
@@ -32,7 +33,8 @@ export class ExpensesPageComponent implements OnInit {
     return [...names].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name, 'el'));
   });
 
-  protected readonly rows = computed(() => {
+  /** Rows matching the filters, including voided ones. */
+  private readonly filteredRows = computed(() => {
     const employeeId = this.employeeFilter();
     const from = this.dateFrom() ? new Date(`${this.dateFrom()}T00:00:00`) : null;
     const to = this.dateTo() ? new Date(`${this.dateTo()}T23:59:59.999`) : null;
@@ -44,8 +46,15 @@ export class ExpensesPageComponent implements OnInit {
     );
   });
 
+  /** Voided expenses never count towards totals. */
+  private readonly activeRows = computed(() => this.filteredRows().filter((row) => !row.voided));
+
+  protected readonly voidedCount = computed(() => this.filteredRows().filter((row) => row.voided).length);
+
+  protected readonly rows = computed(() => (this.showVoided() ? this.filteredRows() : this.activeRows()));
+
   protected readonly totals = computed(() => {
-    const rows = this.rows();
+    const rows = this.activeRows();
     const sum = (filter: (method: string) => boolean) =>
       rows.filter((row) => filter(row.paymentMethod)).reduce((acc, row) => acc + row.amount, 0);
     return { total: sum(() => true), cash: sum((m) => m === 'CASH'), card: sum((m) => m === 'CARD') };
@@ -53,7 +62,7 @@ export class ExpensesPageComponent implements OnInit {
 
   protected readonly perEmployee = computed(() => {
     const totals = new Map<string, { name: string; count: number; total: number }>();
-    for (const row of this.rows()) {
+    for (const row of this.activeRows()) {
       const entry = totals.get(row.employeeId) ?? { name: row.employeeName, count: 0, total: 0 };
       entry.count += 1;
       entry.total += row.amount;
@@ -116,8 +125,12 @@ export class ExpensesPageComponent implements OnInit {
   }
 
   protected async remove(id: string): Promise<void> {
-    if (!confirm('Θέλετε σίγουρα να διαγράψετε αυτό το έξοδο;')) return;
+    if (!confirm('Θέλετε σίγουρα να ακυρώσετε αυτό το έξοδο; Θα παραμείνει στο ιστορικό ως ακυρωμένο.')) return;
     await this.service.remove(id);
+  }
+
+  protected changeNote(by: string | null, at: Date | null): string {
+    return [by, at ? this.formatDate(at) : null].filter(Boolean).join(' · ');
   }
 
   protected formatDate(value: Date): string {

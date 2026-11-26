@@ -1,8 +1,8 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
-import { assertRole, resolveActorContext } from "../common/auth";
 import { db, serverTimestamp } from "../common/firestore";
 import { UpdateExpenseInput } from "../types/domain";
+import { changedByFields, resolveExpenseActor } from "./expense-actor";
 
 export const updateExpense = onCall(async (request) => {
   const data = request.data as UpdateExpenseInput;
@@ -22,19 +22,23 @@ export const updateExpense = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Συμπληρώστε περιγραφή έως 300 χαρακτήρες.");
   }
 
-  const actor = await resolveActorContext(request.auth, data.tenantId);
-  assertRole(actor, ["OWNER"]);
+  const actor = await resolveExpenseActor(request.auth, data.tenantId, data.employeeId);
 
   const expenseRef = db.doc(`tenants/${actor.tenantId}/expenses/${data.expenseId}`);
-  if (!(await expenseRef.get()).exists) {
+  const snapshot = await expenseRef.get();
+  if (!snapshot.exists) {
     throw new HttpsError("not-found", "Το έξοδο δεν βρέθηκε.");
+  }
+  if (snapshot.data()?.["status"] === "VOIDED") {
+    throw new HttpsError("failed-precondition", "Το έξοδο έχει ακυρωθεί.");
   }
 
   await expenseRef.update({
     amount: Math.round(amount * 100) / 100,
     paymentMethod: data.paymentMethod,
     description,
-    updatedAt: serverTimestamp()
+    updatedAt: serverTimestamp(),
+    ...changedByFields("updated", actor)
   });
 
   return { ok: true };

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
+import '../models/order_tabs.dart';
 import '../models/pos_models.dart';
 import '../models/promotion_pricing.dart';
 import 'pos_expense_page.dart';
@@ -37,7 +38,16 @@ class PosHomePage extends StatefulWidget {
 class _PosHomePageState extends State<PosHomePage> {
   late final LabelPrintService _labelPrinter =
       widget.labelPrintService ?? LabelPrintService();
-  final List<CartLine> _cartLines = <CartLine>[];
+  late final OrderTabsStore _tabsStore = OrderTabsStore(widget.tenantId);
+  final List<OrderTab> _tabs = [OrderTab(number: 1)];
+  int _activeTabIndex = 0;
+
+  /// Saving starts only after saved tabs were restored, so an early save
+  /// cannot overwrite them with the initial empty tab.
+  bool _tabsRestored = false;
+
+  OrderTab get _activeTab => _tabs[_activeTabIndex];
+  List<CartLine> get _cartLines => _activeTab.lines;
   final TextEditingController _searchController = TextEditingController();
   List<String> _categories = const ['All'];
   String _giftVariantName(String id) {
@@ -61,7 +71,11 @@ class _PosHomePageState extends State<PosHomePage> {
   String? _catalogError;
   bool _submittingOrder = false;
   double _lastDisplayedTotal = 0;
-  PaymentMethod _selectedPaymentMethod = PaymentMethod.cash;
+  PaymentMethod get _selectedPaymentMethod => _activeTab.paymentMethod;
+  set _selectedPaymentMethod(PaymentMethod method) {
+    _activeTab.paymentMethod = method;
+    _saveTabs();
+  }
 
   @override
   void initState() {
@@ -88,32 +102,40 @@ class _PosHomePageState extends State<PosHomePage> {
         return;
       }
 
+      var droppedCount = 0;
+      if (!_tabsRestored) {
+        final restored = await _tabsStore.restore(catalog.products);
+        if (!mounted) return;
+        if (restored != null) {
+          _tabs
+            ..clear()
+            ..addAll(restored.tabs);
+          _activeTabIndex = restored.activeIndex;
+          droppedCount += restored.droppedCount;
+        }
+        _tabsRestored = true;
+      }
+
       setState(() {
         _categories =
             catalog.categories.isEmpty ? const ['All'] : catalog.categories;
         _products = catalog.products;
         _promotions = catalog.promotions;
-        for (var index = 0; index < _cartLines.length; index++) {
-          final line = _cartLines[index];
-          for (final product in _products) {
-            if (product.id != line.product.id) continue;
-            for (final variant in product.variants) {
-              if (variant.id != line.variant.id) continue;
-              _cartLines[index] = CartLine(
-                  product: product,
-                  variant: variant,
-                  quantity: line.quantity,
-                  useSpecialBottle:
-                      line.useSpecialBottle && variant.hasSpecialBottle);
-            }
-          }
-        }
+        droppedCount += rebindOrderTabs(_tabs, _products).length;
         _selectedCategory =
             _categories.contains(_selectedCategory) ? _selectedCategory : 'All';
         _loadingCatalog = false;
         _catalogError = null;
         _syncSelectedFromFilter();
       });
+      _saveTabs();
+      if (droppedCount > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(droppedCount == 1
+              ? 'Αφαιρέθηκε 1 είδος από ανοιχτές παραγγελίες, γιατί δεν είναι πλέον διαθέσιμο.'
+              : 'Αφαιρέθηκαν $droppedCount είδη από ανοιχτές παραγγελίες, γιατί δεν είναι πλέον διαθέσιμα.'),
+        ));
+      }
     } catch (error) {
       if (!mounted) {
         return;
@@ -200,16 +222,82 @@ class _PosHomePageState extends State<PosHomePage> {
     return category == 'All' ? 'Όλα' : category;
   }
 
+  void _saveTabs() {
+    if (!_tabsRestored) return;
+    // Fire-and-forget: a failed write must never block a sale.
+    _tabsStore.save(_tabs, _activeTabIndex).catchError((Object error) {
+      debugPrint('Could not save order tabs: $error');
+    });
+  }
+
+  void _addTab() {
+    if (_submittingOrder || _tabs.length >= maxOrderTabs) return;
+    setState(() {
+      _tabs.add(OrderTab(number: nextOrderTabNumber(_tabs)));
+      _activeTabIndex = _tabs.length - 1;
+    });
+    _saveTabs();
+  }
+
+  void _switchTab(int index) {
+    if (_submittingOrder || index == _activeTabIndex) return;
+    setState(() => _activeTabIndex = index);
+    _saveTabs();
+  }
+
+  /// Removes [tab], keeping at least one (empty) tab open.
+  void _removeTab(OrderTab tab) {
+    final index = _tabs.indexOf(tab);
+    if (index == -1) return;
+    _tabs.removeAt(index);
+    if (_tabs.isEmpty) {
+      _tabs.add(OrderTab(number: 1));
+    }
+    if (_activeTabIndex > index || _activeTabIndex >= _tabs.length) {
+      _activeTabIndex = (_activeTabIndex - 1).clamp(0, _tabs.length - 1);
+    }
+  }
+
+  Future<void> _closeTab(OrderTab tab) async {
+    if (_submittingOrder) return;
+    if (tab.lines.isNotEmpty) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('Κλείσιμο Παραγγελίας ${tab.number}'),
+          content: Text(
+              'Η παραγγελία έχει ${tab.itemCount} τεμάχια. Θέλετε να την κλείσετε χωρίς ολοκλήρωση;'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Άκυρο')),
+            FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Κλείσιμο')),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+    setState(() => _removeTab(tab));
+    _saveTabs();
+  }
+
   Future<void> _confirmEndSession() async {
     if (widget.onEndSession == null) {
       return;
     }
 
+    final openTabs = _tabs.where((tab) => tab.lines.isNotEmpty).length;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Αλλαγή υπαλλήλου'),
-        content: const Text('Θέλετε να τερματίσετε τη τρέχουσα συνεδρία;'),
+        content: Text(openTabs == 0
+            ? 'Θέλετε να τερματίσετε τη τρέχουσα συνεδρία;'
+            : 'Θέλετε να τερματίσετε τη τρέχουσα συνεδρία;\n\n'
+                '${openTabs == 1 ? 'Υπάρχει 1 ανοιχτή παραγγελία' : 'Υπάρχουν $openTabs ανοιχτές παραγγελίες'}. '
+                'Θα παραμείνουν αποθηκευμένες σε αυτό το ταμείο και θα πιστωθούν σε όποιον τις ολοκληρώσει.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -226,98 +314,191 @@ class _PosHomePageState extends State<PosHomePage> {
     }
   }
 
-  Widget _buildSessionInfo({
-    required Color color,
+  String _money(double value) =>
+      '${value.toStringAsFixed(2).replaceAll('.', ',')} €';
+
+  Widget _buildHeaderIconButton({
+    required ColorScheme colors,
     required IconData icon,
-    required String label,
-    required String value,
+    required String tooltip,
+    required VoidCallback? onPressed,
   }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(width: 9),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label, style: TextStyle(fontSize: 11, color: color)),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-          ],
+    // Matches FullscreenToggleButton so the header actions read as one group.
+    return IconButton.filledTonal(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon),
+      iconSize: 28,
+      constraints: const BoxConstraints.tightFor(width: 56, height: 56),
+      style: IconButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: colors.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildOrderTab(OrderTab tab, int index, ColorScheme colors) {
+    final isActive = index == _activeTabIndex;
+    final foreground = isActive ? colors.onPrimary : colors.onSurface;
+    final subtitle = tab.lines.isEmpty
+        ? 'Κενή'
+        : '${tab.itemCount} τεμ. · ${_money(priceCart(tab.lines, _promotions).total)}';
+    final canClose = tab.lines.isNotEmpty || _tabs.length > 1;
+
+    return Material(
+      key: ValueKey('order-tab-${tab.number}'),
+      color: isActive ? colors.primary : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+            color: isActive
+                ? colors.primary
+                : colors.outline.withOpacity(0.3)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _submittingOrder ? null : () => _switchTab(index),
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 14, right: canClose ? 0 : 14),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Παραγγελία ${tab.number}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: foreground,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: foreground.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (canClose)
+                IconButton(
+                  tooltip: 'Κλείσιμο παραγγελίας',
+                  onPressed: _submittingOrder ? null : () => _closeTab(tab),
+                  icon: const Icon(Icons.close, size: 20),
+                  color: foreground.withOpacity(0.85),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 48, height: 56),
+                ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildSessionBar(ColorScheme colors) {
+    final canAddTab = !_submittingOrder && _tabs.length < maxOrderTabs;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colors.outline.withOpacity(0.22)),
       ),
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 20,
-        runSpacing: 12,
+      child: Row(
         children: [
-          Wrap(
-            spacing: 28,
-            runSpacing: 10,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              _buildSessionInfo(
-                color: colors.primary,
-                icon: Icons.person_outline,
-                label: 'ΥΠΑΛΛΗΛΟΣ',
-                value: widget.employeeName,
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (var index = 0; index < _tabs.length; index++) ...[
+                    _buildOrderTab(_tabs[index], index, colors),
+                    const SizedBox(width: 6),
+                  ],
+                  Tooltip(
+                    message: canAddTab
+                        ? 'Νέα παραγγελία'
+                        : 'Έως $maxOrderTabs ανοιχτές παραγγελίες',
+                    child: OutlinedButton(
+                      key: const ValueKey('order-tab-add'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(56, 56),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: canAddTab ? _addTab : null,
+                      child: const Icon(Icons.add, size: 28),
+                    ),
+                  ),
+                ],
               ),
-              _buildSessionInfo(
-                color: colors.secondary,
-                icon: Icons.store_outlined,
-                label: 'ΚΑΤΑΣΤΗΜΑ',
-                value: widget.tenantId,
-              ),
-            ],
+            ),
           ),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton.icon(
-                style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
-                onPressed:
-                    _loadingCatalog || _submittingOrder ? null : _loadCatalog,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Ανανέωση'),
-              ),
-              OutlinedButton.icon(
-                style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
-                onPressed: _showOrderHistory,
-                icon: const Icon(Icons.history),
-                label: const Text('Ιστορικό'),
-              ),
-              OutlinedButton.icon(
-                style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
-                onPressed: _showExpenses,
-                icon: const Icon(Icons.receipt_long_outlined),
-                label: const Text('Έξοδα'),
-              ),
-              OutlinedButton.icon(
-                style:
-                    OutlinedButton.styleFrom(minimumSize: const Size(56, 56)),
-                onPressed:
-                    widget.onEndSession == null ? null : _confirmEndSession,
-                icon: const Icon(Icons.logout),
-                label: const Text('Αποσύνδεση'),
-              ),
-              const FullscreenToggleButton(),
-            ],
+          const SizedBox(width: 12),
+          Container(
+            height: 56,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: colors.primaryContainer.withOpacity(0.35),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.person_outline, color: colors.primary, size: 22),
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 160),
+                  child: Text(
+                    widget.employeeName,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildHeaderIconButton(
+            colors: colors,
+            icon: Icons.history,
+            tooltip: 'Ιστορικό παραγγελιών',
+            onPressed: _showOrderHistory,
+          ),
+          const SizedBox(width: 6),
+          _buildHeaderIconButton(
+            colors: colors,
+            icon: Icons.receipt_long_outlined,
+            tooltip: 'Έξοδα',
+            onPressed: _showExpenses,
+          ),
+          const SizedBox(width: 6),
+          _buildHeaderIconButton(
+            colors: colors,
+            icon: Icons.refresh,
+            tooltip: 'Ανανέωση καταλόγου',
+            onPressed:
+                _loadingCatalog || _submittingOrder ? null : _loadCatalog,
+          ),
+          const SizedBox(width: 6),
+          const FullscreenToggleButton(),
+          const SizedBox(width: 6),
+          _buildHeaderIconButton(
+            colors: colors,
+            icon: Icons.logout,
+            tooltip: 'Αποσύνδεση',
+            onPressed: widget.onEndSession == null ? null : _confirmEndSession,
           ),
         ],
       ),
@@ -450,6 +631,7 @@ class _PosHomePageState extends State<PosHomePage> {
 
       _useSpecialBottle = false;
     });
+    _saveTabs();
   }
 
   void _incrementLine(CartLine line) {
@@ -472,6 +654,7 @@ class _PosHomePageState extends State<PosHomePage> {
         useSpecialBottle: line.useSpecialBottle,
       );
     });
+    _saveTabs();
   }
 
   void _decrementLine(CartLine line) {
@@ -499,6 +682,7 @@ class _PosHomePageState extends State<PosHomePage> {
         );
       }
     });
+    _saveTabs();
   }
 
   Widget _paymentMethodOption({
@@ -566,6 +750,8 @@ class _PosHomePageState extends State<PosHomePage> {
     }
 
     setState(() => _submittingOrder = true);
+    // Tab switching is blocked while submitting, so this stays the active tab.
+    final submittedTab = _activeTab;
 
     try {
       final orderId = await widget.orderRepository.submitOrder(
@@ -585,9 +771,10 @@ class _PosHomePageState extends State<PosHomePage> {
           _labelPrinter.printItems(orderId: orderId, items: printItems);
 
       setState(() {
-        _cartLines.clear();
+        _removeTab(submittedTab);
         _submittingOrder = false;
       });
+      _saveTabs();
 
       await showDialog<void>(
         context: context,
@@ -1448,9 +1635,9 @@ class _PosHomePageState extends State<PosHomePage> {
                                   runSpacing: 4,
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    const Text(
-                                      'Παραγγελία',
-                                      style: TextStyle(
+                                    Text(
+                                      'Παραγγελία ${_activeTab.number}',
+                                      style: const TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w700,
                                       ),

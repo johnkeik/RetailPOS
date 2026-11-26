@@ -24,8 +24,34 @@ import 'package:pos_client/features/pos/models/promotion_pricing.dart';
 import 'package:pos_client/features/pos/models/pos_models.dart';
 import 'package:pos_client/features/pos/presentation/pos_home_page.dart';
 import 'package:pos_client/features/pos/presentation/pos_order_history_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class _HistoryOrderRepository implements PosOrderRepository {
+mixin _NoExpenseHistory {
+  Future<List<PosExpense>> loadTodayExpenses({
+    required String tenantId,
+    required String employeeId,
+  }) async =>
+      const [];
+
+  Future<void> updateExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+    required double amount,
+    required PaymentMethod paymentMethod,
+    required String description,
+  }) async {}
+
+  Future<void> voidExpense({
+    required String tenantId,
+    required String employeeId,
+    required String expenseId,
+  }) async {}
+}
+
+class _HistoryOrderRepository
+    with _NoExpenseHistory
+    implements PosOrderRepository {
   const _HistoryOrderRepository({
     this.productCode = '310047',
     this.productName = 'Άρωμα δοκιμής',
@@ -91,7 +117,9 @@ class _HistoryOrderRepository implements PosOrderRepository {
   }) async {}
 }
 
-class _CancellableHistoryOrderRepository implements PosOrderRepository {
+class _CancellableHistoryOrderRepository
+    with _NoExpenseHistory
+    implements PosOrderRepository {
   PosOrder order = PosOrder(
     id: 'order-cancel-1',
     employeeId: 'employee-1',
@@ -207,6 +235,8 @@ class _ActivatedDevice implements PosDeviceAuth {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   testWidgets('employee session entry renders', (tester) async {
     tester.view.physicalSize = const Size(1600, 900);
     tester.view.devicePixelRatio = 1.0;
@@ -246,9 +276,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Μαρία Παπαδοπούλου'), findsOneWidget);
-    expect(find.text('store001'), findsOneWidget);
-    expect(find.text('Ιστορικό'), findsOneWidget);
-    expect(find.text('Αποσύνδεση'), findsOneWidget);
+    expect(find.byTooltip('Ιστορικό παραγγελιών'), findsOneWidget);
+    expect(find.byTooltip('Έξοδα'), findsOneWidget);
+    expect(find.byTooltip('Αποσύνδεση'), findsOneWidget);
+    expect(find.byKey(const ValueKey('order-tab-1')), findsOneWidget);
     final cardPayment = find.byKey(const ValueKey('payment-card'));
     final cashPayment = find.byKey(const ValueKey('payment-cash'));
     expect(cardPayment, findsOneWidget);
@@ -278,7 +309,7 @@ void main() {
     tester.view.physicalSize = const Size(1280, 720);
     await tester.pumpAndSettle();
     expect(find.text('Μαρία Παπαδοπούλου'), findsOneWidget);
-    expect(find.text('Ιστορικό'), findsOneWidget);
+    expect(find.byTooltip('Ιστορικό παραγγελιών'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -573,9 +604,19 @@ void main() {
         ),
       ));
       await tester.pumpAndSettle();
-      for (final label in ['Ιστορικό', 'Έξοδα', 'Αποσύνδεση']) {
-        final target = _buttonWithLabel(label);
+      for (final label in [
+        'Ιστορικό παραγγελιών',
+        'Έξοδα',
+        'Ανανέωση καταλόγου',
+        'Αποσύνδεση',
+      ]) {
+        final target = _iconWithTooltip(label);
         expect(tester.getSize(target).height, greaterThanOrEqualTo(56));
+        expect(tester.getSize(target).width, greaterThanOrEqualTo(56));
+      }
+      for (final key in ['order-tab-1', 'order-tab-add']) {
+        expect(tester.getSize(find.byKey(ValueKey(key))).height,
+            greaterThanOrEqualTo(56));
       }
       final add = _buttonWithLabel('Προσθήκη — €15.00');
       expect(tester.getSize(add).height, greaterThanOrEqualTo(64));

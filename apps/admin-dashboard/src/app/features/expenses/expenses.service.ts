@@ -15,7 +15,27 @@ export type ExpenseRow = {
   paymentMethod: PaymentMethod;
   description: string;
   createdAt: Date;
+  voided: boolean;
+  /** Set when a voided expense: who voided it and when. */
+  voidedBy: string | null;
+  voidedAt: Date | null;
+  /** Set when the expense was edited after creation. */
+  updatedBy: string | null;
+  updatedAt: Date | null;
 };
+
+type TimestampLike = { toDate?: () => Date } | undefined;
+
+// Changes made from the POS name the employee; changes from the dashboard come from the owner.
+function changedBy(
+  data: Record<string, unknown>,
+  prefix: 'updated' | 'voided',
+  employeeNames: Map<string, string>
+): string | null {
+  const employeeId = data[`${prefix}ByEmployeeId`] as string | undefined;
+  if (employeeId) return employeeNames.get(employeeId) || employeeId;
+  return data[`${prefix}ByUid`] ? 'Διαχειριστής' : null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ExpensesService {
@@ -97,7 +117,9 @@ export class ExpensesService {
         snapshot.docs.map((item) => {
           const data = item.data();
           const employeeId = (data['employeeId'] as string | undefined) ?? '-';
-          const createdAt = data['createdAt'] as { toDate?: () => Date } | undefined;
+          const createdAt = data['createdAt'] as TimestampLike;
+          const voided = data['status'] === 'VOIDED';
+          const updatedAt = (data['updatedAt'] as TimestampLike)?.toDate?.() ?? null;
           return {
             id: item.id,
             employeeId,
@@ -105,7 +127,12 @@ export class ExpensesService {
             amount: Number(data['amount'] ?? 0),
             paymentMethod: data['paymentMethod'] as PaymentMethod,
             description: (data['description'] as string | undefined) ?? '',
-            createdAt: createdAt?.toDate?.() ?? new Date()
+            createdAt: createdAt?.toDate?.() ?? new Date(),
+            voided,
+            voidedBy: voided ? changedBy(data, 'voided', employeeNames) : null,
+            voidedAt: voided ? (data['voidedAt'] as TimestampLike)?.toDate?.() ?? null : null,
+            updatedBy: updatedAt ? changedBy(data, 'updated', employeeNames) : null,
+            updatedAt
           };
         })
       );

@@ -59,6 +59,10 @@
       <label class="field" for="to">Έως</label>
       <input id="to" class="text-input" type="date" (change)="dateTo.set(to.value)" #to />
     </div>
+    <label class="voided-toggle">
+      <input type="checkbox" [checked]="showVoided()" (change)="showVoided.set(voidedToggle.checked)" #voidedToggle />
+      Εμφάνιση ακυρωμένων ({{ voidedCount() }})
+    </label>
     <button class="refresh" type="button" (click)="refresh()">Ανανέωση</button>
   </div>
 
@@ -77,6 +81,7 @@
   </div>
 
   @if (rows().length > 0) {
+    @if (perEmployee().length > 0) {
     <h3>Ανά υπάλληλο</h3>
     <div class="table-wrap">
       <table>
@@ -94,6 +99,7 @@
         </tbody>
       </table>
     </div>
+    }
 
     <h3>Αναλυτικά</h3>
     <div class="table-wrap">
@@ -128,18 +134,31 @@
                 </td>
               </tr>
             } @else {
-              <tr>
+              <tr [class.voided-row]="row.voided">
                 <td class="date-cell">{{ formatDate(row.createdAt) }}</td>
                 <td>{{ row.employeeName }}</td>
-                <td class="description-cell">{{ row.description }}</td>
+                <td class="description-cell">
+                  <span class="description-text">{{ row.description }}</span>
+                  @if (row.voided) {
+                    <span class="badge badge-voided" [title]="changeNote(row.voidedBy, row.voidedAt)">
+                      Ακυρώθηκε · {{ changeNote(row.voidedBy, row.voidedAt) }}
+                    </span>
+                  } @else if (row.updatedAt) {
+                    <span class="badge badge-edited" [title]="changeNote(row.updatedBy, row.updatedAt)">
+                      Τροποποιήθηκε · {{ changeNote(row.updatedBy, row.updatedAt) }}
+                    </span>
+                  }
+                </td>
                 <td>{{ row.paymentMethod === 'CARD' ? 'Κάρτα' : 'Μετρητά' }}</td>
                 <td class="total-cell">{{ formatCurrency(row.amount) }}</td>
                 <td class="actions-col">
-                  <app-entity-actions
-                    [showToggle]="false"
-                    (edit)="startEdit(row.id)"
-                    (delete)="remove(row.id)"
-                  />
+                  @if (!row.voided) {
+                    <app-entity-actions
+                      [showToggle]="false"
+                      (edit)="startEdit(row.id)"
+                      (delete)="remove(row.id)"
+                    />
+                  }
                 </td>
               </tr>
             }

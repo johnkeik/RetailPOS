@@ -53,17 +53,19 @@ export class SalesReportService {
       );
 
       this.expenses.set(
-        expensesSnapshot.docs.map((item) => {
-          const data = item.data();
-          const employeeId = (data['employeeId'] as string | undefined) ?? '-';
-          return {
-            employeeId,
-            employeeName: names.get(employeeId) || employeeId,
-            paymentMethod: data['paymentMethod'] as PaymentMethod | undefined,
-            total: Number(data['amount'] ?? 0),
-            createdAt: (data['createdAt'] as Timestamp).toDate()
-          };
-        })
+        expensesSnapshot.docs
+          .filter((item) => item.data()['status'] !== 'VOIDED')
+          .map((item) => {
+            const data = item.data();
+            const employeeId = (data['employeeId'] as string | undefined) ?? '-';
+            return {
+              employeeId,
+              employeeName: names.get(employeeId) || employeeId,
+              paymentMethod: data['paymentMethod'] as PaymentMethod | undefined,
+              total: Number(data['amount'] ?? 0),
+              createdAt: (data['createdAt'] as Timestamp).toDate()
+            };
+          })
       );
 
       this.orders.set(
