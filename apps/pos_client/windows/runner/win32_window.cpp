@@ -1,5 +1,6 @@
 #include "win32_window.h"
 
+#include <algorithm>
 #include <dwmapi.h>
 #include <flutter_windows.h>
 
@@ -154,6 +155,7 @@ bool Win32Window::Show() {
   const HMONITOR monitor =
       MonitorFromWindow(window_handle_, MONITOR_DEFAULTTONEAREST);
   if (!GetMonitorInfo(monitor, &monitor_info)) {
+    is_fullscreen_ = true;
     return ShowWindow(window_handle_, SW_SHOWMAXIMIZED);
   }
 
@@ -162,7 +164,45 @@ bool Win32Window::Show() {
   SetWindowPos(window_handle_, HWND_TOP, bounds.left, bounds.top,
                bounds.right - bounds.left, bounds.bottom - bounds.top,
                SWP_FRAMECHANGED | SWP_NOACTIVATE);
+  is_fullscreen_ = true;
   return ShowWindow(window_handle_, SW_SHOW);
+}
+
+bool Win32Window::SetWindowed() {
+  if (!window_handle_) {
+    return false;
+  }
+
+  SetWindowLongPtr(window_handle_, GWL_STYLE,
+                   WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN);
+  SetWindowLongPtr(window_handle_, GWL_EXSTYLE, 0);
+
+  HMONITOR monitor =
+      MonitorFromWindow(window_handle_, MONITOR_DEFAULTTONEAREST);
+  MONITORINFO monitor_info = {sizeof(MONITORINFO)};
+  if (!GetMonitorInfo(monitor, &monitor_info)) {
+    return false;
+  }
+
+  const RECT work_area = monitor_info.rcWork;
+  const int width =
+      static_cast<int>(std::min(1280L, work_area.right - work_area.left));
+  const int height =
+      static_cast<int>(std::min(720L, work_area.bottom - work_area.top));
+  const int left = work_area.left + (work_area.right - work_area.left - width) / 2;
+  const int top = work_area.top + (work_area.bottom - work_area.top - height) / 2;
+
+  SetWindowPos(window_handle_, HWND_TOP, left, top, width, height,
+               SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+  const bool shown = ShowWindow(window_handle_, SW_SHOWNORMAL) != 0;
+  if (shown) {
+    is_fullscreen_ = false;
+  }
+  return shown;
+}
+
+bool Win32Window::ToggleFullscreen() {
+  return is_fullscreen_ ? SetWindowed() : Show();
 }
 
 // static

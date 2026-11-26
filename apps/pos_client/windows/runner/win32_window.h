@@ -39,6 +39,14 @@ class Win32Window {
   // Show the current window. Returns true if the window was successfully shown.
   bool Show();
 
+  // Restore the kiosk window to a normal, touch-accessible window.
+  bool SetWindowed();
+
+  // Toggle between kiosk fullscreen and a normal window.
+  bool ToggleFullscreen();
+
+  bool IsFullscreen() const { return is_fullscreen_; }
+
   // Release OS resources associated with window.
   void Destroy();
 
@@ -97,6 +105,8 @@ class Win32Window {
 
   // window handle for hosted content.
   HWND child_content_ = nullptr;
+
+  bool is_fullscreen_ = false;
 };
 
 #endif  // RUNNER_WIN32_WINDOW_H_

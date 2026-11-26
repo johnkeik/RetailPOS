@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import 'pos_home_page.dart';
+import 'pos_window_controls.dart';
 
 class EmployeeSessionGate extends StatefulWidget {
   const EmployeeSessionGate({
@@ -248,87 +249,96 @@ class _EmployeeLoginViewState extends State<_EmployeeLoginView> {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        'Εναρξη Συνεδριας',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 26, fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Καταστημα: ${widget.tenantId}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: colors.secondary),
-                      ),
-                      const SizedBox(height: 24),
-                      TextField(
-                        controller: _controller,
-                        autofocus: true,
-                        enabled: !_checking,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(12)
+          child: Stack(
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Εναρξη Συνεδριας',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Καταστημα: ${widget.tenantId}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: colors.secondary),
+                          ),
+                          const SizedBox(height: 24),
+                          TextField(
+                            controller: _controller,
+                            autofocus: true,
+                            enabled: !_checking,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(12)
+                            ],
+                            obscureText: true,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w700),
+                            decoration: const InputDecoration(
+                              labelText: 'Κωδικος υπαλληλου',
+                              border: OutlineInputBorder(),
+                            ),
+                            onSubmitted: (_) => _submit(),
+                          ),
+                          const SizedBox(height: 12),
+                          ExcludeFocus(child: _buildKeypad()),
+                          if (_error != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _error!,
+                              maxLines: 4,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(color: colors.error),
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 58,
+                            child: FilledButton(
+                              onPressed: _checking ? null : _submit,
+                              child: _checking
+                                  ? const SizedBox(
+                                      width: 26,
+                                      height: 26,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 3),
+                                    )
+                                  : const Text('Εναρξη',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700)),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _checking ? null : widget.onActivate,
+                            child: const Text(
+                                'Ενεργοποίηση με λογαριασμό διαχειριστή'),
+                          ),
                         ],
-                        obscureText: true,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w700),
-                        decoration: const InputDecoration(
-                          labelText: 'Κωδικος υπαλληλου',
-                          border: OutlineInputBorder(),
-                        ),
-                        onSubmitted: (_) => _submit(),
                       ),
-                      const SizedBox(height: 12),
-                      ExcludeFocus(child: _buildKeypad()),
-                      if (_error != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          _error!,
-                          maxLines: 4,
-                          overflow: TextOverflow.visible,
-                          style: TextStyle(color: colors.error),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 58,
-                        child: FilledButton(
-                          onPressed: _checking ? null : _submit,
-                          child: _checking
-                              ? const SizedBox(
-                                  width: 26,
-                                  height: 26,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 3),
-                                )
-                              : const Text('Εναρξη',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700)),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _checking ? null : widget.onActivate,
-                        child: const Text(
-                            'Ενεργοποίηση με λογαριασμό διαχειριστή'),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              const Positioned(
+                top: 12,
+                right: 12,
+                child: FullscreenToggleButton(),
+              ),
+            ],
           ),
         ),
       ),

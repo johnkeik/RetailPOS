@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../auth/pos_device_auth.dart';
 import 'on_screen_keyboard.dart';
+import 'pos_window_controls.dart';
 
 class PosActivationPage extends StatefulWidget {
   const PosActivationPage(
@@ -85,7 +86,10 @@ class _PosActivationPageState extends State<PosActivationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ενεργοποίηση υπολογιστή')),
+      appBar: AppBar(
+        title: const Text('Ενεργοποίηση υπολογιστή'),
+        actions: const [FullscreenToggleButton()],
+      ),
       body: Column(children: [
         Expanded(
             child: SingleChildScrollView(

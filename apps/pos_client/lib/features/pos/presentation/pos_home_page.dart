@@ -1,6 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-
 import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
@@ -9,6 +8,7 @@ import '../models/promotion_pricing.dart';
 import 'pos_expense_page.dart';
 import 'pos_order_completion_dialog.dart';
 import 'pos_order_history_dialog.dart';
+import 'pos_window_controls.dart';
 
 class PosHomePage extends StatefulWidget {
   const PosHomePage({
@@ -316,6 +316,7 @@ class _PosHomePageState extends State<PosHomePage> {
                 icon: const Icon(Icons.logout),
                 label: const Text('Αποσύνδεση'),
               ),
+              const FullscreenToggleButton(),
             ],
           ),
         ],
