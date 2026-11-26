@@ -11,6 +11,9 @@ const String kPrintServiceUrl = String.fromEnvironment(
   defaultValue: 'http://localhost:5050',
 );
 
+/// Printed in place of missing ingredients so staff notice and report the product.
+const String kMissingIngredientsText = 'ΔΕΝ ΥΠΑΡΧΟΥΝ ΣΥΣΤΑΤΙΚΑ';
+
 class LabelPrintItem {
   const LabelPrintItem({
     required this.productCode,
@@ -24,7 +27,9 @@ class LabelPrintItem {
 
   Map<String, Object> toJson() => {
         'productCode': productCode,
-        'ingredients': ingredients,
+        'ingredients': ingredients.trim().isEmpty
+            ? kMissingIngredientsText
+            : ingredients,
         'quantity': quantity,
       };
 }
@@ -44,20 +49,14 @@ class LabelPrintService {
   final http.Client _client;
   final String _baseUrl;
 
-  /// Never throws; products without ingredients (e.g. room fragrances) get no labels.
+  /// Never throws; products without ingredients print [kMissingIngredientsText].
   Future<LabelPrintResult> printItems({
     required String orderId,
     required List<LabelPrintItem> items,
   }) async {
-    final printable =
-        items.where((item) => item.ingredients.trim().isNotEmpty).toList();
-    final skipped = items.length - printable.length;
-    final skippedNote =
-        skipped > 0 ? ' ($skipped προϊόντα χωρίς συστατικά δεν εκτυπώθηκαν)' : '';
-
-    if (printable.isEmpty) {
-      return LabelPrintResult(
-        ok: items.isEmpty || skipped > 0,
+    if (items.isEmpty) {
+      return const LabelPrintResult(
+        ok: true,
         message: 'Δεν υπάρχουν ετικέτες για εκτύπωση.',
       );
     }
@@ -69,7 +68,7 @@ class LabelPrintService {
             headers: {'Content-Type': 'application/json; charset=utf-8'},
             body: jsonEncode({
               'orderId': orderId,
-              'items': printable.map((item) => item.toJson()).toList(),
+              'items': items.map((item) => item.toJson()).toList(),
             }),
           )
           .timeout(const Duration(seconds: 30));
@@ -79,7 +78,7 @@ class LabelPrintService {
         final count = body['labelsSubmitted'];
         return LabelPrintResult(
           ok: true,
-          message: 'Στάλθηκαν ${count ?? ''} ετικέτες στον εκτυπωτή.$skippedNote',
+          message: 'Στάλθηκαν ${count ?? ''} ετικέτες στον εκτυπωτή.',
         );
       }
 
