@@ -628,7 +628,7 @@ class _PosHomePageState extends State<PosHomePage> {
       switch (error.code) {
         case 'failed-precondition':
           return error.message ??
-              'Δεν υπάρχει επαρκές απόθεμα για τα προϊόντα της παραγγελίας.';
+              'Ο κατάλογος άλλαξε. Ανανεώστε και ελέγξτε την παραγγελία.';
         case 'unauthenticated':
           return 'Η σύνδεσή σας έληξε. Συνδεθείτε ξανά και δοκιμάστε.';
         case 'permission-denied':

@@ -142,12 +142,8 @@ export const createOrder = onCall(async (request) => {
     // PACKAGED products:
     //   - 1 unit * quantity from productId__variantTemplateId
     const inventoryDeltas = new Map<string, number>();
-    const inventoryProductIds = new Map<string, Set<string>>();
-    const addInventoryDelta = (docId: string, delta: number, productId: string) => {
+    const addInventoryDelta = (docId: string, delta: number) => {
       inventoryDeltas.set(docId, (inventoryDeltas.get(docId) ?? 0) + delta);
-      const productIds = inventoryProductIds.get(docId) ?? new Set<string>();
-      productIds.add(productId);
-      inventoryProductIds.set(docId, productIds);
     };
 
     for (const item of cleanedItems) {
@@ -168,12 +164,12 @@ export const createOrder = onCall(async (request) => {
           if (perfumeMl > 0) {
             const docId = inventoryDocId(item.productId, "perfume");
             const deduction = item.quantity * perfumeMl;
-            addInventoryDelta(docId, -deduction, item.productId);
+            addInventoryDelta(docId, -deduction);
           }
           if (essenceMl > 0) {
             const docId = inventoryDocId(item.productId, "essence");
             const deduction = item.quantity * essenceMl;
-            addInventoryDelta(docId, -deduction, item.productId);
+            addInventoryDelta(docId, -deduction);
           }
 
           if (Array.isArray(template?.recipeConsumables)) {
@@ -185,7 +181,7 @@ export const createOrder = onCall(async (request) => {
               const cQty = Number(rc.quantity) || 1;
               const docId = inventoryDocId(cId, "consumable");
               const deduction = item.quantity * cQty;
-              addInventoryDelta(docId, -deduction, item.productId);
+              addInventoryDelta(docId, -deduction);
             }
           }
         } else {
@@ -196,12 +192,12 @@ export const createOrder = onCall(async (request) => {
           }
           const deduction = item.quantity * sizeInMl;
           const docId = inventoryDocId(item.productId, BULK_INVENTORY_SENTINEL);
-          addInventoryDelta(docId, -deduction, item.productId);
+          addInventoryDelta(docId, -deduction);
         }
       } else {
         const deduction = item.quantity; // deduct units
         const docId = inventoryDocId(item.productId, item.variantTemplateId);
-        addInventoryDelta(docId, -deduction, item.productId);
+        addInventoryDelta(docId, -deduction);
       }
     }
 
@@ -214,30 +210,7 @@ export const createOrder = onCall(async (request) => {
       })
     );
 
-    // --- Validate sufficient stock ---
-    const insufficientProductIds = new Set<string>();
-    for (const [docId, delta] of inventoryDeltas) {
-      const snap = inventorySnapMap.get(docId);
-      if (!snap) {
-        throw new HttpsError("internal", "Δεν ήταν δυνατή η ανάγνωση του αποθέματος.");
-      }
-      const current = snap.exists ? Number(snap.data()?.quantity ?? 0) : 0;
-      if (current + delta < 0) {
-        for (const productId of inventoryProductIds.get(docId) ?? []) {
-          insufficientProductIds.add(productId);
-        }
-      }
-    }
-
-    if (insufficientProductIds.size > 0) {
-      const productNames = [...insufficientProductIds].map(
-        (productId) => productMap.get(productId)?.name ?? productId
-      );
-      throw new HttpsError(
-        "failed-precondition",
-        `Ανεπαρκές απόθεμα για: ${productNames.join(", ")}.`,
-      );
-    }
+    // Orders are never blocked by stock: inventory is deducted and may go negative.
 
     // --- Apply inventory updates ---
     for (const [docId, delta] of inventoryDeltas) {
