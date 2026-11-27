@@ -26,6 +26,11 @@
     <div class="inline-error">{{ error() }}</div>
   }
 
+  @if (!loading()) {
+    <!-- On screen only: the printed report for the accountant keeps its original layout. -->
+    <app-period-totals class="range-totals no-print" [income]="rangeIncome()" [expenses]="rangeExpenses()" />
+  }
+
   @for (day of days(); track day.key) {
     <h3>{{ day.label }}</h3>
     <div class="table-wrap">

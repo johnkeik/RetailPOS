@@ -4,11 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
+import { DrawerComponent } from '../../shared/ui/drawer.component';
+import { SearchFieldComponent } from '../../shared/ui/search-field.component';
 import { EmployeeRow, EmployeesService } from './employees.service';
 
 @Component({
   selector: 'app-employees-page',
-  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent, DrawerComponent, SearchFieldComponent],
   templateUrl: './employees-page.component.html',
   styleUrl: './employees-page.component.scss'
 })
@@ -19,6 +21,7 @@ export class EmployeesPageComponent {
 
   protected readonly searchQuery = signal('');
   protected readonly editingEmployeeId = signal<string | null>(null);
+  protected readonly drawerOpen = signal(false);
   protected readonly formError = signal<string | null>(null);
   protected readonly accountMessage = signal<string | null>(null);
   protected readonly savingEmployee = signal(false);
@@ -117,6 +120,11 @@ export class EmployeesPageComponent {
     }
   }
 
+  protected openCreate(): void {
+    this.resetForm();
+    this.drawerOpen.set(true);
+  }
+
   protected startEdit(employee: EmployeeRow): void {
     this.editingEmployeeId.set(employee.id);
     this.formError.set(null);
@@ -127,6 +135,7 @@ export class EmployeesPageComponent {
       dashboardEmail: employee.dashboardEmail ?? '',
       active: employee.active
     });
+    this.drawerOpen.set(true);
   }
 
   protected async toggleActive(employee: EmployeeRow): Promise<void> {
@@ -168,6 +177,7 @@ export class EmployeesPageComponent {
   }
 
   private resetForm(): void {
+    this.drawerOpen.set(false);
     this.editingEmployeeId.set(null);
     this.formError.set(null);
     this.employeeForm.reset({

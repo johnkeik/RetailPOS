@@ -1,165 +1,152 @@
-<app-page-title
-  title="Απόθεμα"
-  subtitle="Άμεση απεικόνιση τρέχοντος αποθέματος ανά προϊόν (Άρωμα, Εσάνς) και αναλώσιμα."
-/>
+<app-page-title title="Απόθεμα">
+  <button type="button" class="btn" [attr.aria-expanded]="thresholdsOpen()" aria-controls="stock-thresholds" (click)="thresholdsOpen.set(!thresholdsOpen())">
+    Όρια αποθέματος
+  </button>
+  <a class="btn" routerLink="/stock-movements">Κινήσεις</a>
+  <a class="btn primary" routerLink="/stock-movements/new">Παραλαβή αποθέματος</a>
+</app-page-title>
 
-<div class="summary-cards">
-  <div class="stat-card">
-    <span class="stat-value">{{ summary().total }}</span>
-    <span class="stat-label">Σύνολο Ειδών</span>
-  </div>
-  <div class="stat-card" [class.stat-warn]="summary().lowStock > 0">
-    <span class="stat-value">{{ summary().lowStock }}</span>
-    <span class="stat-label">Χαμηλό Απόθεμα</span>
-  </div>
-  <div class="stat-card" [class.stat-danger]="summary().outOfStock > 0">
-    <span class="stat-value">{{ summary().outOfStock }}</span>
-    <span class="stat-label">Εξαντλημένα</span>
+@if (thresholdsOpen()) {
+  <section id="stock-thresholds" class="thresholds" aria-label="Όρια χαμηλού αποθέματος">
+    <p class="thresholds-intro">Ένα είδος θεωρείται χαμηλό όταν πέσει κάτω από:</p>
+    <div class="thresholds-fields">
+      <div>
+        <label class="field" for="lowStockPerfumeLiters">Βάση (λίτρα)</label>
+        <input id="lowStockPerfumeLiters" class="text-input" type="number" min="0" step="0.1"
+          [value]="lowStockPerfumeLiters()" (input)="onPerfumeThreshold(perfumeLitersInput.value)" #perfumeLitersInput />
+      </div>
+      <div>
+        <label class="field" for="lowStockEssenceLiters">Εσάνς (λίτρα)</label>
+        <input id="lowStockEssenceLiters" class="text-input" type="number" min="0" step="0.01"
+          [value]="lowStockEssenceLiters()" (input)="onEssenceThreshold(essenceLitersInput.value)" #essenceLitersInput />
+      </div>
+      <div>
+        <label class="field" for="lowStockUnits">Τεμάχια</label>
+        <input id="lowStockUnits" class="text-input" type="number" min="0" step="1"
+          [value]="lowStockUnits()" (input)="onUnitsThreshold(lowStockUnitsInput.value)" #lowStockUnitsInput />
+      </div>
+    </div>
+    <p class="help-text">Ισχύει μόνο για αυτή την προβολή.</p>
+  </section>
+}
+
+<nav class="tabs" aria-label="Τύπος αποθέματος">
+  @for (tab of visibleTabs(); track tab.id) {
+    <button type="button" class="tab" [class.active]="activeTab() === tab.id"
+      [attr.aria-current]="activeTab() === tab.id ? 'true' : null" (click)="selectTab(tab.id)">
+      {{ tab.label }} <span class="tab-count">{{ tabCounts()[tab.id] }}</span>
+    </button>
+  }
+</nav>
+
+<div class="list-toolbar">
+  <app-search-field [value]="searchQuery()" placeholder="Όνομα ή κωδικός" (search)="onSearch($event)" />
+  <div class="status-filter" role="group" aria-label="Κατάσταση αποθέματος">
+    <button type="button" class="chip" [class.active]="statusFilter() === 'ALL'" [attr.aria-pressed]="statusFilter() === 'ALL'" (click)="setStatusFilter('ALL')">
+      Όλα <span>{{ statusCounts().ALL }}</span>
+    </button>
+    <button type="button" class="chip" [class.active]="statusFilter() === 'LOW'" [attr.aria-pressed]="statusFilter() === 'LOW'" (click)="setStatusFilter('LOW')">
+      Χαμηλό <span>{{ statusCounts().LOW }}</span>
+    </button>
+    <button type="button" class="chip" [class.active]="statusFilter() === 'EMPTY'" [attr.aria-pressed]="statusFilter() === 'EMPTY'" (click)="setStatusFilter('EMPTY')">
+      Εξαντλημένα <span>{{ statusCounts().EMPTY }}</span>
+    </button>
   </div>
 </div>
 
-<section class="panel">
-  <div class="filters">
-    <div>
-      <label class="field" for="search">Αναζήτηση</label>
-      <input
-        id="search"
-        class="text-input"
-        type="text"
-        [value]="searchQuery()"
-        (input)="onSearch(search.value)"
-        #search
-        placeholder="Κωδικός, όνομα ή συστατικό"
-      />
-    </div>
+@if (error()) {
+  <div class="inline-error" role="alert">{{ error() }}</div>
+}
 
-    <div>
-      <label class="field" for="lowStockPerfumeLiters">Όριο χαμηλού αρώματος (λίτρα)</label>
-      <input
-        id="lowStockPerfumeLiters"
-        class="text-input"
-        type="number"
-        min="0"
-        step="0.1"
-        [value]="lowStockPerfumeLiters()"
-        (input)="onPerfumeThreshold(perfumeLitersInput.value)"
-        #perfumeLitersInput
-      />
-    </div>
+<ng-template #sortIcon let-key>
+  <svg class="sort-icon" [class.active]="sortKey() === key" [class.desc]="sortKey() === key && sortDirection() === 'desc'"
+    viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    @if (sortKey() === key) { <path d="M12 5v14M6 13l6 6 6-6" /> } @else { <path d="M8 9l4-4 4 4M8 15l4 4 4-4" /> }
+  </svg>
+</ng-template>
 
-    <div>
-      <label class="field" for="lowStockEssenceLiters">Όριο χαμηλής εσάνς (λίτρα)</label>
-      <input
-        id="lowStockEssenceLiters"
-        class="text-input"
-        type="number"
-        min="0"
-        step="0.1"
-        [value]="lowStockEssenceLiters()"
-        (input)="onEssenceThreshold(essenceLitersInput.value)"
-        #essenceLitersInput
-      />
-    </div>
+<ng-template #qty let-row>
+  @let status = stockStatus(row);
+  <span class="qty" [class.low]="status === 'low'" [class.empty]="status === 'empty'">{{ formatQty(row) }}</span>
+  @if (row && status !== 'ok') { <span class="qty-note" [class.empty]="status === 'empty'">{{ statusLabel(status) }}</span> }
+</ng-template>
 
-    <div>
-      <label class="field" for="lowStockUnits">Όριο χαμηλού αποθέματος (τεμάχια)</label>
-      <input
-        id="lowStockUnits"
-        class="text-input"
-        type="number"
-        min="0"
-        step="1"
-        [value]="lowStockUnits()"
-        (input)="onUnitsThreshold(lowStockUnitsInput.value)"
-        #lowStockUnitsInput
-      />
-    </div>
-
-    <div>
-      <label class="field" for="pkgFilter">Τύπος Είδους</label>
-      <select
-        id="pkgFilter"
-        class="text-input"
-        [value]="packagingFilter()"
-        (change)="packagingFilter.set($any(pkgFilter.value))"
-        #pkgFilter
-      >
-        <option value="ALL">Όλα</option>
-        <option value="PACKAGED">Συσκευασμένα / Αναλώσιμα</option>
-        <option value="BULK">Χύμα (Άρωμα / Εσάνς)</option>
-      </select>
-    </div>
-
-    <div class="filter-toggle">
-      <label class="checkbox-row" for="lowOnly">
-        <input
-          id="lowOnly"
-          type="checkbox"
-          [checked]="showLowStockOnly()"
-          (change)="showLowStockOnly.set(!showLowStockOnly())"
-        />
-        <span>Μόνο χαμηλό απόθεμα</span>
-      </label>
-    </div>
-  </div>
-
-  @if (loading()) {
-    <div class="inline-state">Φόρτωση αποθέματος...</div>
-  }
-
-  @if (error()) {
-    <div class="inline-error">{{ error() }}</div>
-  }
-
-  @if (!loading() && filteredRows().length > 0) {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Είδος / Προϊόν</th>
-            <th>Συστατικό / Παραλλαγή</th>
-            <th>Κατηγορία</th>
-            <th>Διαθέσιμο</th>
-            <th>Κατάσταση</th>
-            <th>Τελευταία Ενημέρωση</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of filteredRows(); track row.id) {
-            <tr>
-              <td>{{ row.productCode }} — {{ row.productName }}</td>
-              <td>{{ row.variantTemplateName }}</td>
-              <td>
-                @if (row.isConsumable) {
-                  <span class="pkg-badge consumable-badge">ΑΝΑΛΩΣΙΜΟ</span>
-                } @else if (row.packagingType) {
-                  <span class="pkg-badge" [class.bulk]="row.packagingType === 'BULK'">
-                    {{ row.packagingType === 'BULK' ? 'ΧΥΜΑ' : 'ΣΥΣΚΕΥΑΣΜΕΝΟ' }}
-                  </span>
-                } @else {
-                  <span class="muted">—</span>
-                }
-              </td>
-              <td class="qty-cell qty-{{ stockStatus(row) }}">
-                {{ row.displayQty }}
-              </td>
-              <td>
-                <span class="status-chip status-{{ stockStatus(row) }}">
-                  {{ getStatusLabel(stockStatus(row)) }}
-                </span>
-              </td>
-              <td class="muted">{{ formatDate(row.updatedAt) }}</td>
-            </tr>
+@if (loading() && lines().length === 0) {
+  <div class="inline-state">Φόρτωση αποθέματος…</div>
+} @else if (visibleLines().length > 0) {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th [attr.aria-sort]="ariaSort('name')">
+            <button type="button" class="sort-btn" (click)="sortBy('name')">
+              {{ activeTab() === 'CONSUMABLE' ? 'Αναλώσιμο' : 'Προϊόν' }}<ng-container [ngTemplateOutlet]="sortIcon" [ngTemplateOutletContext]="{ $implicit: 'name' }" />
+            </button>
+          </th>
+          @if (activeTab() === 'PERFUME') {
+            <th class="num" [attr.aria-sort]="ariaSort('perfume')">
+              <button type="button" class="sort-btn" (click)="sortBy('perfume')">Βάση<ng-container [ngTemplateOutlet]="sortIcon" [ngTemplateOutletContext]="{ $implicit: 'perfume' }" /></button>
+            </th>
+            <th class="num" [attr.aria-sort]="ariaSort('essence')">
+              <button type="button" class="sort-btn" (click)="sortBy('essence')">Εσάνς<ng-container [ngTemplateOutlet]="sortIcon" [ngTemplateOutletContext]="{ $implicit: 'essence' }" /></button>
+            </th>
+          } @else {
+            <th class="num" [attr.aria-sort]="ariaSort('qty')">
+              <button type="button" class="sort-btn" (click)="sortBy('qty')">Ποσότητα<ng-container [ngTemplateOutlet]="sortIcon" [ngTemplateOutletContext]="{ $implicit: 'qty' }" /></button>
+            </th>
           }
-        </tbody>
-      </table>
-    </div>
-  } @else if (!loading()) {
-    <div class="empty-state">Δεν βρέθηκαν εγγραφές αποθέματος για τα επιλεγμένα φίλτρα.</div>
-  }
-
-  <div class="table-footer">
-    <span class="muted">Εμφάνιση {{ filteredRows().length }} από {{ summary().total }} ειδών</span>
-    <a href="/stock-movements" class="footer-link">Κινήσεις Αποθέματος →</a>
+          <th class="num" [attr.aria-sort]="ariaSort('updated')">
+            <button type="button" class="sort-btn" (click)="sortBy('updated')">Τελευταία κίνηση<ng-container [ngTemplateOutlet]="sortIcon" [ngTemplateOutletContext]="{ $implicit: 'updated' }" /></button>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of pagedLines(); track line.key) {
+          <tr>
+            <td>
+              <span class="cell-title">{{ line.name }}</span>
+              <span class="cell-sub">{{ line.code }}{{ line.detail ? ', ' + line.detail : '' }}</span>
+            </td>
+            @if (activeTab() === 'PERFUME') {
+              <td class="num"><ng-container [ngTemplateOutlet]="qty" [ngTemplateOutletContext]="{ $implicit: line.perfume }" /></td>
+              <td class="num"><ng-container [ngTemplateOutlet]="qty" [ngTemplateOutletContext]="{ $implicit: line.essence }" /></td>
+            } @else {
+              <td class="num"><ng-container [ngTemplateOutlet]="qty" [ngTemplateOutletContext]="{ $implicit: line.single }" /></td>
+            }
+            <td class="num muted">{{ formatDate(line.updatedAt) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
   </div>
-</section>
+
+  <footer class="pagination-bar">
+    <span>
+      {{ currentPage() * pageSize() + 1 }}–{{ currentPage() * pageSize() + pagedLines().length }}
+      από {{ sortedLines().length }} είδη
+    </span>
+    <div class="pagination-controls">
+      <label for="pageSize">Ανά σελίδα</label>
+      <select id="pageSize" class="text-input" (change)="onPageSizeChange(pageSizeSelect.value)" #pageSizeSelect>
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
+        }
+      </select>
+      <button type="button" class="btn small" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">Προηγούμενη</button>
+      <span>{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+      <button type="button" class="btn small" [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">Επόμενη</button>
+    </div>
+  </footer>
+} @else {
+  <div class="empty-state">
+    @if (lines().length === 0) {
+      Δεν υπάρχει καταχωρημένο απόθεμα. Ξεκινήστε με μια <a routerLink="/stock-movements/new">παραλαβή αποθέματος</a>.
+    } @else if (statusFilter() === 'EMPTY') {
+      Δεν υπάρχουν εξαντλημένα είδη εδώ.
+    } @else if (statusFilter() === 'LOW') {
+      Δεν υπάρχουν είδη με χαμηλό απόθεμα εδώ.
+    } @else {
+      Κανένα είδος δεν ταιριάζει με την αναζήτηση.
+    }
+  </div>
+}

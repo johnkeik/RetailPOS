@@ -1,14 +1,8 @@
 <app-page-title
-  [title]="isEditing() ? 'Επεξεργασία Παραλλαγής' : 'Νέα Παραλλαγή'"
-  subtitle="Ορίστε μεγέθη, τιμές και τη συνταγή παρασκευής."
+  [title]="isEditing() ? 'Επεξεργασία παραλλαγής' : 'Νέα παραλλαγή'"
+  backLink="/variants"
+  backLabel="Παραλλαγές"
 />
-
-<div class="variant-form-toolbar">
-  <a routerLink="/variants">← Πίσω στις παραλλαγές</a>
-  @if (isEditing()) {
-    <button type="button" class="btn danger" (click)="deleteVariant()">Διαγραφή παραλλαγής</button>
-  }
-</div>
 
 @if (loading()) {
   <div class="inline-state">Φόρτωση παραλλαγής και αναλωσίμων...</div>
@@ -156,9 +150,12 @@
     </div>
 
     <footer class="variant-form-actions">
+      @if (isEditing()) {
+        <button type="button" class="btn danger" (click)="deleteVariant()">Διαγραφή</button>
+      }
       <button type="button" class="btn ghost" routerLink="/variants">Ακύρωση</button>
       <button type="submit" class="btn primary" [disabled]="saving()">
-        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση Αλλαγών' : 'Δημιουργία Παραλλαγής') }}
+        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση' : 'Προσθήκη παραλλαγής') }}
       </button>
     </footer>
   </form>

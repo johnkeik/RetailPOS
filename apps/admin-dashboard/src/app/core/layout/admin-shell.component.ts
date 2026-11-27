@@ -75,17 +75,17 @@ export class AdminShellComponent implements OnInit, OnDestroy {
 
   protected readonly navSections: { label: string; items: NavItem[] }[] = [
     {
-      label: 'Επισκόπηση',
-      items: [{ label: 'Πίνακας Ελέγχου', path: '/dashboard' }]
+      label: '',
+      items: [{ label: 'Επισκόπηση', path: '/dashboard' }]
     },
     {
       label: 'Παρακολούθηση',
       items: [
-        { label: 'Ιστορικό Πωλήσεων', path: '/sales-history' },
-        { label: 'Αναφορά Πωλήσεων', path: '/sales-report' },
+        { label: 'Ιστορικό πωλήσεων', path: '/sales-history' },
+        { label: 'Αναφορά πωλήσεων', path: '/sales-report' },
         { label: 'Έξοδα', path: '/expenses' },
         { label: 'Απόθεμα', path: '/inventory' },
-        { label: 'Κινήσεις Αποθέματος', path: '/stock-movements' }
+        { label: 'Κινήσεις αποθέματος', path: '/stock-movements' }
       ]
     },
     {

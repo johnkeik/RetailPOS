@@ -1,131 +1,67 @@
 import { Component, input, output } from '@angular/core';
+import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 
+/**
+ * Row actions for list tables: a visible edit button, with the less frequent
+ * (and destructive) actions tucked into a "more" menu.
+ */
 @Component({
   selector: 'app-entity-actions',
-  standalone: true,
+  imports: [CdkMenuTrigger, CdkMenu, CdkMenuItem],
   template: `
     <div class="actions-group">
-      <!-- Edit button -->
-      <button
-        type="button"
-        class="icon-btn edit-btn"
-        title="Επεξεργασία"
-        aria-label="Επεξεργασία"
-        (click)="edit.emit()"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      <button type="button" class="icon-btn" title="Επεξεργασία" aria-label="Επεξεργασία" (click)="edit.emit()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-4-4L4 16v4Z" />
+          <path d="m13.5 6.5 4 4" />
         </svg>
       </button>
-
-      <!-- Toggle Active button -->
-      @if (showToggle()) {
-      <button
-        type="button"
-        class="icon-btn toggle-btn"
-        [class.active]="active()"
-        [title]="active() ? 'Απενεργοποίηση' : 'Ενεργοποίηση'"
-        [attr.aria-label]="active() ? 'Απενεργοποίηση' : 'Ενεργοποίηση'"
-        (click)="toggleActive.emit()"
-      >
-        @if (active()) {
-          <!-- Power Active -->
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-            <line x1="12" y1="2" x2="12" y2="12"></line>
-          </svg>
-        } @else {
-          <!-- Power Inactive -->
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18.36 6.64a9 9 0 0 1 0 12.72m-12.72 0a9 9 0 0 1 0-12.72"></path>
-            <line x1="12" y1="2" x2="12" y2="12"></line>
-            <line x1="2" y1="2" x2="22" y2="22"></line>
-          </svg>
-        }
-      </button>
-      }
-
-      <!-- Delete button -->
-      <button
-        type="button"
-        class="icon-btn delete-btn"
-        title="Διαγραφή"
-        aria-label="Διαγραφή"
-        (click)="delete.emit()"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          <line x1="10" y1="11" x2="10" y2="17"></line>
-          <line x1="14" y1="11" x2="14" y2="17"></line>
+      <button type="button" class="icon-btn" title="Περισσότερα" aria-label="Περισσότερες ενέργειες" [cdkMenuTriggerFor]="menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="12" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="19" cy="12" r="1.7" />
         </svg>
       </button>
     </div>
+
+    <ng-template #menu>
+      <div class="row-menu" cdkMenu>
+        @if (showToggle()) {
+          <button type="button" class="row-menu-item" cdkMenuItem (cdkMenuItemTriggered)="toggleActive.emit()">
+            {{ active() ? 'Απενεργοποίηση' : 'Ενεργοποίηση' }}
+          </button>
+        }
+        <button type="button" class="row-menu-item danger" cdkMenuItem (cdkMenuItemTriggered)="delete.emit()">
+          {{ deleteLabel() }}
+        </button>
+      </div>
+    </ng-template>
   `,
   styles: [
     `
       .actions-group {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 2px;
       }
 
       .icon-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         padding: 0;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        background: #ffffff;
-        color: #475569;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: var(--ink-soft);
         cursor: pointer;
-        transition: all 0.15s ease;
       }
 
-      .icon-btn:hover {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-      }
-
-      .edit-btn:hover {
-        color: #2563eb;
-        background: #eff6ff;
-        border-color: #bfdbfe;
-      }
-
-      .toggle-btn {
-        color: #94a3b8;
-      }
-
-      .toggle-btn.active {
-        color: #16a34a;
-        background: #f0fdf4;
-        border-color: #bbf7d0;
-      }
-
-      .toggle-btn.active:hover {
-        background: #dcfce7;
-        color: #15803d;
-      }
-
-      .toggle-btn:not(.active):hover {
-        color: #ca8a04;
-        background: #fefce8;
-        border-color: #fef08a;
-      }
-
-      .delete-btn {
-        color: #64748b;
-      }
-
-      .delete-btn:hover {
-        color: #dc2626;
-        background: #fef2f2;
-        border-color: #fecaca;
+      .icon-btn:hover,
+      .icon-btn[aria-expanded='true'] {
+        background: var(--paper);
+        color: var(--ink);
       }
     `
   ]
@@ -133,6 +69,8 @@ import { Component, input, output } from '@angular/core';
 export class EntityActionsComponent {
   readonly active = input<boolean>(true);
   readonly showToggle = input<boolean>(true);
+  /** Some records are voided rather than deleted, e.g. expenses. */
+  readonly deleteLabel = input('Διαγραφή');
   readonly edit = output<void>();
   readonly toggleActive = output<void>();
   readonly delete = output<void>();

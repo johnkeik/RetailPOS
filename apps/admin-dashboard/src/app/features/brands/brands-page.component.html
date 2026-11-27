@@ -1,54 +1,45 @@
-<app-page-title
-  title="Μάρκες"
-  subtitle="Διαχείριση των μαρκών αρωμάτων του καταλόγου."
-/>
+<app-page-title title="Μάρκες">
+  <button type="button" class="btn primary" (click)="openCreate()">Νέα μάρκα</button>
+</app-page-title>
 
-<section class="brands-layout">
-  <article class="panel">
-    <header class="panel-header">
-      <h3>Λίστα μαρκών</h3>
-      <p>Αναζήτηση με βάση το όνομα ή τον κωδικό μάρκας.</p>
-    </header>
+<div class="list-toolbar">
+  <app-search-field [value]="searchQuery()" placeholder="Αναζήτηση μάρκας ή κωδικού" (search)="onSearch($event)" />
+</div>
 
-    <label class="field" for="search">Αναζήτηση</label>
-    <input
-      id="search"
-      type="text"
-      class="text-input"
-      [value]="searchQuery()"
-      (input)="onSearch(search.value)"
-      #search
-      placeholder="π.χ. Dior ή armani"
-    />
+@if (error()) {
+  <div class="inline-error" role="alert">{{ error() }}</div>
+}
 
-    @if (loading()) {
-      <div class="inline-state">Φόρτωση μαρκών από τον emulator...</div>
-    }
-
-    @if (error()) {
-      <div class="inline-error">{{ error() }}</div>
-    }
-
-    @if (filteredBrands().length > 0) {
-      <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Όνομα</th>
-            <th>Κωδικός</th>
-            <th>Κατάσταση</th>
-            <th class="actions-col">Ενέργειες</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (brand of filteredBrands(); track brand.id) {
-            <tr>
-            <td>{{ brand.name }}</td>
-            <td>{{ brand.code || '-' }}</td>
+@if (loading() && filteredBrands().length === 0) {
+  <div class="inline-state">Φόρτωση μαρκών…</div>
+} @else if (filteredBrands().length > 0) {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Όνομα</th>
+          <th>Κωδικός</th>
+          <th class="num">Προϊόντα</th>
+          <th class="actions-col"><span class="sr-only">Ενέργειες</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (brand of filteredBrands(); track brand.id) {
+          <tr [class.is-inactive]="!brand.active">
             <td>
-              <span class="status-chip" [class.inactive]="!brand.active">
-                {{ brand.active ? 'ΕΝΕΡΓΗ' : 'ΑΝΕΝΕΡΓΗ' }}
+              <span class="cell-title">
+                {{ brand.name }}
+                @if (!brand.active) { <span class="tag">Ανενεργή</span> }
               </span>
+            </td>
+            <td class="muted">{{ brand.code || '—' }}</td>
+            <td class="num">
+              @let count = productCounts().get(brand.id) ?? 0;
+              @if (count > 0) {
+                <a class="count-link" routerLink="/products" [queryParams]="{ brand: brand.id }">{{ count }}</a>
+              } @else {
+                <span class="muted">0</span>
+              }
             </td>
             <td class="actions-col">
               <app-entity-actions
@@ -58,51 +49,40 @@
                 (delete)="deleteBrand(brand)"
               />
             </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      </div>
-    } @else {
-      <div class="empty-state">Δεν βρέθηκαν μάρκες για τα τρέχοντα φίλτρα.</div>
-    }
-  </article>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <div class="empty-state">
+    {{ searchQuery() ? 'Καμία μάρκα δεν ταιριάζει με την αναζήτηση.' : 'Δεν υπάρχουν μάρκες ακόμη. Προσθέστε την πρώτη με το «Νέα μάρκα».' }}
+  </div>
+}
 
-  <article class="panel">
-    <header class="panel-header">
-      <h3>{{ editingBrandId() ? 'Επεξεργασία μάρκας' : 'Δημιουργία μάρκας' }}</h3>
-      <p>Ο κωδικός μάρκας είναι προαιρετικός και χρήσιμος για εισαγωγές.</p>
-    </header>
-
-    <form [formGroup]="brandForm" (ngSubmit)="saveBrand()" class="form-grid">
+<app-drawer [open]="drawerOpen()" [title]="editingBrandId() ? 'Επεξεργασία μάρκας' : 'Νέα μάρκα'" (closed)="cancelEdit()">
+  <form [formGroup]="brandForm" (ngSubmit)="saveBrand()" class="drawer-form">
+    <div class="drawer-fields">
       <div>
-        <label class="field" for="name">Όνομα μάρκας</label>
-        <input id="name" type="text" class="text-input" formControlName="name" />
+        <label class="field" for="brand-name">Όνομα</label>
+        <input id="brand-name" type="text" class="text-input" formControlName="name" />
         @if (brandForm.controls.name.touched && brandForm.controls.name.invalid) {
-          <small class="error">
-          Το όνομα μάρκας είναι υποχρεωτικό.
-          </small>
+          <small class="error">Συμπληρώστε το όνομα της μάρκας.</small>
         }
       </div>
-
       <div>
-        <label class="field" for="code">Κωδικός</label>
-        <input id="code" type="text" class="text-input" formControlName="code" />
+        <label class="field" for="brand-code">Κωδικός</label>
+        <input id="brand-code" type="text" class="text-input" formControlName="code" />
+        <small class="help-text">Προαιρετικό. Χρησιμεύει στις εισαγωγές καταλόγου.</small>
       </div>
-
-      <label class="checkbox-row" for="active">
-        <input id="active" type="checkbox" formControlName="active" />
+      <label class="checkbox-row" for="brand-active">
+        <input id="brand-active" type="checkbox" formControlName="active" />
         <span>Ενεργή</span>
       </label>
-
-      <div class="button-row">
-        <button type="submit" class="btn primary">
-          {{ editingBrandId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία μάρκας' }}
-        </button>
-        @if (editingBrandId()) {
-          <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
-        }
-      </div>
-    </form>
-  </article>
-</section>
+    </div>
+    <footer class="drawer-footer">
+      <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
+      <button type="submit" class="btn primary">{{ editingBrandId() ? 'Αποθήκευση' : 'Προσθήκη μάρκας' }}</button>
+    </footer>
+  </form>
+</app-drawer>

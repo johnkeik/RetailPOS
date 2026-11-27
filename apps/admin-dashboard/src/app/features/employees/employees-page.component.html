@@ -1,66 +1,52 @@
-<app-page-title
-  title="Υπάλληλοι"
-  subtitle="Διαχείριση υπαλλήλων POS και περιορισμένης πρόσβασης παραλαβών στο dashboard."
-/>
+<app-page-title title="Υπάλληλοι">
+  <button type="button" class="btn primary" (click)="openCreate()">Νέος υπάλληλος</button>
+</app-page-title>
 
-<section class="employees-layout">
-  <article class="panel">
-    <header class="panel-header">
-      <h3>Λίστα υπαλλήλων</h3>
-      <p>Αναζήτηση με βάση το όνομα ή τον κωδικό υπαλλήλου.</p>
-    </header>
+<div class="list-toolbar">
+  <app-search-field [value]="searchQuery()" placeholder="Αναζήτηση ονόματος ή κωδικού" (search)="onSearch($event)" />
+</div>
 
-    <label class="field" for="search">Αναζήτηση</label>
-    <input
-      id="search"
-      type="text"
-      class="text-input"
-      [value]="searchQuery()"
-      (input)="onSearch(search.value)"
-      #search
-      placeholder="π.χ. Μαρία ή 123"
-    />
+@if (error()) {
+  <div class="inline-error" role="alert">{{ error() }}</div>
+}
+@if (accountMessage()) {
+  <div class="inline-success" role="status">{{ accountMessage() }}</div>
+}
 
-    @if (loading()) {
-      <div class="inline-state">Φόρτωση υπαλλήλων από τον emulator...</div>
-    }
-
-    @if (error()) {
-      <div class="inline-error">{{ error() }}</div>
-    }
-    @if (accountMessage()) {
-      <div class="inline-success" role="status">{{ accountMessage() }}</div>
-    }
-
-    @if (filteredEmployees().length > 0) {
-      <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Όνομα</th>
-            <th>Κωδικός</th>
-            <th>Πρόσβαση dashboard</th>
-            <th>Κατάσταση</th>
-            <th class="actions-col">Ενέργειες</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (employee of filteredEmployees(); track employee.id) {
-            <tr>
-            <td>{{ employee.name }}</td>
+@if (loading() && filteredEmployees().length === 0) {
+  <div class="inline-state">Φόρτωση υπαλλήλων…</div>
+} @else if (filteredEmployees().length > 0) {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Όνομα</th>
+          <th>Κωδικός POS</th>
+          <th>Σύνδεση για παραλαβές</th>
+          <th class="actions-col"><span class="sr-only">Ενέργειες</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (employee of filteredEmployees(); track employee.id) {
+          <tr [class.is-inactive]="!employee.active">
+            <td>
+              <span class="cell-title">
+                {{ employee.name }}
+                @if (!employee.active) { <span class="tag">Ανενεργός</span> }
+              </span>
+            </td>
             <td>{{ employee.employeeCode }}</td>
             <td>
               @if (employee.dashboardEmail) {
-                <span>{{ employee.dashboardEmail }}</span>
-                <button type="button" class="account-link" [disabled]="!employee.active" (click)="sendSetupEmail(employee)">Επαναποστολή συνδέσμου ορισμού κωδικού</button>
+                <span class="email-cell">
+                  {{ employee.dashboardEmail }}
+                  @if (employee.active) {
+                    <button type="button" class="link-button" (click)="sendSetupEmail(employee)">Αποστολή νέου συνδέσμου κωδικού</button>
+                  }
+                </span>
               } @else {
-                <span class="muted">Δεν έχει οριστεί</span>
+                <span class="muted">—</span>
               }
-            </td>
-            <td>
-              <span class="status-chip" [class.inactive]="!employee.active">
-                {{ employee.active ? 'ΕΝΕΡΓΟΣ' : 'ΑΝΕΝΕΡΓΟΣ' }}
-              </span>
             </td>
             <td class="actions-col">
               <app-entity-actions
@@ -70,71 +56,65 @@
                 (delete)="deleteEmployee(employee)"
               />
             </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      </div>
-    } @else {
-      <div class="empty-state">Δεν βρέθηκαν υπάλληλοι για τα τρέχοντα φίλτρα.</div>
-    }
-  </article>
-
-  <article class="panel">
-    <header class="panel-header">
-      <h3>{{ editingEmployeeId() ? 'Επεξεργασία υπαλλήλου' : 'Δημιουργία υπαλλήλου' }}</h3>
-      <p>Ο κωδικός υπαλλήλου χρησιμοποιείται στο POS. Η πρόσβαση dashboard είναι μόνο για παραλαβές.</p>
-    </header>
-
-    <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()" class="form-grid">
-      <div>
-        <label class="field" for="name">Όνομα υπαλλήλου</label>
-        <input id="name" type="text" class="text-input" formControlName="name" />
-        @if (employeeForm.controls.name.touched && employeeForm.controls.name.invalid) {
-          <small class="error">Το όνομα υπαλλήλου είναι υποχρεωτικό.</small>
+          </tr>
         }
-      </div>
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <div class="empty-state">
+    {{ searchQuery() ? 'Κανένας υπάλληλος δεν ταιριάζει με την αναζήτηση.' : 'Δεν υπάρχουν υπάλληλοι ακόμη. Προσθέστε τον πρώτο με το «Νέος υπάλληλος».' }}
+  </div>
+}
 
-      <div>
-        <label class="field" for="employeeCode">Κωδικός υπαλλήλου</label>
-        <input id="employeeCode" type="text" class="text-input" formControlName="employeeCode" />
-        @if (employeeForm.controls.employeeCode.touched && employeeForm.controls.employeeCode.invalid) {
-          <small class="error">Ο κωδικός υπαλλήλου είναι υποχρεωτικός.</small>
-        }
-      </div>
-
-      <div>
-        <label class="field" for="dashboardEmail">Email σύνδεσης στο dashboard</label>
-        @if (editingEmployee()?.dashboardEmail) {
-          <input id="dashboardEmail" type="email" class="text-input" [value]="editingEmployee()?.dashboardEmail" readonly />
-          <small class="help-text">Ο υπάλληλος ορίζει τον κωδικό του από το email.</small>
-          <button type="button" class="account-link" [disabled]="!editingEmployee()?.active" (click)="sendCurrentSetupEmail()">Επαναποστολή συνδέσμου ορισμού κωδικού</button>
-        } @else {
-          <input id="dashboardEmail" type="email" class="text-input" formControlName="dashboardEmail" placeholder="employee@example.com" />
-          <small class="help-text">Προαιρετικό. Θα δημιουργηθεί λογαριασμός και θα σταλεί email για ορισμό κωδικού.</small>
-          @if (employeeForm.controls.dashboardEmail.touched && employeeForm.controls.dashboardEmail.invalid) {
-            <small class="error">Συμπληρώστε έγκυρο email.</small>
-          }
-        }
-      </div>
-
+<app-drawer [open]="drawerOpen()" [title]="editingEmployeeId() ? 'Επεξεργασία υπαλλήλου' : 'Νέος υπάλληλος'" (closed)="cancelEdit()">
+  <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()" class="drawer-form">
+    <div class="drawer-fields">
       @if (formError()) {
-        <div class="inline-error">{{ formError() }}</div>
+        <div class="inline-error" role="alert">{{ formError() }}</div>
       }
-
-      <label class="checkbox-row" for="active">
-        <input id="active" type="checkbox" formControlName="active" />
+      <div>
+        <label class="field" for="employee-name">Όνομα</label>
+        <input id="employee-name" type="text" class="text-input" formControlName="name" />
+        @if (employeeForm.controls.name.touched && employeeForm.controls.name.invalid) {
+          <small class="error">Συμπληρώστε το όνομα.</small>
+        }
+      </div>
+      <div>
+        <label class="field" for="employee-code">Κωδικός POS</label>
+        <input id="employee-code" type="text" class="text-input" formControlName="employeeCode" />
+        @if (employeeForm.controls.employeeCode.touched && employeeForm.controls.employeeCode.invalid) {
+          <small class="error">Συμπληρώστε τον κωδικό που θα πληκτρολογεί στο ταμείο.</small>
+        } @else {
+          <small class="help-text">Τον πληκτρολογεί για να συνδεθεί στο ταμείο.</small>
+        }
+      </div>
+      <div>
+        <label class="field" for="employee-email">Email για παραλαβές</label>
+        @if (editingEmployee()?.dashboardEmail) {
+          <input id="employee-email" type="email" class="text-input" [value]="editingEmployee()?.dashboardEmail" readonly />
+          @if (editingEmployee()?.active) {
+            <button type="button" class="link-button" (click)="sendCurrentSetupEmail()">Αποστολή νέου συνδέσμου κωδικού</button>
+          }
+        } @else {
+          <input id="employee-email" type="email" class="text-input" formControlName="dashboardEmail" placeholder="onoma@example.com" />
+          @if (employeeForm.controls.dashboardEmail.touched && employeeForm.controls.dashboardEmail.invalid) {
+            <small class="error">Το email δεν είναι έγκυρο.</small>
+          } @else {
+            <small class="help-text">Προαιρετικό. Δίνει πρόσβαση μόνο στις παραλαβές αποθέματος· θα σταλεί email για να ορίσει κωδικό.</small>
+          }
+        }
+      </div>
+      <label class="checkbox-row" for="employee-active">
+        <input id="employee-active" type="checkbox" formControlName="active" />
         <span>Ενεργός</span>
       </label>
-
-      <div class="button-row">
-        <button type="submit" class="btn primary" [disabled]="savingEmployee()" [attr.aria-busy]="savingEmployee()">
-          {{ savingEmployee() ? 'Αποθήκευση...' : editingEmployeeId() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία υπαλλήλου' }}
-        </button>
-        @if (editingEmployeeId()) {
-          <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
-        }
-      </div>
-    </form>
-  </article>
-</section>
+    </div>
+    <footer class="drawer-footer">
+      <button type="button" class="btn ghost" (click)="cancelEdit()">Ακύρωση</button>
+      <button type="submit" class="btn primary" [disabled]="savingEmployee()" [attr.aria-busy]="savingEmployee()">
+        {{ savingEmployee() ? 'Αποθήκευση…' : editingEmployeeId() ? 'Αποθήκευση' : 'Προσθήκη υπαλλήλου' }}
+      </button>
+    </footer>
+  </form>
+</app-drawer>

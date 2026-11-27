@@ -1,12 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DrawerComponent } from '../../shared/ui/drawer.component';
+import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { VariantsService } from '../variants/variants.service';
 import { PromotionRow, PromotionsService } from './promotions.service';
 
 @Component({
   selector: 'app-promotions-page',
-  imports: [PageTitleComponent, ReactiveFormsModule],
+  imports: [PageTitleComponent, ReactiveFormsModule, DrawerComponent, EntityActionsComponent],
   templateUrl: './promotions-page.component.html',
   styleUrl: './promotions-page.component.scss'
 })
@@ -19,17 +21,24 @@ export class PromotionsPageComponent {
   protected readonly error = this.service.error;
   protected readonly variantsError = this.variantsService.error;
   protected readonly editingId = signal<string | null>(null);
+  protected readonly drawerOpen = signal(false);
   protected readonly saving = signal(false);
   protected readonly message = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
   protected readonly selectedIds = signal<string[]>([]);
+  private readonly pinnedIds = signal<string[]>([]);
   protected readonly search = signal('');
   protected readonly variants = computed(() => {
     const search = this.search().trim().toLowerCase();
-    return this.variantsService.variants().filter((item) =>
-      (item.active || this.selectedIds().includes(item.id)) &&
-      (!search || `${item.name} ${item.code ?? ''}`.toLowerCase().includes(search))
-    );
+    const selected = new Set(this.selectedIds());
+    // Variants the offer already had come first; the order stays put while ticking boxes.
+    const pinned = new Set(this.pinnedIds());
+    return this.variantsService.variants()
+      .filter((item) =>
+        (item.active || selected.has(item.id)) &&
+        (!search || `${item.name} ${item.code ?? ''}`.toLowerCase().includes(search))
+      )
+      .sort((left, right) => Number(pinned.has(right.id)) - Number(pinned.has(left.id)));
   });
   protected readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(120)]],
@@ -76,6 +85,7 @@ export class PromotionsPageComponent {
   protected edit(row: PromotionRow): void {
     this.editingId.set(row.id);
     this.selectedIds.set([...row.variantTemplateIds]);
+    this.pinnedIds.set([...row.variantTemplateIds]);
     this.form.setValue({ name: row.name, rule: row.kind === 'GIFT_VARIANT' ? 'gift' : String(row.groupSize),
       giftQuantity: row.kind === 'GIFT_VARIANT' ? row.groupSize : 2,
       giftVariantTemplateId: row.giftVariantTemplateId ?? '', repeat: row.repeat,
@@ -83,11 +93,37 @@ export class PromotionsPageComponent {
     this.formError.set(null);
     this.message.set(null);
     this.search.set('');
+    this.drawerOpen.set(true);
+  }
+
+  protected openCreate(): void {
+    this.reset();
+    this.message.set(null);
+    this.drawerOpen.set(true);
+  }
+
+  /** Plain-language rule, e.g. "Στα 3 της ίδιας παραλλαγής, το φθηνότερο δωρεάν". */
+  protected ruleText(row: PromotionRow): string {
+    if (row.kind === 'GIFT_VARIANT') return `Αγορά ${row.groupSize}, δώρο 1 ${this.giftName(row)}`;
+    return row.groupSize === 2 ? 'Στα 2 της ίδιας παραλλαγής, το φθηνότερο −50%' : 'Στα 3 της ίδιας παραλλαγής, το φθηνότερο δωρεάν';
+  }
+
+  protected period(row: PromotionRow): string {
+    const format = (value: string) => new Date(value).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' });
+    if (!row.startsAt && !row.endsAt) return 'Χωρίς λήξη';
+    if (row.startsAt && row.endsAt) return `${format(row.startsAt)} – ${format(row.endsAt)}`;
+    return row.startsAt ? `Από ${format(row.startsAt)}` : `Έως ${format(row.endsAt!)}`;
+  }
+
+  protected editingRow(): PromotionRow | null {
+    return this.rows().find((row) => row.id === this.editingId()) ?? null;
   }
 
   protected reset(): void {
+    this.drawerOpen.set(false);
     this.editingId.set(null);
     this.selectedIds.set([]);
+    this.pinnedIds.set([]);
     this.search.set('');
     this.formError.set(null);
     this.form.reset({ name: '', rule: '2', giftQuantity: 2, giftVariantTemplateId: '', repeat: true, active: true, startsAt: '', endsAt: '' });

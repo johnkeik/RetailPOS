@@ -47,13 +47,30 @@ describe('Promotions management', () => {
     fixture.detectChanges();
   }
 
+  function clickMenuItem(label: string): HTMLButtonElement {
+    (fixture.nativeElement.querySelector('[aria-label="Περισσότερες ενέργειες"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const item = Array.from(document.querySelectorAll('.row-menu-item') as NodeListOf<HTMLButtonElement>)
+      .find((button) => button.textContent?.trim() === label)!;
+    item.click();
+    return item;
+  }
+
+  function openCreate(): void {
+    (fixture.nativeElement.querySelector('.page-title-actions .btn.primary') as HTMLButtonElement).click();
+    fixture.detectChanges();
+  }
+
   async function submit(): Promise<void> {
     fixture.nativeElement.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     await fixture.whenStable(); fixture.detectChanges();
   }
 
+  afterEach(() => fixture?.destroy());
+
   it('creates a three-for-two offer from selected variants', async () => {
     await render();
+    openCreate();
     setField('name', offer.name);
     setField('rule', '3');
     fixture.nativeElement.querySelector('fieldset input[type=checkbox]').click();
@@ -65,7 +82,7 @@ describe('Promotions management', () => {
   });
 
   it('saves a separate gift variant after two qualifying purchases', async () => {
-    await render(); setField('name', 'Premium + Simple'); setField('rule', 'gift');
+    await render(); openCreate(); setField('name', 'Premium + Simple'); setField('rule', 'gift');
     setField('giftVariantTemplateId', 'v2'); setField('giftQuantity', '2');
     fixture.nativeElement.querySelector('fieldset input[type=checkbox]').click();
     fixture.detectChanges(); await submit();
@@ -76,12 +93,10 @@ describe('Promotions management', () => {
   it('deletes only after confirmation and reports success', async () => {
     rows.set([offer]); await render();
     const confirm = spyOn(window, 'confirm').and.returnValue(false);
-    const button = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .find((item) => item.textContent?.trim() === 'Διαγραφή')!;
-    button.click(); await fixture.whenStable();
+    clickMenuItem('Διαγραφή'); await fixture.whenStable();
     expect(remove).not.toHaveBeenCalled();
     confirm.and.returnValue(true);
-    button.click(); await fixture.whenStable(); fixture.detectChanges();
+    clickMenuItem('Διαγραφή'); await fixture.whenStable(); fixture.detectChanges();
     expect(remove).toHaveBeenCalledOnceWith('offer');
     expect(fixture.nativeElement.textContent).toContain('Η προσφορά διαγράφηκε');
   });
@@ -89,32 +104,30 @@ describe('Promotions management', () => {
   it('does not report success when deletion fails', async () => {
     remove.and.resolveTo(false);
     rows.set([offer]); await render(); spyOn(window, 'confirm').and.returnValue(true);
-    const button = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .find((item) => item.textContent?.trim() === 'Διαγραφή')!;
-    button.click(); await fixture.whenStable(); fixture.detectChanges();
+    clickMenuItem('Διαγραφή'); await fixture.whenStable(); fixture.detectChanges();
+    expect(remove).toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).not.toContain('Η προσφορά διαγράφηκε');
-    expect(button.disabled).toBeFalse();
+    expect((fixture.nativeElement.querySelector('[aria-label="Περισσότερες ενέργειες"]') as HTMLButtonElement).disabled).toBeFalse();
   });
 
   it('requires an eligible variant before saving', async () => {
-    await render(); setField('name', 'Προσφορά'); await submit();
+    await render(); openCreate(); setField('name', 'Προσφορά'); await submit();
     expect(save).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('επιλέξτε τουλάχιστον μία παραλλαγή');
   });
 
   it('edits a scheduled offer without shifting its saved date range', async () => {
     rows.set([offer]); await render();
-    const edit = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .find((button) => button.textContent?.trim() === 'Επεξεργασία')!;
-    edit.click(); fixture.detectChanges(); await submit();
+    (fixture.nativeElement.querySelector('[aria-label="Επεξεργασία"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('dialog').open).toBeTrue();
+    await submit();
     expect(save).toHaveBeenCalledWith(jasmine.objectContaining({ startsAt: offer.startsAt, endsAt: offer.endsAt }), 'offer');
   });
 
   it('deactivates an existing offer while preserving its rule and eligibility', async () => {
     rows.set([offer]); await render();
-    const toggle = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .find((button) => button.textContent?.trim() === 'Απενεργοποίηση')!;
-    toggle.click(); await fixture.whenStable();
+    clickMenuItem('Απενεργοποίηση'); await fixture.whenStable();
     expect(save).toHaveBeenCalledWith(jasmine.objectContaining({ active: false,
       variantTemplateIds: offer.variantTemplateIds, groupSize: 3 }), 'offer');
   });

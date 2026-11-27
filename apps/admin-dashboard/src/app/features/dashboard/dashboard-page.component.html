@@ -1,224 +1,166 @@
-<app-page-title
-  title="Επισκόπηση"
-  subtitle="Πωλήσεις, αποθέματα και ενέργειες που χρειάζονται σήμερα."
-/>
-
-<div class="dashboard-toolbar">
-  <p>{{ currentDate }}</p>
-  <button type="button" class="refresh-button" (click)="refresh()" [disabled]="loading()">
-    <span aria-hidden="true">↻</span>
+<app-page-title title="Επισκόπηση" [subtitle]="currentDate">
+  <button type="button" class="btn quiet" (click)="refresh()" [disabled]="loading()">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [class.spinning]="loading()">
+      <path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4h-4" />
+    </svg>
     {{ loading() ? 'Ανανέωση…' : 'Ανανέωση' }}
   </button>
-</div>
+  <a class="btn primary" routerLink="/stock-movements/new">Παραλαβή αποθέματος</a>
+</app-page-title>
 
-@if (inventoryError()) {
-  <div class="inline-error">{{ inventoryError() }}</div>
+@if (inventoryError() || salesError() || expensesError()) {
+  <div class="inline-error" role="alert">
+    @if (salesError()) { <p>{{ salesError() }}</p> }
+    @if (expensesError()) { <p>{{ expensesError() }}</p> }
+    @if (inventoryError()) { <p>{{ inventoryError() }}</p> }
+  </div>
 }
-@if (salesError()) {
-  <div class="inline-error">{{ salesError() }}</div>
-}
 
-<section class="metric-grid" aria-label="Σημερινά στοιχεία">
-  <article class="metric-card sales-metric">
-    <span class="metric-label">Πωλήσεις σήμερα</span>
-    <strong>{{ formatCurrency(todaySales()) }}</strong>
-    <span class="metric-note">Σύνολο ολοκληρωμένων παραγγελιών</span>
-  </article>
-  <article class="metric-card">
-    <span class="metric-label">Παραγγελίες σήμερα</span>
-    <strong>{{ todayOrders().length }}</strong>
-    <span class="metric-note">Ολοκληρωμένες συναλλαγές</span>
-  </article>
-  <article class="metric-card">
-    <span class="metric-label">Μέση απόδειξη</span>
-    <strong>{{ formatCurrency(averageOrder()) }}</strong>
-    <span class="metric-note">Μέσο ποσό ανά παραγγελία σήμερα</span>
-  </article>
-  <article class="metric-card stock-metric" [class.stock-alert]="stockSummary().needsAttention > 0">
-    <span class="metric-label">Αποθέματα για έλεγχο</span>
-    <strong>{{ stockSummary().needsAttention }}</strong>
-    <span class="metric-note">
-      {{ stockSummary().outOfStock }} εξαντλημένα · {{ stockSummary().lowStock }} χαμηλά
-    </span>
-  </article>
-</section>
+<div class="overview-grid">
+  <section class="today" aria-labelledby="today-heading">
+    <h3 id="today-heading" class="section-title">Σήμερα</h3>
 
-<nav class="quick-actions" aria-label="Γρήγορες ενέργειες">
-  <a routerLink="/stock-movements/new"><span aria-hidden="true">＋</span> Παραλαβή αποθέματος</a>
-  <a routerLink="/products"><span aria-hidden="true">▦</span> Διαχείριση προϊόντων</a>
-  <a routerLink="/sales-history"><span aria-hidden="true">↗</span> Ιστορικό πωλήσεων</a>
-</nav>
-
-<div class="dashboard-columns">
-  <section class="dashboard-panel trend-panel">
-    <header class="section-heading">
-      <div>
-        <h3>Πωλήσεις 7 ημερών</h3>
-        <p>Ημερήσιος τζίρος</p>
-      </div>
-      <strong>{{ formatCurrency(todaySales()) }}</strong>
-    </header>
-
-    @if (salesLoading()) {
-      <div class="panel-state">Φόρτωση πωλήσεων…</div>
-    } @else if (orders().length === 0) {
-      <div class="panel-state">Δεν υπάρχουν καταχωρημένες πωλήσεις.</div>
+    @if (salesLoading() && orders().length === 0) {
+      <p class="panel-state">Φόρτωση πωλήσεων…</p>
     } @else {
-      <div class="sales-chart" role="img" aria-label="Τζίρος ανά ημέρα τις τελευταίες 7 ημέρες">
-        @for (day of weeklySales(); track day.label; let index = $index) {
-          <div class="chart-day" [attr.aria-label]="day.label + ': ' + formatCurrency(day.amount)">
-            <span class="chart-value">{{ day.amount ? formatCurrency(day.amount) : '—' }}</span>
-            <div class="chart-track">
-              <div class="chart-bar" [class.today-bar]="index === 6" [style.height.%]="day.barPercent"></div>
-            </div>
-            <span class="chart-label">{{ day.label }}</span>
-          </div>
+      <p class="today-amount">{{ formatCurrency(todaySales()) }}</p>
+      <p class="today-detail">
+        @if (todayOrders().length === 0) {
+          Καμία ολοκληρωμένη παραγγελία ακόμη.
+        } @else {
+          {{ todayOrders().length }} {{ todayOrders().length === 1 ? 'παραγγελία' : 'παραγγελίες' }},
+          μέση απόδειξη {{ formatCurrency(averageOrder()) }}
         }
+      </p>
+
+      <div class="week">
+        <p class="week-header">
+          Τελευταίες 7 ημέρες: <span class="week-total">{{ formatCurrency(weeklyTotal()) }}</span>
+        </p>
+        <div class="week-chart" role="img" [attr.aria-label]="weeklyChartLabel()">
+          @for (day of weeklySales(); track day.fullLabel) {
+            <div class="week-day" [class.is-today]="day.isToday" [title]="day.fullLabel + ': ' + formatCurrency(day.amount)">
+              <div class="week-track">
+                <div class="week-bar" [style.height.%]="day.barPercent">
+                  <span class="week-value" [class.zero]="!day.amount" aria-hidden="true">{{ formatBarAmount(day.amount) }}</span>
+                </div>
+              </div>
+              <span class="week-label">{{ day.label }}</span>
+            </div>
+          }
+        </div>
       </div>
     }
   </section>
 
-  <section class="dashboard-panel stock-panel">
-    <header class="section-heading">
-      <div>
-        <h3>Αποθέματα προς έλεγχο</h3>
-        <p>{{ stockThresholdDescription }}</p>
-      </div>
-      <a routerLink="/inventory">Όλο το απόθεμα</a>
+  <section class="month" aria-labelledby="month-heading">
+    <header class="section-header">
+      <h3 id="month-heading" class="section-title">Αυτός ο μήνας <span class="month-name">{{ monthLabel }}</span></h3>
+      <a class="text-link" routerLink="/sales-report">Αναλυτικά</a>
+    </header>
+    @if (monthLoading() && monthIncome().total === 0 && monthExpenses().total === 0) {
+      <p class="panel-state">Φόρτωση…</p>
+    } @else {
+      <app-period-totals [income]="monthIncome()" [expenses]="monthExpenses()" />
+    }
+  </section>
+
+  <section class="refill" aria-labelledby="refill-heading">
+    <header class="section-header">
+      <h3 id="refill-heading" class="section-title">
+        Χρειάζονται αναπλήρωση
+        @if (stockSummary().needsAttention > 0) {
+          <span class="count">{{ stockSummary().needsAttention }}</span>
+        }
+      </h3>
+      <a class="text-link" routerLink="/inventory">Απόθεμα</a>
     </header>
 
-    @if (inventoryLoading()) {
-      <div class="panel-state">Φόρτωση αποθέματος…</div>
+    @if (inventoryLoading() && attentionRows().length === 0) {
+      <p class="panel-state">Φόρτωση αποθέματος…</p>
     } @else if (attentionRows().length === 0) {
-      <div class="panel-state stock-clear">
-        <span aria-hidden="true">✓</span>
-        Δεν υπάρχουν αποθέματα κάτω από το όριο.
-      </div>
+      <p class="panel-state">Όλα τα αποθέματα είναι πάνω από το όριο αναπλήρωσης.</p>
     } @else {
-      <ul class="stock-list">
+      <ul class="refill-list">
         @for (row of attentionRows(); track row.id) {
-          <li [class.out-of-stock]="row.quantity <= 0">
-            <div class="stock-item-name">
+          <li class="refill-item" [class.is-empty]="row.quantity <= 0">
+            <div class="refill-name">
               <strong>{{ row.productName }}</strong>
-              <span>{{ row.productCode }} · {{ row.variantTemplateName }}</span>
+              <span>{{ row.variantTemplateName }}</span>
             </div>
-            <div class="stock-item-value">
-              <strong>{{ row.displayQty }}</strong>
-              <span>{{ row.quantity <= 0 ? 'Εξαντλημένο' : 'Χαμηλό' }}</span>
+            <div class="refill-level">
+              <span class="refill-qty">{{ row.quantity <= 0 ? 'Εξαντλήθηκε' : row.displayQty }}</span>
+              <span class="meter" aria-hidden="true"><span class="meter-fill" [style.width.%]="stockFill(row)"></span></span>
             </div>
           </li>
         }
       </ul>
       @if (stockSummary().needsAttention > attentionRows().length) {
-        <a class="more-link" routerLink="/inventory">+{{ stockSummary().needsAttention - attentionRows().length }} ακόμη προς έλεγχο</a>
+        <a class="text-link more-link" routerLink="/inventory">
+          Δείτε άλλα {{ stockSummary().needsAttention - attentionRows().length }}
+        </a>
       }
+    }
+    <p class="refill-note">{{ stockThresholdDescription }}</p>
+  </section>
+
+  <section class="recent" aria-labelledby="recent-heading">
+    <header class="section-header">
+      <h3 id="recent-heading" class="section-title">Πρόσφατες παραγγελίες</h3>
+      <a class="text-link" routerLink="/sales-history">Ιστορικό πωλήσεων</a>
+    </header>
+
+    @if (salesLoading() && recentOrders().length === 0) {
+      <p class="panel-state">Φόρτωση παραγγελιών…</p>
+    } @else if (recentOrders().length === 0) {
+      <p class="panel-state">Οι παραγγελίες από το ταμείο θα εμφανίζονται εδώ.</p>
+    } @else {
+      <ul class="order-list">
+        @for (order of recentOrders(); track order.id) {
+          <li class="order" [class.is-cancelled]="order.status === 'CANCELLED'">
+            <span class="order-time">{{ formatOrderTime(order.createdAt) }}</span>
+            <div class="order-main">
+              <span class="order-who">{{ order.employeeName }}</span>
+              <span class="order-meta">
+                {{ order.itemCount }} {{ order.itemCount === 1 ? 'είδος' : 'είδη' }}@if (paymentLabel(order.paymentMethod)) {, {{ paymentLabel(order.paymentMethod) }}}
+              </span>
+              @if (order.status === 'CANCELLED') {
+                <span class="order-cancelled">
+                  Ακυρώθηκε{{ order.cancelledByEmployeeName ? ' από ' + order.cancelledByEmployeeName : '' }}{{ order.cancelledAt ? ', ' + formatOrderDate(order.cancelledAt) : '' }}
+                </span>
+              }
+            </div>
+            <span class="order-total">{{ formatCurrency(order.total) }}</span>
+          </li>
+        }
+      </ul>
     }
   </section>
 </div>
 
-<section class="dashboard-panel recent-panel">
-  <header class="section-heading">
-    <div>
-      <h3>Πρόσφατες παραγγελίες</h3>
-      <p>Οι 5 πιο πρόσφατες παραγγελίες και η κατάστασή τους</p>
+@if (showSeedTools) {
+  <details class="seed no-print">
+    <summary>Δεδομένα δοκιμής (μόνο στον emulator)</summary>
+    <div class="seed-body">
+      <div class="seed-row">
+        <button type="button" class="btn quiet" (click)="seedMockBrands()" [disabled]="seedLoading()">Μάρκες</button>
+        <button type="button" class="btn quiet" (click)="seedMockCategories()" [disabled]="seedLoading()">Κατηγορίες</button>
+        <button type="button" class="btn quiet" (click)="seedMockConsumables()" [disabled]="seedLoading()">Αναλώσιμα</button>
+        <button type="button" class="btn quiet" (click)="seedMockVariantTemplates()" [disabled]="seedLoading()">Πρότυπα παραλλαγών</button>
+      </div>
+      <p class="seed-label">Προϊόντα ανά κατηγορία</p>
+      <div class="seed-row">
+        @for (category of productCategories; track category.code) {
+          <button type="button" class="btn quiet" (click)="seedMockProducts(category.code)" [disabled]="seedLoading()">{{ category.name }}</button>
+        }
+      </div>
+      <div class="seed-row">
+        <button type="button" class="btn quiet" (click)="seedMockInventory()" [disabled]="seedLoading()">Δοκιμαστικό απόθεμα</button>
+        <button type="button" class="btn quiet" (click)="seedMockSalesHistory()" [disabled]="seedLoading()">Δοκιμαστικές πωλήσεις (40)</button>
+      </div>
+      @if (seedLoading()) { <p class="seed-status" role="status">Καταχώρηση…</p> }
+      @if (seedStatus()) { <p class="seed-status" role="status">{{ seedStatus() }}</p> }
+      @if (seedError()) { <p class="seed-error" role="alert">{{ seedError() }}</p> }
     </div>
-    <a routerLink="/sales-history">Όλο το ιστορικό</a>
-  </header>
-
-  @if (salesLoading()) {
-    <div class="panel-state">Φόρτωση παραγγελιών…</div>
-  } @else if (recentOrders().length === 0) {
-    <div class="panel-state">Δεν υπάρχουν πρόσφατες παραγγελίες.</div>
-  } @else {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Ώρα</th>
-            <th>Παραγγελία</th>
-            <th>Υπάλληλος</th>
-            <th>Είδη</th>
-            <th>Πληρωμή</th>
-            <th>Σύνολο</th>
-            <th>Κατάσταση</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (order of recentOrders(); track order.id) {
-            <tr>
-              <td>{{ formatOrderDate(order.createdAt) }}</td>
-              <td><a class="order-link" routerLink="/sales-history">Προβολή</a></td>
-              <td>{{ order.employeeName }}</td>
-              <td>{{ order.itemCount }}</td>
-              <td>{{ order.paymentMethod === 'CARD' ? 'Κάρτα' : order.paymentMethod === 'CASH' ? 'Μετρητά' : '—' }}</td>
-              <td class="order-total" [class.cancelled-total]="order.status === 'CANCELLED'">{{ formatCurrency(order.total) }}</td>
-              <td>
-                <span class="order-status" [class.cancelled]="order.status === 'CANCELLED'">
-                  {{ order.status === 'CANCELLED' ? 'Ακυρωμένη' : 'Ολοκληρωμένη' }}
-                </span>
-                @if (order.status === 'CANCELLED') {
-                  <span class="cancellation-info">
-                    {{ order.cancelledAt ? formatOrderDate(order.cancelledAt) : 'Άγνωστη ημερομηνία ακύρωσης' }}
-                    <br />Από: {{ order.cancelledByEmployeeName || 'Μη διαθέσιμο όνομα' }}
-                  </span>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-</section>
-
-<details class="dashboard-seed">
-  <summary>Προσωρινά δεδομένα δοκιμής (emulator)</summary>
-  <p>Δημιουργία δοκιμαστικού καταλόγου, αποθέματος και πωλήσεων για τοπικές δοκιμές.</p>
-
-  <div class="seed-groups">
-    <section class="seed-group">
-      <h4>Μάρκες</h4>
-      <button type="button" class="seed-button" (click)="seedMockBrands()" [disabled]="seedLoading()">Δημιουργία μαρκών</button>
-    </section>
-    <section class="seed-group">
-      <h4>Κατηγορίες</h4>
-      <button type="button" class="seed-button" (click)="seedMockCategories()" [disabled]="seedLoading()">Δημιουργία κατηγοριών</button>
-    </section>
-    <section class="seed-group">
-      <h4>Αναλώσιμα</h4>
-      <button type="button" class="seed-button" (click)="seedMockConsumables()" [disabled]="seedLoading()">Δημιουργία αναλωσίμων</button>
-    </section>
-    <section class="seed-group">
-      <h4>Πρότυπα παραλλαγών</h4>
-      <button type="button" class="seed-button" (click)="seedMockVariantTemplates()" [disabled]="seedLoading()">Δημιουργία προτύπων</button>
-    </section>
-  </div>
-
-  <h4 class="seed-products-heading">Προϊόντα ανά κατηγορία</h4>
-  <div class="seed-groups">
-    @for (category of productCategories; track category.code) {
-      <section class="seed-group">
-        <h4>{{ category.name }}</h4>
-        <button type="button" class="seed-button" (click)="seedMockProducts(category.code)" [disabled]="seedLoading()">
-          Δημιουργία προϊόντων
-        </button>
-      </section>
-    }
-  </div>
-
-  <button type="button" class="seed-button secondary" (click)="seedMockInventory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Καταχώρηση αποθέματος…' : 'Δοκιμαστικό απόθεμα' }}
-  </button>
-
-  <button type="button" class="seed-button secondary" (click)="seedMockSalesHistory()" [disabled]="seedLoading()">
-    {{ seedLoading() ? 'Καταχώρηση πωλήσεων…' : 'Δοκιμαστικές πωλήσεις (40)' }}
-  </button>
-
-  @if (seedStatus()) {
-    <p class="seed-status">{{ seedStatus() }}</p>
-  }
-
-  @if (seedError()) {
-    <p class="seed-error">{{ seedError() }}</p>
-  }
-</details>
+  </details>
+}

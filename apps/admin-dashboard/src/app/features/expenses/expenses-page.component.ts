@@ -1,5 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { DrawerComponent } from '../../shared/ui/drawer.component';
 import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EmployeesService } from '../employees/employees.service';
@@ -17,13 +19,14 @@ function startOfMonthInput(date: Date): string {
 
 @Component({
   selector: 'app-expenses-page',
-  imports: [EntityActionsComponent, PageTitleComponent],
+  imports: [ReactiveFormsModule, EntityActionsComponent, PageTitleComponent, DrawerComponent],
   templateUrl: './expenses-page.component.html',
   styleUrl: './expenses-page.component.scss'
 })
 export class ExpensesPageComponent implements OnInit {
   private readonly service = inject(ExpensesService);
   private readonly employeesService = inject(EmployeesService);
+  private readonly formBuilder = inject(FormBuilder);
   protected readonly activeEmployees = computed(() =>
     this.employeesService.employees().filter((employee) => employee.active)
   );
@@ -37,6 +40,19 @@ export class ExpensesPageComponent implements OnInit {
   protected readonly showVoided = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
+  protected readonly drawerOpen = signal(false);
+  protected readonly saving = signal(false);
+
+  protected readonly expenseForm = this.formBuilder.nonNullable.group({
+    employeeId: ['', Validators.required],
+    amount: ['', Validators.required],
+    paymentMethod: ['CASH' as 'CASH' | 'CARD'],
+    description: ['', [Validators.required, Validators.maxLength(300)]]
+  });
+
+  protected readonly editingExpense = computed(() =>
+    this.service.expenses().find((row) => row.id === this.editingId()) ?? null
+  );
 
   protected readonly employees = computed(() => {
     const names = new Map<string, string>();
@@ -118,49 +134,59 @@ export class ExpensesPageComponent implements OnInit {
     void this.service.load({ from, to });
   }
 
-  protected startEdit(id: string): void {
-    this.editingId.set(id);
-  }
-
-  protected cancelEdit(): void {
+  protected openCreate(): void {
     this.editingId.set(null);
+    this.formError.set(null);
+    this.expenseForm.reset({ employeeId: '', amount: '', paymentMethod: 'CASH', description: '' });
+    this.expenseForm.controls.employeeId.enable();
+    this.drawerOpen.set(true);
   }
 
-  protected async create(
-    employeeId: string,
-    amount: string,
-    method: string,
-    description: string,
-    form: HTMLFormElement
-  ): Promise<void> {
-    const value = Number(amount.replace(',', '.'));
-    if (!employeeId || !Number.isFinite(value) || value <= 0 || !description.trim()) {
-      this.formError.set('Επιλέξτε υπάλληλο και συμπληρώστε έγκυρο ποσό και περιγραφή.');
+  protected startEdit(id: string): void {
+    const row = this.service.expenses().find((expense) => expense.id === id);
+    if (!row) return;
+    this.editingId.set(id);
+    this.formError.set(null);
+    this.expenseForm.reset({
+      employeeId: row.employeeId,
+      amount: String(row.amount).replace('.', ','),
+      paymentMethod: row.paymentMethod === 'CARD' ? 'CARD' : 'CASH',
+      description: row.description
+    });
+    // The employee who recorded an expense cannot be changed afterwards.
+    this.expenseForm.controls.employeeId.disable();
+    this.drawerOpen.set(true);
+  }
+
+  protected closeDrawer(): void {
+    this.drawerOpen.set(false);
+    this.editingId.set(null);
+    this.formError.set(null);
+  }
+
+  protected async save(): Promise<void> {
+    if (this.saving()) return;
+    const form = this.expenseForm.getRawValue();
+    const amount = Number(form.amount.replace(',', '.'));
+    const editingId = this.editingId();
+    if ((!editingId && !form.employeeId) || !Number.isFinite(amount) || amount <= 0 || !form.description.trim()) {
+      this.expenseForm.markAllAsTouched();
+      this.formError.set(editingId
+        ? 'Συμπληρώστε έγκυρο ποσό και περιγραφή.'
+        : 'Επιλέξτε υπάλληλο και συμπληρώστε έγκυρο ποσό και περιγραφή.');
       return;
     }
     this.formError.set(null);
-    const ok = await this.service.create({
-      employeeId,
-      amount: value,
-      paymentMethod: method === 'CARD' ? 'CARD' : 'CASH',
-      description: description.trim()
-    });
-    if (ok) form.reset();
-  }
-
-  protected async saveEdit(id: string, amount: string, method: string, description: string): Promise<void> {
-    const value = Number(amount.replace(',', '.'));
-    if (!Number.isFinite(value) || value <= 0 || !description.trim()) {
-      this.formError.set('Συμπληρώστε έγκυρο ποσό και περιγραφή.');
-      return;
+    this.saving.set(true);
+    try {
+      const input = { amount, paymentMethod: form.paymentMethod, description: form.description.trim() };
+      const ok = editingId
+        ? await this.service.update(editingId, input)
+        : await this.service.create({ employeeId: form.employeeId, ...input });
+      if (ok) this.closeDrawer();
+    } finally {
+      this.saving.set(false);
     }
-    this.formError.set(null);
-    const ok = await this.service.update(id, {
-      amount: value,
-      paymentMethod: method === 'CARD' ? 'CARD' : 'CASH',
-      description: description.trim()
-    });
-    if (ok) this.editingId.set(null);
   }
 
   protected async remove(id: string): Promise<void> {
@@ -169,7 +195,7 @@ export class ExpensesPageComponent implements OnInit {
   }
 
   protected changeNote(by: string | null, at: Date | null): string {
-    return [by, at ? this.formatDate(at) : null].filter(Boolean).join(' · ');
+    return [by, at ? this.formatDate(at) : null].filter(Boolean).join(', ');
   }
 
   protected formatDate(value: Date): string {
@@ -178,7 +204,8 @@ export class ExpensesPageComponent implements OnInit {
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hourCycle: 'h23'
     });
   }
 

@@ -1,17 +1,23 @@
 <ng-template #navigation let-mobile="mobile">
-  <nav aria-label="Κύρια πλοήγηση">
+  <nav class="nav" aria-label="Κύρια πλοήγηση">
     @for (section of navSections; track section.label) {
-      <details class="nav-section" open>
-        <summary>{{ section.label }}</summary>
-        <div class="nav-items">
-          @for (item of section.items; track item.path) {
-            <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
-              class="nav-link" (click)="mobile && closeMobileMenu()">{{ item.label }}</a>
-          }
-        </div>
-      </details>
+      <div class="nav-group" role="group" [attr.aria-label]="section.label || null">
+        @if (section.label) {
+          <p class="nav-group-label">{{ section.label }}</p>
+        }
+        @for (item of section.items; track item.path) {
+          <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
+            class="nav-link" (click)="mobile && closeMobileMenu()">{{ item.label }}</a>
+        }
+      </div>
     }
   </nav>
+</ng-template>
+
+<ng-template #signOutIcon>
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M9 5H4v14h5m6-12 5 5-5 5m-7-5h12" />
+  </svg>
 </ng-template>
 
 <div class="shell">
@@ -19,17 +25,20 @@
     <button type="button" class="menu-toggle" (click)="openMobileMenu()"
       aria-controls="mobile-navigation" aria-haspopup="dialog" [attr.aria-expanded]="mobileMenuOpen()" aria-label="Άνοιγμα μενού">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-        <path d="M4 6h16M4 12h16M4 18h16" />
+        <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
-      <span>Μενού</span>
     </button>
-    <h1>Perfume POS Admin</h1>
-    <button type="button" class="sign-out desktop-sign-out" (click)="signOut()">Αποσύνδεση</button>
+    <span class="brand">Perfume POS</span>
   </header>
 
   <div class="content-grid">
     <aside class="sidebar" aria-label="Πλευρικό μενού">
+      <span class="brand">Perfume POS</span>
       <ng-container [ngTemplateOutlet]="navigation" [ngTemplateOutletContext]="{ mobile: false }" />
+      <button type="button" class="sign-out" (click)="signOut()">
+        <ng-container [ngTemplateOutlet]="signOutIcon" />
+        Αποσύνδεση
+      </button>
     </aside>
     <main class="main-content">
       <router-outlet />
@@ -41,7 +50,7 @@
   (click)="dismissBackdrop($event)" (cancel)="$event.preventDefault(); closeMobileMenu()" (close)="onMobileMenuClosed()">
   <div class="mobile-panel">
     <header class="mobile-panel-header">
-      <div><span class="menu-eyebrow">Perfume POS Admin</span><h2 id="mobile-navigation-title">Μενού</h2></div>
+      <h2 id="mobile-navigation-title" class="brand">Perfume POS</h2>
       <button type="button" class="menu-close" (click)="closeMobileMenu()" aria-label="Κλείσιμο μενού" autofocus>
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
           <path d="m6 6 12 12M18 6 6 18" />
@@ -53,9 +62,7 @@
     </div>
     <footer class="mobile-panel-footer">
       <button type="button" class="sign-out" (click)="closeMobileMenu(); signOut()">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M9 5H4v14h5m6-12 5 5-5 5m-7-5h12" />
-        </svg>
+        <ng-container [ngTemplateOutlet]="signOutIcon" />
         Αποσύνδεση
       </button>
     </footer>

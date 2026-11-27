@@ -510,11 +510,16 @@ tr:hover td {
   position: sticky;
   bottom: 0;
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid #dce3ec;
-  background: #ffffff;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+
+  .btn.danger {
+    margin-right: auto;
+  }
 }
 
 @media (max-width: 768px) {

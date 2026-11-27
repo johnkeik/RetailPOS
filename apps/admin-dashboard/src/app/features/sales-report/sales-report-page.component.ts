@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
+import { PeriodTotalsComponent, splitByPayment } from '../../shared/ui/period-totals.component';
 import { SalesReportService } from './sales-report.service';
 
 type Totals = {
@@ -31,7 +32,7 @@ function toInputDate(date: Date): string {
 
 @Component({
   selector: 'app-sales-report-page',
-  imports: [PageTitleComponent],
+  imports: [PageTitleComponent, PeriodTotalsComponent],
   templateUrl: './sales-report-page.component.html',
   styleUrl: './sales-report-page.component.scss'
 })
@@ -40,7 +41,8 @@ export class SalesReportPageComponent implements OnInit {
 
   protected readonly loading = this.service.loading;
   protected readonly error = this.service.error;
-  protected readonly dateFrom = signal(toInputDate(new Date(Date.now() - 29 * 86_400_000)));
+  // Default: the current month so far (1st to today).
+  protected readonly dateFrom = signal(toInputDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
   protected readonly dateTo = signal(toInputDate(new Date()));
 
   protected readonly days = computed(() => {
@@ -90,6 +92,15 @@ export class SalesReportPageComponent implements OnInit {
       }));
   });
 
+  /** Totals for the whole chosen range, same figures as the Overview shows for the month. */
+  protected readonly rangeIncome = computed(() =>
+    splitByPayment(this.service.orders().map((order) => ({ amount: order.total, method: order.paymentMethod })))
+  );
+
+  protected readonly rangeExpenses = computed(() =>
+    splitByPayment(this.service.expenses().map((expense) => ({ amount: expense.total, method: expense.paymentMethod })))
+  );
+
   protected readonly hasOther = computed(() => this.days().some((day) => day.totals.other > 0));
 
   ngOnInit(): void {
@@ -97,6 +108,12 @@ export class SalesReportPageComponent implements OnInit {
   }
 
   protected reload(): void {
+    // A cleared "Από" falls back to the 1st of the "Έως" month, so the query is never invalid or unbounded.
+    if (!this.dateFrom()) {
+      const anchor = this.dateTo() ? new Date(`${this.dateTo()}T00:00:00`) : new Date();
+      this.dateFrom.set(toInputDate(new Date(anchor.getFullYear(), anchor.getMonth(), 1)));
+    }
+    if (!this.dateTo()) this.dateTo.set(toInputDate(new Date()));
     const from = new Date(`${this.dateFrom()}T00:00:00`);
     const to = new Date(`${this.dateTo()}T23:59:59.999`);
     void this.service.load(from, to);

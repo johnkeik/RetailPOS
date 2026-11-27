@@ -1,0 +1,511 @@
+/*
+ * Shared building blocks for admin list pages: buttons, inputs, tables, tags, drawers.
+ * Component stylesheets should only hold layout that is unique to their page.
+ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--ink-soft);
+}
+
+.btn.primary {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: #3d3548;
+}
+
+.btn.ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.btn.ghost:hover:not(:disabled) {
+  background: var(--paper);
+}
+
+.btn.danger {
+  border-color: transparent;
+  background: transparent;
+  color: var(--alert);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: var(--alert-soft);
+}
+
+.btn.small {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 0.875rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form fields */
+.field {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.text-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
+.text-input::placeholder {
+  color: #9a94a3;
+}
+
+.text-input:focus {
+  border-color: var(--ink);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(42 36 51 / 0.12);
+}
+
+textarea.text-input {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.help-text {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.error {
+  display: block;
+  margin-top: 6px;
+  color: var(--alert);
+  font-size: 0.8125rem;
+}
+
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9375rem;
+  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--ink);
+  }
+}
+
+.form-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Messages */
+.inline-state,
+.empty-state {
+  padding: 32px 16px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.inline-state {
+  padding: 16px;
+}
+
+.inline-error,
+.inline-success {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+}
+
+.inline-error {
+  background: var(--alert-soft);
+  color: var(--alert);
+}
+
+.inline-success {
+  background: #e3efe8;
+  color: var(--ok);
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+/* Toolbar above a list: search, filters */
+.list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  .search {
+    flex: 1 1 280px;
+    max-width: 420px;
+  }
+
+  select.text-input {
+    width: auto;
+    min-width: 180px;
+  }
+}
+
+.search {
+  position: relative;
+
+  .text-input {
+    padding-left: 38px;
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    color: var(--ink-soft);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
+
+/* Tables */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  th {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:hover td {
+    background: #fafbfa;
+  }
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .actions-col {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .check-col {
+    width: 1%;
+    padding-right: 0;
+
+    input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      accent-color: var(--ink);
+    }
+  }
+}
+
+/* Name cell with an optional secondary line (code, size…) */
+.cell-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  font-weight: 600;
+}
+
+.cell-sub {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+tr.is-inactive .cell-title,
+tr.is-inactive td {
+  color: var(--ink-soft);
+}
+
+/* Small quiet tag, used only for exceptions such as "Ανενεργό" */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 11px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag.warn {
+  background: var(--amber-soft);
+  color: #7a4a0c;
+}
+
+.tag.alert {
+  background: var(--alert-soft);
+  color: var(--alert);
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  select.text-input {
+    width: auto;
+    min-height: 32px;
+    padding: 4px 8px;
+  }
+}
+
+/* CDK menu used by the row "more" button */
+.row-menu {
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgb(42 36 51 / 0.14);
+}
+
+.row-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row-menu-item:hover,
+.row-menu-item:focus {
+  background: var(--paper);
+  outline: none;
+}
+
+.row-menu-item.danger {
+  color: var(--alert);
+}
+
+.row-menu-item.danger:hover,
+.row-menu-item.danger:focus {
+  background: var(--alert-soft);
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .list-toolbar .search {
+    max-width: none;
+  }
+
+  .list-toolbar select.text-input {
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
+  }
+}
+
+/* Form inside <app-drawer> */
+.drawer-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.drawer-fields {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: 18px;
+  padding: 20px 24px;
+}
+
+.drawer-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+
+  .btn.danger {
+    margin-right: auto;
+  }
+}
+
+/* Inline text action, e.g. "Αποστολή νέου συνδέσμου" */
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.count-link {
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+}
+
+.count-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Filter chips with a count, e.g. "Χαμηλό 3" */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  span {
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.chip:hover {
+  border-color: var(--ink-soft);
+}
+
+.chip.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #ffffff;
+
+  span {
+    color: rgb(255 255 255 / 0.7);
+  }
+}
+

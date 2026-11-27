@@ -1,14 +1,8 @@
 <app-page-title
-  [title]="isEditing() ? 'Επεξεργασία Προϊόντος' : 'Νέο Προϊόν'"
-  subtitle="Συμπληρώστε τα στοιχεία του προϊόντος και επιλέξτε τις παραλλαγές του."
+  [title]="isEditing() ? 'Επεξεργασία προϊόντος' : 'Νέο προϊόν'"
+  backLink="/products"
+  backLabel="Προϊόντα"
 />
-
-<div class="product-form-toolbar">
-  <a routerLink="/products">← Πίσω στα προϊόντα</a>
-  @if (isEditing()) {
-    <button type="button" class="form-delete-button" (click)="deleteProduct()">Διαγραφή προϊόντος</button>
-  }
-</div>
 
 @if (loading()) {
   <div class="form-state">Φόρτωση προϊόντος και διαθέσιμων επιλογών…</div>
@@ -254,13 +248,16 @@
     </section>
 
     <footer class="form-actions">
-      <button type="button" class="form-secondary-button" (click)="onBack()">Ακύρωση</button>
+      @if (isEditing()) {
+        <button type="button" class="btn danger" (click)="deleteProduct()">Διαγραφή</button>
+      }
+      <button type="button" class="btn ghost" (click)="onBack()">Ακύρωση</button>
       <button
         type="submit"
-        class="form-primary-button"
+        class="btn primary"
         [disabled]="saving() || !hasCatalogDependencies() || !hasVariantTemplates()"
       >
-        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση αλλαγών' : 'Δημιουργία προϊόντος') }}
+        {{ saving() ? 'Αποθήκευση…' : (isEditing() ? 'Αποθήκευση' : 'Προσθήκη προϊόντος') }}
       </button>
     </footer>
   </form>

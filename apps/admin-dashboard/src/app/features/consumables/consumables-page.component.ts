@@ -3,11 +3,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
+import { DrawerComponent } from '../../shared/ui/drawer.component';
+import { SearchFieldComponent } from '../../shared/ui/search-field.component';
 import { ConsumableRow, ConsumablesService } from './consumables.service';
 
 @Component({
   selector: 'app-consumables-page',
-  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
+  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent, DrawerComponent, SearchFieldComponent],
   templateUrl: './consumables-page.component.html',
   styleUrl: './consumables-page.component.scss'
 })
@@ -22,6 +24,11 @@ export class ConsumablesPageComponent implements OnInit {
   protected readonly loading = this.consumablesService.loading;
   protected readonly error = this.consumablesService.error;
   protected readonly formError = signal<string | null>(null);
+
+  protected formatCost(value: number | null | undefined): string {
+    if (value == null) return '—';
+    return new Intl.NumberFormat('el-GR', { style: 'currency', currency: 'EUR' }).format(value);
+  }
 
   ngOnInit(): void {
     void this.consumablesService.loadAll();

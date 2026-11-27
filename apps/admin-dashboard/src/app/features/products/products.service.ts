@@ -351,6 +351,23 @@ export class ProductsService {
     }
   }
 
+  /** Activates or deactivates several products, reloading the list once at the end. Returns how many failed. */
+  async setProductsActive(productIds: string[], active: boolean): Promise<number> {
+    const tenantId = this.tenantContext.tenantId();
+    if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return productIds.length; }
+    const toggle = httpsCallable(this.functions, 'toggleProductActive');
+    const results = await Promise.allSettled(
+      productIds.map((productId) => toggle({ tenantId, productId, active }))
+    );
+    const failed = results.filter((result) => result.status === 'rejected').length;
+    if (failed) {
+      console.error(results.filter((result) => result.status === 'rejected'));
+      this.error.set(`Αποτυχία αλλαγής κατάστασης σε ${failed} προϊόντα.`);
+    }
+    await this.loadAll();
+    return failed;
+  }
+
   async deleteProduct(productId: string): Promise<boolean> {
     const tenantId = this.tenantContext.tenantId();
     if (!tenantId) { this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.'); return false; }

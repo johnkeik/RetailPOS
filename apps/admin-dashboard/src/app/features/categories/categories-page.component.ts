@@ -1,13 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { ProductsService } from '../products/products.service';
 import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EntityActionsComponent } from '../../shared/ui/entity-actions.component';
+import { DrawerComponent } from '../../shared/ui/drawer.component';
+import { SearchFieldComponent } from '../../shared/ui/search-field.component';
 import { CategoriesService, CategoryRow } from './categories.service';
 
 @Component({
   selector: 'app-categories-page',
-  imports: [ReactiveFormsModule, PageTitleComponent, EntityActionsComponent],
+  imports: [ReactiveFormsModule, RouterLink, PageTitleComponent, EntityActionsComponent, DrawerComponent, SearchFieldComponent],
   templateUrl: './categories-page.component.html',
   styleUrl: './categories-page.component.scss'
 })
@@ -15,8 +19,24 @@ export class CategoriesPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly categoriesService = inject(CategoriesService);
 
+  private readonly productsService = inject(ProductsService);
+
   protected readonly searchQuery = signal('');
+
+  /** How many products use each category; shown in the list and checked before deleting. */
+  protected readonly productCounts = computed(() => {
+    const counts = new Map<string, number>();
+    for (const product of this.productsService.products()) {
+      counts.set(product.categoryId, (counts.get(product.categoryId) ?? 0) + 1);
+    }
+    return counts;
+  });
+
+  constructor() {
+    if (this.productsService.products().length === 0) void this.productsService.loadAll();
+  }
   protected readonly editingCategoryId = signal<string | null>(null);
+  protected readonly drawerOpen = signal(false);
 
   protected readonly loading = this.categoriesService.loading;
   protected readonly error = this.categoriesService.error;
@@ -81,6 +101,11 @@ export class CategoriesPageComponent {
     this.resetForm();
   }
 
+  protected openCreate(): void {
+    this.resetForm();
+    this.drawerOpen.set(true);
+  }
+
   protected startEdit(category: CategoryRow): void {
     this.editingCategoryId.set(category.id);
     this.categoryForm.setValue({
@@ -88,6 +113,7 @@ export class CategoriesPageComponent {
       code: category.code ?? '',
       active: category.active
     });
+    this.drawerOpen.set(true);
   }
 
   protected async toggleActive(category: CategoryRow): Promise<void> {
@@ -95,7 +121,9 @@ export class CategoriesPageComponent {
   }
 
   protected async deleteCategory(category: CategoryRow): Promise<void> {
-    const confirmed = window.confirm(`Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά την κατηγορία "${category.name}";`);
+    const inUse = this.productCounts().get(category.id) ?? 0;
+    const warning = inUse ? `\n\nΧρησιμοποιείται σε ${inUse} προϊόντα.` : '';
+    const confirmed = window.confirm(`Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά την κατηγορία "${category.name}";${warning}`);
     if (!confirmed) return;
     const ok = await this.categoriesService.deleteCategory(category.id);
     if (ok && this.editingCategoryId() === category.id) {
@@ -112,6 +140,7 @@ export class CategoriesPageComponent {
   }
 
   private resetForm(): void {
+    this.drawerOpen.set(false);
     this.editingCategoryId.set(null);
     this.categoryForm.reset({
       name: '',

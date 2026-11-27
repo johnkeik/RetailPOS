@@ -1,4 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/kit';
+@import '@angular/cdk/overlay-prebuilt.css';
+
+/* Design tokens shared by the whole admin. Pages should read these instead of hard-coding colours. */
+:root {
+	--paper: #f3f5f4;
+	--surface: #ffffff;
+	--ink: #2a2433;
+	--ink-soft: #6b6475;
+	--line: #e1e3e4;
+	--line-strong: #cfd2d4;
+	--amber: #b8731a;
+	--amber-soft: #f4e4cb;
+	--alert: #b5401b;
+	--alert-soft: #f8e1d8;
+	--ok: #3f7d5c;
+	--radius-sm: 6px;
+	--radius-lg: 14px;
+	--font: 'Commissioner', 'Segoe UI', system-ui, sans-serif;
+}
 
 * {
 	box-sizing: border-box;
@@ -8,9 +27,24 @@ html,
 body {
 	margin: 0;
 	min-height: 100%;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	background: #f5f7fb;
-	color: #1f2a37;
+	font-family: var(--font);
+	font-size: 15px;
+	line-height: 1.5;
+	background: var(--paper);
+	color: var(--ink);
+	-webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+	font-family: inherit;
+}
+
+:focus-visible {
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
 }
 
 @media print {

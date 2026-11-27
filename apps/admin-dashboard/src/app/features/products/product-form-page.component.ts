@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 import { PackagingCategory, ProductGender, ProductType, ProductVariantAssignment } from '../../core/types/domain.models';
@@ -9,7 +9,7 @@ import { ProductRow, ProductsService, VariantTemplateOption } from './products.s
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [ReactiveFormsModule, RouterLink, PageTitleComponent, CdkDropList, CdkDrag, CdkDragHandle],
+  imports: [ReactiveFormsModule, PageTitleComponent, CdkDropList, CdkDrag, CdkDragHandle],
   templateUrl: './product-form-page.component.html',
   styleUrl: './product-form-page.component.scss'
 })

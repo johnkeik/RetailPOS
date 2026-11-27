@@ -1,206 +1,213 @@
-<app-page-title
-  title="Κινήσεις Αποθέματος"
-  subtitle="Αμετάβλητο ιστορικό κινήσεων για παραλαβές, πωλήσεις, διορθώσεις και απώλειες (Άρωμα, Εσάνς, Αναλώσιμα)."
-/>
-
-<div class="page-actions">
-  <a class="new-link" routerLink="/stock-movements/new">+ Νέα κίνηση</a>
-</div>
+<app-page-title title="Κινήσεις αποθέματος">
+  <a class="btn" routerLink="/inventory">Απόθεμα</a>
+  <a class="btn primary" routerLink="/stock-movements/new">Νέα κίνηση</a>
+</app-page-title>
 
 @if (justSaved()) {
-  <div class="saved-banner" role="status">
-    <span>Η κίνηση αποθέματος καταχωρήθηκε. Η νέα εγγραφή είναι στην κορυφή του ιστορικού.</span>
-    <button type="button" aria-label="Κλείσιμο μηνύματος" (click)="justSaved.set(false)">&times;</button>
+  <div class="inline-success saved-banner" role="status">
+    <span>Η κίνηση καταχωρήθηκε και εμφανίζεται πρώτη στη λίστα.</span>
+    <button type="button" class="btn ghost small" aria-label="Κλείσιμο μηνύματος" (click)="justSaved.set(false)">&times;</button>
   </div>
 }
 
-<section class="panel">
-  <div class="filters">
-    <div>
-      <label class="field" for="search">Αναζήτηση</label>
-      <input
-        id="search"
-        class="text-input"
-        type="text"
-        [value]="searchQuery()"
-        (input)="onSearch(search.value)"
-        #search
-        placeholder="Κωδικός, προϊόν, παραλλαγή ή ID παραγγελίας"
-      />
-    </div>
+<div class="list-toolbar">
+  <app-search-field
+    [value]="searchQuery()"
+    placeholder="Προϊόν, κωδικός, υπάλληλος ή παραγγελία"
+    (search)="onSearch($event)"
+  />
+  <label class="sr-only" for="period">Περίοδος</label>
+  <select id="period" class="text-input period-select" (change)="onPeriodChange(period.value)" #period>
+    @for (option of periodOptions; track option.id) {
+      <option [value]="option.id" [selected]="selectedPeriod() === option.id">{{ option.label }}</option>
+    }
+    @if (selectedPeriod() === 'CUSTOM') {
+      <option value="CUSTOM" selected>Άλλες ημερομηνίες</option>
+    }
+  </select>
+  <div class="date-range">
+    <label for="movement-from">Από</label>
+    <input id="movement-from" class="text-input" type="date" [value]="dateFrom()" (change)="onDateFromChange(from.value)" #from />
+    <label for="movement-to">έως</label>
+    <input id="movement-to" class="text-input" type="date" [value]="dateTo()" (change)="onDateToChange(to.value)" #to />
+  </div>
+</div>
 
-    <div>
-      <label class="field" for="type">Τύπος Κίνησης</label>
-      <select id="type" class="text-input" [value]="selectedType()" (change)="onTypeChange(type.value)" #type>
-        @for (movementType of types; track movementType) {
-          <option [value]="movementType">{{ formatTypeLabel(movementType) }}</option>
+<div class="type-filter" role="group" aria-label="Τύπος κίνησης">
+  @for (movementType of types; track movementType) {
+    <button
+      type="button"
+      class="chip"
+      [class.active]="selectedType() === movementType"
+      [attr.aria-pressed]="selectedType() === movementType"
+      (click)="onTypeChange(movementType)"
+    >
+      {{ formatTypeFilter(movementType) }} <span>{{ typeCounts()[movementType] }}</span>
+    </button>
+  }
+</div>
+
+@if (error()) {
+  <div class="inline-error" role="alert">{{ error() }}</div>
+}
+
+<div class="view-bar">
+  <div class="view-toggle" role="group" aria-label="Τρόπος προβολής">
+    <button type="button" [class.active]="viewMode() === 'events'" [attr.aria-pressed]="viewMode() === 'events'" (click)="setViewMode('events')">
+      Ανά συναλλαγή
+    </button>
+    <button type="button" [class.active]="viewMode() === 'movements'" [attr.aria-pressed]="viewMode() === 'movements'" (click)="setViewMode('movements')">
+      Ανά είδος
+    </button>
+  </div>
+</div>
+
+@if (loading() && filteredRows().length === 0) {
+  <div class="inline-state">Φόρτωση κινήσεων…</div>
+} @else if (viewMode() === 'events' && filteredEvents().length > 0) {
+  <div class="table-wrap">
+    <table class="event-table">
+      <thead>
+        <tr>
+          <th>Ημερομηνία</th>
+          <th>Τι έγινε</th>
+          <th>Αλλαγή αποθέματος</th>
+          <th>Καταχώρησε</th>
+          <th class="actions-col"><span class="sr-only">Ανάλυση</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (event of pagedEvents(); track event.id) {
+          <tr [class.is-open]="expandedEventId() === event.id">
+            <td class="date-cell">{{ event.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="cell-title">
+                {{ event.orderId ? 'Πώληση #' + event.orderId.slice(0, 8) : event.summary }}
+                <span class="tag" [class]="typeTagClass(event.type)">{{ formatTypeLabel(event.type) }}</span>
+              </span>
+              @if (event.orderId) {
+                <span class="cell-sub event-products">{{ event.summary }}</span>
+              } @else if (event.rows[0].reason) {
+                <span class="cell-sub">{{ event.rows[0].reason }}</span>
+              }
+            </td>
+            <td>
+              @for (row of event.rows.slice(0, 2); track row.id) {
+                <span class="impact-line">
+                  <strong class="delta" [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</strong>
+                  <span class="muted">{{ row.variantTemplateName }}</span>
+                </span>
+              }
+              @if (event.rows.length > 2) {
+                <span class="cell-sub">και {{ event.rows.length - 2 }} ακόμη</span>
+              }
+            </td>
+            <td>{{ event.employeeName }}</td>
+            <td class="actions-col">
+              @if (event.rows.length > 1) {
+                <button
+                  type="button"
+                  class="btn ghost small"
+                  [attr.aria-expanded]="expandedEventId() === event.id"
+                  [attr.aria-label]="(expandedEventId() === event.id ? 'Απόκρυψη' : 'Ανάλυση') + ' παραγγελίας ' + event.orderId"
+                  (click)="toggleEvent(event.id)"
+                >
+                  {{ expandedEventId() === event.id ? 'Απόκρυψη' : 'Ανάλυση (' + event.movementCount + ')' }}
+                </button>
+              }
+            </td>
+          </tr>
+          @if (expandedEventId() === event.id) {
+            <tr class="details-row">
+              <td colspan="5">
+                <section class="event-details" [attr.aria-label]="'Κινήσεις παραγγελίας ' + event.orderId">
+                  <p class="muted details-heading">Παραγγελία {{ event.orderId }}</p>
+                  <table class="details-table">
+                    <thead>
+                      <tr>
+                        <th>Προϊόν</th>
+                        <th>Είδος αποθέματος</th>
+                        <th class="num">Μεταβολή</th>
+                        <th>Αιτιολογία</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of event.rows; track row.id) {
+                        <tr>
+                          <td>{{ row.productName }} <span class="muted">{{ row.productCode }}</span></td>
+                          <td>{{ row.variantTemplateName }}</td>
+                          <td class="num delta" [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</td>
+                          <td class="muted">{{ row.reason || '—' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </section>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  <ng-container *ngTemplateOutlet="pagination" />
+} @else if (viewMode() === 'movements' && filteredRows().length > 0) {
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ημερομηνία</th>
+          <th>Προϊόν</th>
+          <th>Είδος αποθέματος</th>
+          <th class="num">Μεταβολή</th>
+          <th>Καταχώρησε</th>
+          <th>Αιτιολογία</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pagedRows(); track row.id) {
+          <tr>
+            <td class="date-cell">{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="cell-title">
+                {{ row.productName }}
+                <span class="tag" [class]="typeTagClass(row.type)">{{ formatTypeLabel(row.type) }}</span>
+              </span>
+              <span class="cell-sub">{{ row.productCode }}</span>
+            </td>
+            <td>{{ row.variantTemplateName }}</td>
+            <td class="num delta" [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</td>
+            <td>{{ row.performedByName || 'Μη διαθέσιμος' }}</td>
+            <td class="muted">{{ row.reason || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <ng-container *ngTemplateOutlet="pagination" />
+} @else {
+  <div class="empty-state">
+    Καμία κίνηση για αυτά τα φίλτρα. Αλλάξτε περίοδο ή τύπο, ή καταχωρήστε
+    <a class="count-link" routerLink="/stock-movements/new">νέα κίνηση</a>.
+  </div>
+}
+
+<ng-template #pagination>
+  <footer class="pagination-bar">
+    <span>
+      {{ currentPage() * pageSize() + 1 }}–{{ currentPage() * pageSize() + (viewMode() === 'events' ? pagedEvents().length : pagedRows().length) }}
+      από {{ visibleCount() }} {{ viewMode() === 'events' ? 'συναλλαγές' : 'κινήσεις' }}
+    </span>
+    <div class="pagination-controls">
+      <label for="pageSize">Ανά σελίδα</label>
+      <select id="pageSize" class="text-input" (change)="onPageSizeChange(pageSizeSelect.value)" #pageSizeSelect>
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
         }
       </select>
+      <button type="button" class="btn small" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">Προηγούμενη</button>
+      <span>{{ currentPage() + 1 }} / {{ totalPages() }}</span>
+      <button type="button" class="btn small" [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">Επόμενη</button>
     </div>
-  </div>
-
-  <div class="period-filter">
-    <div class="period-presets" role="group" aria-label="Γρήγορη επιλογή περιόδου">
-      <button type="button" [class.active]="selectedPeriod() === 'TODAY'" [attr.aria-pressed]="selectedPeriod() === 'TODAY'" (click)="selectPeriod('TODAY')">Σήμερα</button>
-      <button type="button" [class.active]="selectedPeriod() === '7D'" [attr.aria-pressed]="selectedPeriod() === '7D'" (click)="selectPeriod('7D')">7 ημέρες</button>
-      <button type="button" [class.active]="selectedPeriod() === '30D'" [attr.aria-pressed]="selectedPeriod() === '30D'" (click)="selectPeriod('30D')">30 ημέρες</button>
-    </div>
-    <div class="date-range">
-      <label class="date-field" for="movement-from">
-        Από
-        <input id="movement-from" class="text-input" type="date" [value]="dateFrom()" (change)="onDateFromChange(from.value)" #from />
-      </label>
-      <label class="date-field" for="movement-to">
-        Έως
-        <input id="movement-to" class="text-input" type="date" [value]="dateTo()" (change)="onDateToChange(to.value)" #to />
-      </label>
-    </div>
-  </div>
-
-  @if (loading()) {
-    <div class="inline-state">Φόρτωση κινήσεων αποθέματος...</div>
-  }
-
-  @if (error()) {
-    <div class="inline-error">{{ error() }}</div>
-  }
-
-  <div class="history-toolbar">
-    <div class="view-toggle" role="group" aria-label="Τρόπος προβολής κινήσεων">
-      <button type="button" [class.active]="viewMode() === 'events'" (click)="viewMode.set('events')">
-        Σύνοψη
-      </button>
-      <button type="button" [class.active]="viewMode() === 'movements'" (click)="viewMode.set('movements')">
-        Όλες οι κινήσεις
-      </button>
-    </div>
-    <span class="result-count">
-      {{ viewMode() === 'events' ? filteredEvents().length + ' συναλλαγές' : filteredRows().length + ' κινήσεις' }}
-    </span>
-  </div>
-
-  @if (viewMode() === 'events' && filteredEvents().length > 0) {
-    <div class="table-wrap">
-      <table class="event-table">
-        <thead>
-          <tr>
-            <th>Ημερομηνία</th>
-            <th>Τι συνέβη</th>
-            <th>Αλλαγή αποθέματος</th>
-            <th>Καταχώρησε</th>
-            <th>Λεπτομέρειες</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (event of filteredEvents(); track event.id) {
-            <tr>
-              <td>{{ event.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>
-                <span class="status-chip" [class]="'status-chip type-' + event.type.toLowerCase()">{{ formatTypeLabel(event.type) }}</span>
-                <strong class="event-summary">{{ event.type === 'SALE' ? 'Πώληση' : event.summary }}</strong>
-                @if (event.orderId) {
-                  <button
-                    class="event-toggle"
-                    type="button"
-                    [attr.aria-expanded]="expandedEventId() === event.id"
-                    [attr.aria-label]="(expandedEventId() === event.id ? 'Απόκρυψη' : 'Ανάλυση') + ' παραγγελίας ' + event.orderId"
-                    (click)="toggleEvent(event.id)"
-                  >
-                    <span class="event-id">Παραγγελία #{{ event.orderId.slice(0, 8) }}</span>
-                  </button>
-                  <span class="event-products">{{ event.summary }}</span>
-                }
-              </td>
-              <td>
-                @for (row of event.rows.slice(0, 2); track row.id) {
-                  <span class="impact-line">
-                    <strong [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</strong>
-                    <span>{{ row.productName }} · {{ row.variantTemplateName }}</span>
-                  </span>
-                }
-                @if (event.rows.length > 2) {
-                  <span class="more-impacts">+{{ event.rows.length - 2 }} ακόμη</span>
-                }
-              </td>
-              <td>{{ event.employeeName }}</td>
-              <td>
-                @if (event.orderId) {
-                  <button class="detail-link" type="button" (click)="toggleEvent(event.id)">
-                    {{ expandedEventId() === event.id ? 'Απόκρυψη' : 'Προβολή' }} · {{ event.movementCount }} επιπτώσεις
-                  </button>
-                } @else {
-                  <span class="movement-reason">{{ event.rows[0].reason || '1 κίνηση' }}</span>
-                }
-              </td>
-            </tr>
-            @if (event.orderId && expandedEventId() === event.id) {
-              <tr class="event-details-row">
-                <td colspan="5">
-                  <section class="event-details" [attr.aria-label]="'Κινήσεις παραγγελίας ' + event.orderId">
-                    <div class="event-details-heading">
-                      <strong>Αναλυτικές αλλαγές αποθέματος</strong>
-                      <span>{{ event.orderId }}</span>
-                    </div>
-                    <div class="movement-details">
-                      <div class="movement-details-header" aria-hidden="true">
-                        <span>Είδος / προϊόν</span>
-                        <span>Συστατικό</span>
-                        <span>Μεταβολή</span>
-                        <span>Αιτιολογία</span>
-                      </div>
-                      @for (row of event.rows; track row.id) {
-                        <div class="movement-detail-row">
-                          <strong>{{ row.productCode }} · {{ row.productName }}</strong>
-                          <span>{{ row.variantTemplateName }}</span>
-                          <strong [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">{{ row.displayDelta }}</strong>
-                          <span>{{ row.reason || '—' }}</span>
-                        </div>
-                      }
-                    </div>
-                  </section>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
-  } @else if (viewMode() === 'movements' && filteredRows().length > 0) {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Ημερομηνία</th>
-            <th>Προϊόν</th>
-            <th>Είδος αποθέματος</th>
-            <th>Τύπος</th>
-            <th>Μεταβολή</th>
-            <th>Καταχώρησε</th>
-            <th>Αιτιολογία</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of filteredRows(); track row.id) {
-            <tr>
-              <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ row.productName }} <span class="secondary-text">({{ row.productCode }})</span></td>
-              <td>{{ row.variantTemplateName }}</td>
-              <td>
-                <span class="status-chip">{{ formatTypeLabel(row.type) }}</span>
-              </td>
-              <td [class.negative]="row.quantityDelta < 0" [class.positive]="row.quantityDelta > 0">
-                {{ row.displayDelta }}
-              </td>
-              <td>{{ row.performedByName || 'Μη διαθέσιμος' }}</td>
-              <td>{{ row.reason || '-' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  } @else {
-    <div class="empty-state">
-      {{ loading() ? 'Φόρτωση…' : 'Δεν βρέθηκαν κινήσεις αποθέματος για τα επιλεγμένα φίλτρα.' }}
-    </div>
-  }
-</section>
+  </footer>
+</ng-template>

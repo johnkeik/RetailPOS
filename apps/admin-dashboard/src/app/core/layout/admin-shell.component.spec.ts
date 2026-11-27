@@ -44,7 +44,7 @@ describe('Admin mobile navigation', () => {
     expect(dialog.open).toBeTrue();
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(document.body.style.overflow).toBe('hidden');
-    expect(dialog.querySelectorAll('details').length).toBe(4);
+    expect(dialog.querySelectorAll('.nav-group').length).toBe(3);
     expect(dialog.querySelectorAll('a').length).toBe(13);
     const close = dialog.querySelector('.menu-close') as HTMLButtonElement;
     expect(document.activeElement).toBe(close);
