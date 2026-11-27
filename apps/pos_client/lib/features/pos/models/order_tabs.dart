@@ -11,6 +11,7 @@ class OrderTab {
     required this.number,
     List<CartLine>? lines,
     this.paymentMethod = PaymentMethod.cash,
+    this.manualDiscount,
     DateTime? createdAt,
   })  : lines = lines ?? <CartLine>[],
         createdAt = createdAt ?? DateTime.now();
@@ -19,6 +20,7 @@ class OrderTab {
   final int number;
   final List<CartLine> lines;
   PaymentMethod paymentMethod;
+  ManualDiscount? manualDiscount;
   final DateTime createdAt;
 
   int get itemCount => lines.fold(0, (sum, line) => sum + line.quantity);
@@ -98,6 +100,8 @@ class OrderTabsStore {
           {
             'number': tab.number,
             'paymentMethod': tab.paymentMethod.wireValue,
+            if (tab.manualDiscount != null)
+              'manualDiscount': tab.manualDiscount!.toJson(),
             'createdAt': tab.createdAt.millisecondsSinceEpoch,
             'lines': [
               for (final line in tab.lines)
@@ -173,6 +177,7 @@ class OrderTabsStore {
         lines: lines,
         paymentMethod: paymentMethodFromWireValue(tab['paymentMethod']) ??
             PaymentMethod.cash,
+        manualDiscount: ManualDiscount.fromJson(tab['manualDiscount']),
         createdAt: createdAt,
       ));
     }

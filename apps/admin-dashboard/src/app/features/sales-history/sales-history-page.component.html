@@ -37,7 +37,26 @@
       {{ statusFilterLabel(status) }} <span>{{ statusCounts()[status] }}</span>
     </button>
   }
+  <span class="filter-divider" aria-hidden="true"></span>
+  <button
+    type="button"
+    class="chip"
+    [class.active]="manualDiscountOnly()"
+    [attr.aria-pressed]="manualDiscountOnly()"
+    (click)="toggleManualDiscountOnly()"
+  >
+    Χειροκίνητες εκπτώσεις <span>{{ manualDiscountCount() }}</span>
+  </button>
 </div>
+
+@if (manualDiscountOnly() && manualDiscountSummary().orders > 0) {
+  <p class="discount-summary">
+    <strong>{{ manualDiscountSummary().orders }} {{ manualDiscountSummary().orders === 1 ? 'παραγγελία' : 'παραγγελίες' }} με έκπτωση:</strong>
+    @for (reason of manualDiscountSummary().byReason; track reason.details; let last = $last) {
+      {{ reason.details }} {{ formatCurrency(reason.amount) }}@if (!last) { · }
+    }
+  </p>
+}
 
 @if (error()) {
   <div class="inline-error" role="alert">{{ error() }}</div>
@@ -69,7 +88,9 @@
                 @if (row.status !== 'COMPLETED') {
                   <span class="tag alert">{{ row.status === 'DELETED' ? 'Διαγραμμένη' : 'Ακυρωμένη' }}</span>
                 }
-                @if (row.discountTotal) {
+                @if (row.manualDiscount) {
+                  <span class="tag">{{ row.manualDiscount.details }} {{ row.manualDiscount.percentage }}%</span>
+                } @else if (row.discountTotal) {
                   <span class="tag">Έκπτωση</span>
                 }
               </span>
@@ -111,6 +132,9 @@
                           έκπτωση {{ formatCurrency(row.discountTotal) }}
                           @for (promotion of row.appliedPromotions ?? []; track promotion.promotionId) {
                             <span class="muted">({{ promotion.name }} −{{ formatCurrency(promotion.discountTotal) }})</span>
+                          }
+                          @if (row.manualDiscount) {
+                            <span class="muted">({{ row.manualDiscount.details }} {{ row.manualDiscount.percentage }}% −{{ formatCurrency(row.manualDiscount.amount) }}, από {{ row.employeeName }})</span>
                           }
                         </p>
                       }

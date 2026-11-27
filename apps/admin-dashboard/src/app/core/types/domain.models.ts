@@ -188,6 +188,8 @@ export type Order = {
   subtotal?: number;
   discountTotal?: number;
   appliedPromotions?: Array<{ promotionId: string; name: string; discountedQuantity: number; discountTotal: number }>;
+  /** Staff-applied percentage off the total after promotions; amount in euros. */
+  manualDiscount?: { percentage: number; details: string; amount: number };
   total: number;
   items: OrderItem[];
   createdAt: FirestoreTimestampLike;

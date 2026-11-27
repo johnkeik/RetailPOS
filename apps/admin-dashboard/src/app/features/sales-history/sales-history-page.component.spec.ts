@@ -69,8 +69,30 @@ describe('SalesHistoryPageComponent pagination', () => {
 
   it('filters by status with counts on the chips', () => {
     const chips = [...fixture.nativeElement.querySelectorAll('.status-filter .chip')] as HTMLButtonElement[];
-    expect(chips.map((chip) => chip.textContent!.replace(/\s+/g, ' ').trim())).toEqual(['Όλες 60', 'Ολοκληρωμένες 56', 'Ακυρωμένες 4']);
+    expect(chips.map((chip) => chip.textContent!.replace(/\s+/g, ' ').trim())).toEqual(['Όλες 60', 'Ολοκληρωμένες 56', 'Ακυρωμένες 4', 'Χειροκίνητες εκπτώσεις 0']);
     chips[2].click(); fixture.detectChanges();
     expect(summary()).toBe('1–4 από 4 παραγγελίες');
+  });
+
+  it('narrows to manual discounts and sums them per reason, skipping cancelled orders', () => {
+    const discounts = [
+      { percentage: 20, details: 'Προσωπικό', amount: 2 },
+      { percentage: 100, details: 'Αυτοπαράδοση', amount: 10 },
+      { percentage: 20, details: 'Προσωπικό', amount: 2.5 },
+    ];
+    // order-003 is cancelled, so its discount is listed but not summed.
+    rows.update((list) => list.map((row, index) =>
+      index === 3 ? { ...row, manualDiscount: { percentage: 50, details: 'Άλλο', amount: 5 } } :
+      index >= 10 && index < 13 ? { ...row, manualDiscount: discounts[index - 10] } : row));
+    fixture.detectChanges();
+    const chip = [...fixture.nativeElement.querySelectorAll('.status-filter .chip')].pop() as HTMLButtonElement;
+    expect(chip.textContent!.replace(/\s+/g, ' ').trim()).toBe('Χειροκίνητες εκπτώσεις 4');
+    chip.click(); fixture.detectChanges();
+    expect(summary()).toBe('1–4 από 4 παραγγελίες');
+    const text = (fixture.nativeElement.querySelector('.discount-summary') as HTMLElement).textContent!.replace(/\s+/g, ' ').trim();
+    expect(text).toContain('3 παραγγελίες με έκπτωση:');
+    expect(text).toContain('Αυτοπαράδοση');
+    expect(text).not.toContain('Άλλο');
+    expect(fixture.nativeElement.querySelector('tbody').textContent).toContain('Αυτοπαράδοση 100%');
   });
 });

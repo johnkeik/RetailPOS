@@ -22,6 +22,7 @@ import 'package:pos_client/features/pos/data/pos_order_repository.dart';
 import 'package:pos_client/features/pos/data/pos_catalog_repository.dart';
 import 'package:pos_client/features/pos/models/promotion_pricing.dart';
 import 'package:pos_client/features/pos/models/pos_models.dart';
+import 'package:pos_client/features/pos/presentation/on_screen_keyboard.dart';
 import 'package:pos_client/features/pos/presentation/pos_home_page.dart';
 import 'package:pos_client/features/pos/presentation/pos_order_history_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,6 +72,7 @@ class _HistoryOrderRepository
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
     double? expectedTotal,
+    ManualDiscount? manualDiscount,
   }) async =>
       'order-1';
 
@@ -137,6 +139,7 @@ class _CancellableHistoryOrderRepository
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
     double? expectedTotal,
+    ManualDiscount? manualDiscount,
   }) async =>
       'order-cancel-1';
 
@@ -200,11 +203,14 @@ class _OfferCatalogRepository implements PosCatalogRepository {
 
 class _OfferOrderRepository extends MockPosOrderRepository {
   double? expectedTotal;
+  ManualDiscount? manualDiscount;
   int? quantity;
   @override
   Future<String> submitOrder({required String tenantId, required String employeeId,
-    required List<CartLine> lines, required PaymentMethod paymentMethod, double? expectedTotal}) async {
+    required List<CartLine> lines, required PaymentMethod paymentMethod, double? expectedTotal,
+    ManualDiscount? manualDiscount}) async {
     this.expectedTotal = expectedTotal;
+    this.manualDiscount = manualDiscount;
     quantity = lines.fold<int>(0, (sum, line) => sum + line.quantity);
     return 'offer-order';
   }
@@ -666,4 +672,53 @@ void main() {
     }
   });
 
+  testWidgets('manual discount applies after promotions and is sent at checkout', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 720);
+    addTearDown(tester.view.reset);
+    final repository = _OfferOrderRepository();
+    final printer = LabelPrintService(baseUrl: 'http://print', client: MockClient((request) async =>
+      http.Response(jsonEncode({'success': true, 'labelsSubmitted': 3}), 200)));
+    await tester.pumpWidget(MaterialApp(theme: AppTheme.light(), home: PosHomePage(
+      catalogRepository: _OfferCatalogRepository(), orderRepository: repository, labelPrintService: printer,
+      employeeId: 'employee', employeeName: 'Μαρία', tenantId: 'store001',
+    )));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(_buttonWithLabel('Προσθήκη — €12.00'));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(_buttonWithLabel('Έκπτωση'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('20%'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Άλλο'));
+    await tester.pumpAndSettle();
+    Finder numpadKey(String label) =>
+        find.descendant(of: find.byType(OnScreenNumpad), matching: find.text(label));
+    // Backspace twice clears the 20% preset; typing "150" stops at 15.
+    final backspace = find.descendant(
+        of: find.byType(OnScreenNumpad), matching: find.byIcon(Icons.backspace_outlined));
+    await tester.tap(backspace);
+    await tester.tap(backspace);
+    for (final key in ['1', '5', '0']) {
+      await tester.tap(numpadKey(key));
+    }
+    await tester.pumpAndSettle();
+    // The dialog with its numpad must fit a 1280×720 screen without scrolling.
+    expect(_buttonWithLabel('Εφαρμογή').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(_buttonWithLabel('Εφαρμογή'));
+    await tester.pumpAndSettle();
+
+    // €36 − 3-for-2 €12 = €24; 15% discount = €3.60.
+    expect(find.text('Έκπτωση Άλλο 15%: −€3.60'), findsOneWidget);
+    await tester.tap(_buttonWithLabel('Ολοκλήρωση Πώλησης (€20.40)'));
+    await tester.pumpAndSettle();
+    expect(repository.expectedTotal, 20.4);
+    expect(repository.manualDiscount?.percentage, 15);
+    expect(repository.manualDiscount?.details, 'Άλλο');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }

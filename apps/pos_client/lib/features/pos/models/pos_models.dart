@@ -205,3 +205,32 @@ class PosExpense {
   final bool voided;
   final bool edited;
 }
+
+/// A staff-applied percentage off the order total, after promotions.
+class ManualDiscount {
+  const ManualDiscount({required this.percentage, required this.details});
+
+  /// Whole percent, 1–100. 100 records the order at no charge.
+  final int percentage;
+
+  /// Why the discount was given, e.g. one of [detailOptions].
+  final String details;
+
+  static const detailOptions = ['Προσωπικό', 'Αυτοπαράδοση', 'Άλλο'];
+
+  /// Cents taken off [totalCents], rounded half-up.
+  /// Keep in parity with manualDiscountCents in create-order.ts.
+  int amountCentsOf(int totalCents) => (totalCents * percentage + 50) ~/ 100;
+
+  Map<String, Object> toJson() =>
+      {'percentage': percentage, 'details': details};
+
+  static ManualDiscount? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final percentage = json['percentage'];
+    final details = json['details'];
+    if (percentage is! int || percentage < 1 || percentage > 100) return null;
+    if (details is! String || details.trim().isEmpty) return null;
+    return ManualDiscount(percentage: percentage, details: details);
+  }
+}

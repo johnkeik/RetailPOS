@@ -118,6 +118,7 @@ export class SalesHistoryService {
             typeof data.discountTotal === 'number' ? data.discountTotal : undefined,
           total: data.total ?? 0,
           appliedPromotions: data.appliedPromotions ?? [],
+          manualDiscount: data.manualDiscount,
           items,
           createdAt: this.normalizeTimestamp(data.createdAt),
           itemCount: items.reduce((sum, row) => sum + (row.quantity ?? 0), 0)

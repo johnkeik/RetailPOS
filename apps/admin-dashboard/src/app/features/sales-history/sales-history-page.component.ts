@@ -83,9 +83,36 @@ export class SalesHistoryPageComponent implements OnInit {
     });
   });
 
-  protected readonly filteredRows = computed(() => {
+  private readonly statusRows = computed(() => {
     const status = this.statusFilter();
     return status === 'ALL' ? this.searchedRows() : this.searchedRows().filter((row) => row.status === status);
+  });
+
+  /** Narrows to orders with a staff-applied discount; combines with the status chips. */
+  protected readonly manualDiscountOnly = signal(false);
+
+  protected readonly manualDiscountCount = computed(
+    () => this.statusRows().filter((row) => row.manualDiscount).length
+  );
+
+  protected readonly filteredRows = computed(() =>
+    this.manualDiscountOnly() ? this.statusRows().filter((row) => row.manualDiscount) : this.statusRows()
+  );
+
+  /** Discount given per reason in the shown orders; cancelled orders gave nothing. */
+  protected readonly manualDiscountSummary = computed(() => {
+    const cents = new Map<string, number>();
+    let orders = 0;
+    for (const row of this.filteredRows()) {
+      if (!row.manualDiscount || row.status !== 'COMPLETED') continue;
+      orders += 1;
+      const { details, amount } = row.manualDiscount;
+      cents.set(details, (cents.get(details) ?? 0) + Math.round(amount * 100));
+    }
+    return {
+      orders,
+      byReason: [...cents].map(([details, total]) => ({ details, amount: total / 100 }))
+    };
   });
 
   protected readonly statusCounts = computed(() => {
@@ -138,6 +165,11 @@ export class SalesHistoryPageComponent implements OnInit {
 
   protected setStatusFilter(status: StatusFilter): void {
     this.statusFilter.set(status);
+    this.goToPage(0);
+  }
+
+  protected toggleManualDiscountOnly(): void {
+    this.manualDiscountOnly.update((value) => !value);
     this.goToPage(0);
   }
 

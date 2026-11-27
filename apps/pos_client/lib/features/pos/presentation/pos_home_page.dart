@@ -1,11 +1,13 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../data/label_print_service.dart';
 import '../data/pos_catalog_repository.dart';
 import '../data/pos_order_repository.dart';
 import '../models/order_tabs.dart';
 import '../models/pos_models.dart';
 import '../models/promotion_pricing.dart';
+import 'on_screen_keyboard.dart';
 import 'pos_expense_page.dart';
 import 'pos_order_completion_dialog.dart';
 import 'pos_order_history_dialog.dart';
@@ -352,9 +354,7 @@ class _PosHomePageState extends State<PosHomePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-            color: isActive
-                ? colors.primary
-                : colors.outline.withOpacity(0.3)),
+            color: isActive ? colors.primary : colors.outline.withOpacity(0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -744,6 +744,17 @@ class _PosHomePageState extends State<PosHomePage> {
     );
   }
 
+  Future<void> _editManualDiscount() async {
+    final tab = _activeTab;
+    final result = await showDialog<_ManualDiscountChoice>(
+      context: context,
+      builder: (_) => _ManualDiscountDialog(initial: tab.manualDiscount),
+    );
+    if (result == null || !mounted) return;
+    setState(() => tab.manualDiscount = result.discount);
+    _saveTabs();
+  }
+
   Future<void> _submitOrder() async {
     if (_cartLines.isEmpty || _submittingOrder) {
       return;
@@ -760,6 +771,7 @@ class _PosHomePageState extends State<PosHomePage> {
         lines: _cartLines,
         paymentMethod: _selectedPaymentMethod,
         expectedTotal: _lastDisplayedTotal,
+        manualDiscount: submittedTab.manualDiscount,
       );
 
       if (!mounted) {
@@ -1095,7 +1107,14 @@ class _PosHomePageState extends State<PosHomePage> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final pricing = _pricing;
-    _lastDisplayedTotal = pricing.total;
+    // An empty cart shows no discount line; the choice returns with items.
+    final manualDiscount =
+        _cartLines.isEmpty ? null : _activeTab.manualDiscount;
+    final promotionTotalCents = (pricing.total * 100).round();
+    final manualDiscountCents =
+        manualDiscount?.amountCentsOf(promotionTotalCents) ?? 0;
+    final total = (promotionTotalCents - manualDiscountCents) / 100;
+    _lastDisplayedTotal = total;
 
     return Scaffold(
       body: Container(
@@ -1826,7 +1845,8 @@ class _PosHomePageState extends State<PosHomePage> {
                                                       .colorScheme
                                                       .primary,
                                                   fontWeight: FontWeight.bold)),
-                                        if (pricing.discountTotal > 0) ...[
+                                        if (pricing.discountTotal > 0 ||
+                                            manualDiscount != null) ...[
                                           Text(
                                               'Αρχική αξία: €${pricing.subtotal.toStringAsFixed(2)}'),
                                           for (final promotion
@@ -1842,8 +1862,17 @@ class _PosHomePageState extends State<PosHomePage> {
                                           if (pricing.promotions.length > 2)
                                             Text(
                                                 '+${pricing.promotions.length - 2} ακόμη προσφορές'),
+                                          if (manualDiscount != null)
+                                            Text(
+                                                'Έκπτωση ${manualDiscount.details} ${manualDiscount.percentage}%: −€${(manualDiscountCents / 100).toStringAsFixed(2)}',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: colors.primary,
+                                                    fontWeight:
+                                                        FontWeight.w700)),
                                           Text(
-                                              'Συνολική έκπτωση: −€${pricing.discountTotal.toStringAsFixed(2)}'),
+                                              'Συνολική έκπτωση: −€${(pricing.discountTotal + manualDiscountCents / 100).toStringAsFixed(2)}'),
                                           const SizedBox(height: 8),
                                         ],
                                         Wrap(
@@ -1861,7 +1890,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                               ),
                                             ),
                                             Text(
-                                              '€${pricing.total.toStringAsFixed(2)}',
+                                              '€${total.toStringAsFixed(2)}',
                                               style: TextStyle(
                                                 fontSize: 26,
                                                 fontWeight: FontWeight.w900,
@@ -1871,6 +1900,25 @@ class _PosHomePageState extends State<PosHomePage> {
                                           ],
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+
+                                SizedBox(
+                                  height: 44,
+                                  child: OutlinedButton.icon(
+                                    onPressed:
+                                        _cartLines.isEmpty || _submittingOrder
+                                            ? null
+                                            : _editManualDiscount,
+                                    icon: const Icon(Icons.percent, size: 18),
+                                    label: Text(
+                                      manualDiscount == null
+                                          ? 'Έκπτωση'
+                                          : 'Έκπτωση: ${manualDiscount.details} ${manualDiscount.percentage}%',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ),
@@ -1944,7 +1992,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                             ],
                                           )
                                         : Text(
-                                            'Ολοκλήρωση Πώλησης (€${pricing.total.toStringAsFixed(2)})',
+                                            'Ολοκλήρωση Πώλησης (€${total.toStringAsFixed(2)})',
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w800,
@@ -1965,6 +2013,141 @@ class _PosHomePageState extends State<PosHomePage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The dialog's answer: a discount to apply, or null to remove it.
+class _ManualDiscountChoice {
+  const _ManualDiscountChoice(this.discount);
+
+  final ManualDiscount? discount;
+}
+
+class _ManualDiscountDialog extends StatefulWidget {
+  const _ManualDiscountDialog({this.initial});
+
+  final ManualDiscount? initial;
+
+  @override
+  State<_ManualDiscountDialog> createState() => _ManualDiscountDialogState();
+}
+
+class _ManualDiscountDialogState extends State<_ManualDiscountDialog> {
+  static const _presets = [10, 20, 30, 50, 100];
+
+  late String _details =
+      widget.initial?.details ?? ManualDiscount.detailOptions.first;
+  late final TextEditingController _percentage =
+      TextEditingController(text: widget.initial?.percentage.toString() ?? '');
+
+  int? get _parsedPercentage {
+    final value = int.tryParse(_percentage.text.trim());
+    return value != null && value >= 1 && value <= 100 ? value : null;
+  }
+
+  @override
+  void dispose() {
+    _percentage.dispose();
+    super.dispose();
+  }
+
+  /// Appends a numpad digit, ignoring input that would leave 1–100.
+  void _typeDigit(String key) {
+    if (int.tryParse(key) == null) return;
+    final next = '${_percentage.text.trim()}$key';
+    final value = int.parse(next);
+    if (value > 100 || (value == 0 && next.length > 1)) return;
+    setState(() => _percentage.text = value.toString());
+  }
+
+  void _backspace() {
+    final text = _percentage.text.trim();
+    if (text.isEmpty) return;
+    setState(() => _percentage.text = text.substring(0, text.length - 1));
+  }
+
+  void _apply() {
+    final percentage = _parsedPercentage;
+    if (percentage == null) return;
+    Navigator.of(context).pop(_ManualDiscountChoice(
+        ManualDiscount(percentage: percentage, details: _details)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final percentage = _parsedPercentage;
+    return AlertDialog(
+      title: const Text('Έκπτωση παραγγελίας'),
+      content: SizedBox(
+        width: 420,
+        child: SingleChildScrollView(
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SegmentedButton<String>(
+              showSelectedIcon: false,
+              segments: [
+                for (final option in ManualDiscount.detailOptions)
+                  ButtonSegment(value: option, label: Text(option)),
+              ],
+              selected: {_details},
+              onSelectionChanged: (selection) =>
+                  setState(() => _details = selection.first),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final preset in _presets)
+                  ChoiceChip(
+                    label: Text('$preset%'),
+                    selected: percentage == preset,
+                    onSelected: (_) =>
+                        setState(() => _percentage.text = preset.toString()),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _percentage,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                labelText: 'Ποσοστό (1–100)',
+                suffixText: '%',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _apply(),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 240,
+              child:
+                  OnScreenNumpad(onText: _typeDigit, onBackspace: _backspace),
+            ),
+          ],
+        )),
+      ),
+      actions: [
+        if (widget.initial != null)
+          TextButton(
+            onPressed: () =>
+                Navigator.of(context).pop(const _ManualDiscountChoice(null)),
+            child: const Text('Αφαίρεση'),
+          ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Άκυρο'),
+        ),
+        FilledButton(
+          onPressed: percentage == null ? null : _apply,
+          child: const Text('Εφαρμογή'),
+        ),
+      ],
     );
   }
 }

@@ -11,6 +11,7 @@ class MockPosOrderRepository implements PosOrderRepository {
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
     double? expectedTotal,
+    ManualDiscount? manualDiscount,
   }) async {
     return 'mock-order-id';
   }

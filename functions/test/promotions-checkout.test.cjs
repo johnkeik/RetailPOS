@@ -223,3 +223,25 @@ test('same variant qualifies across different products, prices and inventory doc
   assert.equal(records.get(`${root}/inventory/p__v`).quantity, 9);
   assert.equal(records.get(`${root}/inventory/second__v`).quantity, 9);
 });
+test('manual discount applies after promotions and is stored on the order', async () => {
+  // 3 × €8 with 3-for-2 = €16; 15% staff discount = €2.40 → €13.60.
+  const result = await checkout({ expectedTotal: 13.6, manualDiscount: { percentage: 15, details: 'Προσωπικό' } });
+  const order = records.get(`${root}/orders/${result.orderId}`);
+  assert.equal(order.total, 13.6);
+  assert.equal(order.discountTotal, 10.4);
+  assert.deepEqual(order.manualDiscount, { percentage: 15, details: 'Προσωπικό', amount: 2.4 });
+  assert.equal(records.get(`${root}/inventory/p__v`).quantity, 7);
+});
+test('100% manual discount records a zero-total order', async () => {
+  const result = await checkout({ expectedTotal: 0, manualDiscount: { percentage: 100, details: 'Αυτοπαράδοση' } });
+  assert.equal(records.get(`${root}/orders/${result.orderId}`).total, 0);
+});
+test('manual discount rejects invalid input and a mismatched total', async () => {
+  for (const manualDiscount of [{ percentage: 0, details: 'x' }, { percentage: 101, details: 'x' },
+    { percentage: 12.5, details: 'x' }, { percentage: 10, details: ' ' }]) {
+    await assert.rejects(checkout({ manualDiscount }), /Μη έγκυρη έκπτωση/);
+  }
+  await assert.rejects(checkout({ expectedTotal: 16, manualDiscount: { percentage: 10, details: 'Προσωπικό' } }),
+    /Το σύνολο ή οι προσφορές άλλαξαν/);
+  assert.equal(records.get(`${root}/inventory/p__v`).quantity, 10);
+});

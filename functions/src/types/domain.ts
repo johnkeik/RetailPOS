@@ -76,8 +76,15 @@ export type OrderItemInput = {
 
 export type PaymentMethod = "CARD" | "CASH";
 
+/** Staff-applied percentage off the order total after promotions, e.g. staff discount. */
+export type ManualDiscountInput = {
+  percentage: number;
+  details: string;
+};
+
 export type CreateOrderInput = {
   expectedTotal?: number;
+  manualDiscount?: ManualDiscountInput;
   tenantId: string;
   employeeId: string;
   items: OrderItemInput[];

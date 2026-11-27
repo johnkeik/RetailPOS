@@ -6,6 +6,11 @@ import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { calculatePromotions, Promotion } from "../promotions/promotion-pricing";
 import { BULK_INVENTORY_SENTINEL, CreateOrderInput } from "../types/domain";
 
+// Keep in parity with ManualDiscount.amountCentsOf in the POS: half-up to the cent.
+function manualDiscountCents(totalCents: number, percentage: number): number {
+  return Math.floor((totalCents * percentage + 50) / 100);
+}
+
 // The standard bottle is the first recipe consumable; the special bottle replaces only that one.
 function usesSpecialBottle(
   useSpecialBottle: boolean,
@@ -59,6 +64,20 @@ export const createOrder = onCall(async (request) => {
   }
   if (data.expectedTotal !== undefined && (!Number.isFinite(data.expectedTotal) || data.expectedTotal < 0)) {
     throw new HttpsError("invalid-argument", "Μη έγκυρο αναμενόμενο σύνολο.");
+  }
+  const rawDiscount = data.manualDiscount;
+  let manualDiscount: { percentage: number; details: string } | undefined;
+  if (rawDiscount !== undefined && rawDiscount !== null) {
+    const percentage = Number(rawDiscount.percentage);
+    const details = typeof rawDiscount.details === "string" ? rawDiscount.details.trim() : "";
+    if (!Number.isInteger(percentage) || percentage < 1 || percentage > 100 ||
+        details.length === 0 || details.length > 80) {
+      throw new HttpsError("invalid-argument", "Μη έγκυρη έκπτωση παραγγελίας.");
+    }
+    if (data.expectedTotal === undefined) {
+      throw new HttpsError("invalid-argument", "Η έκπτωση απαιτεί αναμενόμενο σύνολο.");
+    }
+    manualDiscount = { percentage, details };
   }
   let chargedTotal = 0;
   const orderRef = db.collection(`tenants/${actor.tenantId}/orders`).doc();
@@ -123,13 +142,17 @@ export const createOrder = onCall(async (request) => {
       throw new HttpsError("failed-precondition",
         "Δεν ήταν δυνατός ο υπολογισμός προσφορών. Ανανεώστε τον κατάλογο.");
     }
+    const promotionTotalCents = Math.round(pricing.total * 100);
+    const manualCents = manualDiscount ?
+      manualDiscountCents(promotionTotalCents, manualDiscount.percentage) : 0;
+    const totalCents = promotionTotalCents - manualCents;
     if ((pricing.discountTotal > 0 && data.expectedTotal === undefined) ||
         (data.expectedTotal !== undefined &&
-          Math.round(data.expectedTotal * 100) !== Math.round(pricing.total * 100))) {
+          Math.round(data.expectedTotal * 100) !== totalCents)) {
       throw new HttpsError("failed-precondition",
         "Το σύνολο ή οι προσφορές άλλαξαν. Ανανεώστε τον κατάλογο και ελέγξτε το τελικό ποσό.");
     }
-    chargedTotal = pricing.total;
+    chargedTotal = totalCents / 100;
 
     // --- Resolve inventory doc IDs and compute deltas ---
     // BULK products:
@@ -355,9 +378,10 @@ export const createOrder = onCall(async (request) => {
       status: "COMPLETED",
       ...(data.paymentMethod ? { paymentMethod: data.paymentMethod } : {}),
       subtotal: pricing.subtotal,
-      discountTotal: pricing.discountTotal,
-      total: pricing.total,
+      discountTotal: (Math.round(pricing.discountTotal * 100) + manualCents) / 100,
+      total: chargedTotal,
       appliedPromotions: pricing.appliedPromotions,
+      ...(manualDiscount ? { manualDiscount: { ...manualDiscount, amount: manualCents / 100 } } : {}),
       employeeName: employeeSnap.data()?.name ?? "",
       items: cleanedItems.map((item, index) => ({
         productId: item.productId,

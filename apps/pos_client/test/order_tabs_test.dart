@@ -121,6 +121,32 @@ void main() {
     });
   });
 
+  test('manual discount survives a save and restore', () {
+    final now = DateTime(2026, 11, 26, 18);
+    final raw = _savedTabs([
+      {
+        ..._savedTab(1, now, []),
+        'manualDiscount': {'percentage': 100, 'details': 'Αυτοπαράδοση'},
+      },
+      {
+        ..._savedTab(2, now, []),
+        'manualDiscount': {'percentage': 0, 'details': 'Προσωπικό'},
+      },
+    ]);
+    final restored = OrderTabsStore.decode(raw, [_product], now: now)!;
+    expect(restored.tabs.first.manualDiscount?.percentage, 100);
+    expect(restored.tabs.first.manualDiscount?.details, 'Αυτοπαράδοση');
+    expect(restored.tabs.last.manualDiscount, isNull);
+  });
+
+  test('ManualDiscount rounds half-up to the cent like the server', () {
+    const discount = ManualDiscount(percentage: 15, details: 'Προσωπικό');
+    expect(discount.amountCentsOf(1600), 240);
+    expect(discount.amountCentsOf(10), 2); // 1.5 cents → 2
+    expect(discount.amountCentsOf(3), 0); // 0.45 cents → 0
+    expect(const ManualDiscount(percentage: 100, details: 'x').amountCentsOf(1999), 1999);
+  });
+
   test('nextOrderTabNumber reuses the lowest free number', () {
     final tabs = [OrderTab(number: 1), OrderTab(number: 3)];
     expect(nextOrderTabNumber(tabs), 2);

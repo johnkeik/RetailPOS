@@ -34,12 +34,14 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
     required List<CartLine> lines,
     required PaymentMethod paymentMethod,
     double? expectedTotal,
+    ManualDiscount? manualDiscount,
   }) async {
     final payload = {
       'tenantId': tenantId,
       'employeeId': employeeId,
       'paymentMethod': paymentMethod.wireValue,
       if (expectedTotal != null) 'expectedTotal': expectedTotal,
+      if (manualDiscount != null) 'manualDiscount': manualDiscount.toJson(),
       'items': lines
           .map(
             (line) => {
