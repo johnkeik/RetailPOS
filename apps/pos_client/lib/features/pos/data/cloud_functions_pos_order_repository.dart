@@ -280,26 +280,8 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
         .get();
     if (snapshot.docs.isEmpty) return [];
 
-    final snapshots = await Future.wait([
-      _firestore.collection('tenants/$tenantId/products').get(),
-      _firestore.collection('tenants/$tenantId/variantTemplates').get(),
-    ]);
-    // Include inactive catalog records so older sales remain readable.
-    final productNames = <String, String>{};
-    for (final product in snapshots[0].docs) {
-      final name = (product.data()['name'] as String? ?? '').trim();
-      productNames[product.id] = name;
-      final code = product.data()['productCode'] as String?;
-      if (code != null) productNames[code] = name;
-    }
-    final variantNames = <String, String>{};
-    for (final variant in snapshots[1].docs) {
-      final name = (variant.data()['name'] as String? ?? '').trim();
-      variantNames[variant.id] = name;
-      final code = variant.data()['code'] as String?;
-      if (code != null) variantNames[code] = name;
-    }
-
+    // Missing names fall back to the POS catalog in the history dialog, so
+    // the catalog is not re-read here.
     // Older versions wrote a second DELETED order as an audit record.
     // Retain it in storage, but only show the original order to employees.
     return snapshot.docs
@@ -313,21 +295,12 @@ class CloudFunctionsPosOrderRepository implements PosOrderRepository {
           productCode: item['productCode'] as String? ??
               item['productId'] as String? ??
               '',
-          productName: (item['productName'] as String?)?.trim().isNotEmpty ==
-                  true
-              ? item['productName'] as String
-              : productNames[item['productId'] ?? item['productCode']] ?? '',
+          productName: item['productName'] as String? ?? '',
           variantCode: item['variantCode'] as String? ??
               item['variantTemplateId'] as String? ??
               item['variantId'] as String? ??
               '',
-          variantLabel:
-              (item['variantLabel'] as String?)?.trim().isNotEmpty == true
-                  ? item['variantLabel'] as String
-                  : variantNames[item['variantTemplateId'] ??
-                          item['variantId'] ??
-                          item['variantCode']] ??
-                      '',
+          variantLabel: item['variantLabel'] as String? ?? '',
           isBulk: item['isBulk'] as bool? ?? false,
           quantity: (item['quantity'] as num? ?? 0).toInt(),
           unitPrice: (item['unitPrice'] as num? ?? 0).toDouble(),

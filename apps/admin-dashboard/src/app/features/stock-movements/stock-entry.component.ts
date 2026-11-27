@@ -6,12 +6,14 @@ import {
   OnInit,
   afterNextRender,
   computed,
+  effect,
   inject,
   output,
   signal,
   viewChild
 } from '@angular/core';
 
+import { AuthService } from '../../core/auth/auth.service';
 import { ConsumablesService } from '../consumables/consumables.service';
 import { InventoryService } from '../inventory/inventory.service';
 import { ProductsService } from '../products/products.service';
@@ -32,6 +34,8 @@ type StockItem = {
 };
 
 type DraftRow = { item: StockItem; qty: string; essenceQty: string };
+
+type StoredDraft = { mode: EntryMode; reason: string; rows: DraftRow[] };
 
 type PartView = {
   templateId: string;
@@ -59,6 +63,7 @@ export class StockEntryComponent implements OnInit {
   private readonly consumablesService = inject(ConsumablesService);
   private readonly inventoryService = inject(InventoryService);
   private readonly stockActions = inject(StockActionsService);
+  private readonly auth = inject(AuthService);
 
   readonly saved = output<void>();
   @Input() receiveOnly = false;
@@ -72,9 +77,9 @@ export class StockEntryComponent implements OnInit {
     },
     {
       value: 'ADJUSTMENT',
-      label: 'Διόρθωση / Απογραφή',
-      hint: 'Γράψτε το πραγματικό υπόλοιπο που μετρήσατε. Η διαφορά υπολογίζεται αυτόματα.',
-      inputLabel: 'Πραγματικό υπόλοιπο'
+      label: 'Απογραφή',
+      hint: 'Γράψτε ό,τι μετρήσατε στο ράφι. Το απόθεμα γίνεται ίσο με αυτό και η διαφορά (+ ή −) καταγράφεται αυτόματα.',
+      inputLabel: 'Μετρημένη ποσότητα'
     },
     {
       value: 'LOSS',
@@ -92,6 +97,7 @@ export class StockEntryComponent implements OnInit {
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
+  protected readonly draftRestored = signal(false);
 
   private readonly picker = viewChild<ElementRef<HTMLDialogElement>>('picker');
   protected readonly pickerQuery = signal('');
@@ -189,6 +195,8 @@ export class StockEntryComponent implements OnInit {
     void this.productsService.loadAll();
     void this.consumablesService.loadAll();
     void this.inventoryService.loadInventory();
+    this.restoreDraft();
+    effect(() => this.persistDraft(), { injector: this.injector });
   }
 
   protected setMode(mode: EntryMode): void {
@@ -223,7 +231,8 @@ export class StockEntryComponent implements OnInit {
 
   protected addItem(item: StockItem): void {
     if (this.rows().some((row) => row.item.key === item.key)) return;
-    this.rows.update((rows) => [...rows, { item, qty: '', essenceQty: '' }]);
+    // Newest on top, right under the search box, so the row being filled is always in view.
+    this.rows.update((rows) => [{ item, qty: '', essenceQty: '' }, ...rows]);
     this.query.set('');
     this.highlighted.set(0);
     this.focusLater(`qty-${item.key}`);
@@ -264,7 +273,7 @@ export class StockEntryComponent implements OnInit {
     const picked = new Set(this.pickerSelected());
     const chosen = this.items().filter((item) => picked.has(item.key) && !this.isAdded(item.key));
     if (chosen.length) {
-      this.rows.update((rows) => [...rows, ...chosen.map((item) => ({ item, qty: '', essenceQty: '' }))]);
+      this.rows.update((rows) => [...chosen.map((item) => ({ item, qty: '', essenceQty: '' })), ...rows]);
       this.focusLater(`qty-${chosen[0].key}`);
     }
     this.closePicker();
@@ -298,10 +307,11 @@ export class StockEntryComponent implements OnInit {
     this.rows.set([]);
     this.reason.set('');
     this.errorMessage.set(null);
+    this.draftRestored.set(false);
   }
 
   protected formatQty(value: number, volume: boolean): string {
-    return volume ? `${String(round3(value / 1000)).replace('.', ',')} L` : String(value);
+    return volume ? `${round3(value).toLocaleString('el-GR', { maximumFractionDigits: 3 })} ml` : String(value);
   }
 
   protected formatDelta(part: PartView): string {
@@ -314,10 +324,6 @@ export class StockEntryComponent implements OnInit {
 
     const mode = this.mode();
     const reason = this.reason().trim();
-    if (mode !== 'PURCHASE' && !reason) {
-      this.errorMessage.set('Η αιτιολογία είναι υποχρεωτική για διόρθωση ή απώλεια.');
-      return;
-    }
 
     const lines = this.rowViews().flatMap((view) =>
       view.parts
@@ -379,7 +385,7 @@ export class StockEntryComponent implements OnInit {
     return [make(item.templateId, 'qty', '', row.qty, false)];
   }
 
-  // Volumes are typed in liters and sent in ml; quantity is what the backend expects, delta is the stock effect.
+  // Volumes are typed and sent in ml; quantity is what the backend expects, delta is the stock effect.
   private evaluate(raw: string, volume: boolean, current: number): Pick<PartView, 'state' | 'quantity' | 'delta' | 'error'> {
     const empty = { state: 'empty' as const, quantity: 0, delta: 0, error: '' };
     const invalid = (error: string) => ({ state: 'invalid' as const, quantity: 0, delta: 0, error });
@@ -389,7 +395,7 @@ export class StockEntryComponent implements OnInit {
     if (!text) return empty;
 
     const entered = Number(text.replace(',', '.'));
-    const amount = volume ? Math.round(entered * 1e6) / 1e3 : entered;
+    const amount = volume ? round3(entered) : entered;
     if (!Number.isFinite(entered) || (!volume && !Number.isInteger(amount))) {
       return invalid(volume ? 'Μη έγκυρη ποσότητα.' : 'Γράψτε ακέραιο αριθμό τεμαχίων.');
     }
@@ -408,6 +414,39 @@ export class StockEntryComponent implements OnInit {
       return amount > current ? invalid('Μεγαλύτερη από το τρέχον απόθεμα.') : ok(amount, -amount);
     }
     return ok(amount, amount);
+  }
+
+  // Survives refresh and in-app navigation; scoped per user and per page variant so drafts never leak.
+  private draftKey(): string {
+    return `stock-entry-draft-ml:${this.auth.currentUser()?.uid ?? 'anon'}:${this.receiveOnly ? 'receive' : 'full'}`;
+  }
+
+  private restoreDraft(): void {
+    try {
+      const raw = sessionStorage.getItem(this.draftKey());
+      if (!raw) return;
+      const draft = JSON.parse(raw) as StoredDraft;
+      if (!Array.isArray(draft.rows) || !draft.rows.length) return;
+      this.mode.set(this.receiveOnly ? 'PURCHASE' : draft.mode);
+      this.reason.set(draft.reason ?? '');
+      this.rows.set(draft.rows);
+      this.draftRestored.set(true);
+    } catch {
+      // Corrupt or unavailable storage: start empty.
+    }
+  }
+
+  private persistDraft(): void {
+    const draft: StoredDraft = { mode: this.mode(), reason: this.reason(), rows: this.rows() };
+    try {
+      if (draft.rows.length) {
+        sessionStorage.setItem(this.draftKey(), JSON.stringify(draft));
+      } else {
+        sessionStorage.removeItem(this.draftKey());
+      }
+    } catch {
+      // Storage full or blocked: the form still works, just without recovery.
+    }
   }
 
   private focusLater(elementId: string): void {

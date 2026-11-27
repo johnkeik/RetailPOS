@@ -206,31 +206,58 @@ class PosExpense {
   final bool edited;
 }
 
-/// A staff-applied percentage off the order total, after promotions.
+/// A staff-applied discount off the order total, after promotions: either a
+/// whole percentage or a fixed amount in cents (exactly one is set).
 class ManualDiscount {
-  const ManualDiscount({required this.percentage, required this.details});
+  const ManualDiscount({this.percentage, this.fixedAmountCents, required this.details})
+      : assert((percentage == null) != (fixedAmountCents == null));
 
   /// Whole percent, 1–100. 100 records the order at no charge.
-  final int percentage;
+  final int? percentage;
+
+  /// Fixed discount in cents, at least 1. Capped at the order total.
+  final int? fixedAmountCents;
 
   /// Why the discount was given, e.g. one of [detailOptions].
   final String details;
 
   static const detailOptions = ['Προσωπικό', 'Αυτοπαράδοση', 'Άλλο'];
 
-  /// Cents taken off [totalCents], rounded half-up.
-  /// Keep in parity with manualDiscountCents in create-order.ts.
-  int amountCentsOf(int totalCents) => (totalCents * percentage + 50) ~/ 100;
+  /// "15%" or "€5.00".
+  String get valueLabel => percentage != null
+      ? '$percentage%'
+      : '€${(fixedAmountCents! / 100).toStringAsFixed(2)}';
 
-  Map<String, Object> toJson() =>
-      {'percentage': percentage, 'details': details};
+  /// Cents taken off [totalCents]: a percentage rounds half-up, a fixed
+  /// amount never exceeds the total.
+  /// Keep in parity with manualDiscountCents in create-order.ts.
+  int amountCentsOf(int totalCents) {
+    final percent = percentage;
+    if (percent != null) return (totalCents * percent + 50) ~/ 100;
+    return fixedAmountCents! < totalCents ? fixedAmountCents! : totalCents;
+  }
+
+  Map<String, Object> toJson() => {
+        if (percentage != null) 'percentage': percentage!,
+        if (fixedAmountCents != null) 'fixedAmount': fixedAmountCents! / 100,
+        'details': details,
+      };
 
   static ManualDiscount? fromJson(Object? json) {
     if (json is! Map) return null;
     final percentage = json['percentage'];
+    final fixedAmount = json['fixedAmount'];
     final details = json['details'];
-    if (percentage is! int || percentage < 1 || percentage > 100) return null;
     if (details is! String || details.trim().isEmpty) return null;
-    return ManualDiscount(percentage: percentage, details: details);
+    if (percentage is int && percentage >= 1 && percentage <= 100) {
+      return ManualDiscount(percentage: percentage, details: details);
+    }
+    if (fixedAmount is num && fixedAmount.isFinite) {
+      final cents = (fixedAmount * 100).round();
+      if (cents >= 1) {
+        return ManualDiscount(fixedAmountCents: cents, details: details);
+      }
+    }
+    return null;
   }
 }

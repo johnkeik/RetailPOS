@@ -236,9 +236,22 @@ test('100% manual discount records a zero-total order', async () => {
   const result = await checkout({ expectedTotal: 0, manualDiscount: { percentage: 100, details: 'Αυτοπαράδοση' } });
   assert.equal(records.get(`${root}/orders/${result.orderId}`).total, 0);
 });
+test('fixed manual discount takes euros off and never goes below zero', async () => {
+  // €16 after 3-for-2; €5 off → €11.
+  const result = await checkout({ expectedTotal: 11, manualDiscount: { fixedAmount: 5, details: 'Άλλο' } });
+  const order = records.get(`${root}/orders/${result.orderId}`);
+  assert.equal(order.total, 11);
+  assert.equal(order.discountTotal, 13);
+  assert.deepEqual(order.manualDiscount, { fixedAmount: 5, details: 'Άλλο', amount: 5 });
+  // More than the total is capped at the total.
+  const capped = await checkout({ expectedTotal: 0, manualDiscount: { fixedAmount: 50, details: 'Άλλο' } });
+  assert.equal(records.get(`${root}/orders/${capped.orderId}`).manualDiscount.amount, 16);
+});
 test('manual discount rejects invalid input and a mismatched total', async () => {
   for (const manualDiscount of [{ percentage: 0, details: 'x' }, { percentage: 101, details: 'x' },
-    { percentage: 12.5, details: 'x' }, { percentage: 10, details: ' ' }]) {
+    { percentage: 12.5, details: 'x' }, { percentage: 10, details: ' ' },
+    { fixedAmount: 0, details: 'x' }, { fixedAmount: -2, details: 'x' }, { fixedAmount: 'abc', details: 'x' },
+    { percentage: 10, fixedAmount: 2, details: 'x' }, { details: 'x' }]) {
     await assert.rejects(checkout({ manualDiscount }), /Μη έγκυρη έκπτωση/);
   }
   await assert.rejects(checkout({ expectedTotal: 16, manualDiscount: { percentage: 10, details: 'Προσωπικό' } }),

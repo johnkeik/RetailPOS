@@ -76,9 +76,13 @@ export type OrderItemInput = {
 
 export type PaymentMethod = "CARD" | "CASH";
 
-/** Staff-applied percentage off the order total after promotions, e.g. staff discount. */
+/**
+ * Staff-applied discount off the order total after promotions, e.g. staff discount.
+ * Exactly one of percentage (whole 1–100) or fixedAmount (euros) is set.
+ */
 export type ManualDiscountInput = {
-  percentage: number;
+  percentage?: number;
+  fixedAmount?: number;
   details: string;
 };
 

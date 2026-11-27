@@ -11,14 +11,14 @@
     <p class="thresholds-intro">Ένα είδος θεωρείται χαμηλό όταν πέσει κάτω από:</p>
     <div class="thresholds-fields">
       <div>
-        <label class="field" for="lowStockPerfumeLiters">Βάση (λίτρα)</label>
-        <input id="lowStockPerfumeLiters" class="text-input" type="number" min="0" step="0.1"
-          [value]="lowStockPerfumeLiters()" (input)="onPerfumeThreshold(perfumeLitersInput.value)" #perfumeLitersInput />
+        <label class="field" for="lowStockPerfumeMl">Βάση (ml)</label>
+        <input id="lowStockPerfumeMl" class="text-input" type="number" min="0" step="50"
+          [value]="lowStockPerfumeMl()" (input)="onPerfumeThreshold(perfumeMlInput.value)" #perfumeMlInput />
       </div>
       <div>
-        <label class="field" for="lowStockEssenceLiters">Εσάνς (λίτρα)</label>
-        <input id="lowStockEssenceLiters" class="text-input" type="number" min="0" step="0.01"
-          [value]="lowStockEssenceLiters()" (input)="onEssenceThreshold(essenceLitersInput.value)" #essenceLitersInput />
+        <label class="field" for="lowStockEssenceMl">Εσάνς (ml)</label>
+        <input id="lowStockEssenceMl" class="text-input" type="number" min="0" step="10"
+          [value]="lowStockEssenceMl()" (input)="onEssenceThreshold(essenceMlInput.value)" #essenceMlInput />
       </div>
       <div>
         <label class="field" for="lowStockUnits">Τεμάχια</label>

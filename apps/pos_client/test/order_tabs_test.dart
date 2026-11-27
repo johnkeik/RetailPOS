@@ -147,6 +147,18 @@ void main() {
     expect(const ManualDiscount(percentage: 100, details: 'x').amountCentsOf(1999), 1999);
   });
 
+  test('fixed manual discount round-trips and is capped at the total', () {
+    const discount = ManualDiscount(fixedAmountCents: 550, details: 'Άλλο');
+    expect(discount.toJson(), {'fixedAmount': 5.5, 'details': 'Άλλο'});
+    final restored = ManualDiscount.fromJson(discount.toJson())!;
+    expect(restored.fixedAmountCents, 550);
+    expect(restored.percentage, isNull);
+    expect(restored.valueLabel, '€5.50');
+    expect(discount.amountCentsOf(2000), 550);
+    expect(discount.amountCentsOf(300), 300);
+    expect(ManualDiscount.fromJson({'fixedAmount': 0, 'details': 'x'}), isNull);
+  });
+
   test('nextOrderTabNumber reuses the lowest free number', () {
     final tabs = [OrderTab(number: 1), OrderTab(number: 3)];
     expect(nextOrderTabNumber(tabs), 2);

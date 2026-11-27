@@ -122,7 +122,7 @@
             <div class="order-main">
               <span class="order-who">{{ order.employeeName }}</span>
               @if (order.manualDiscount) {
-                <span class="tag">{{ order.manualDiscount.details }} {{ order.manualDiscount.percentage }}%</span>
+                <span class="tag">{{ order.manualDiscount.details }} {{ order.manualDiscount.percentage != null ? order.manualDiscount.percentage + '%' : formatCurrency(order.manualDiscount.fixedAmount ?? order.manualDiscount.amount) }}</span>
               }
               <span class="order-meta">
                 {{ order.itemCount }} {{ order.itemCount === 1 ? 'είδος' : 'είδη' }}@if (paymentLabel(order.paymentMethod)) {, {{ paymentLabel(order.paymentMethod) }}}

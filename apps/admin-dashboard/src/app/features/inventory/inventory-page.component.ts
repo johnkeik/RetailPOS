@@ -7,8 +7,8 @@ import { SearchFieldComponent } from '../../shared/ui/search-field.component';
 import {
   InventoryRow,
   InventoryService,
-  LOW_STOCK_ESSENCE_LITERS,
-  LOW_STOCK_PERFUME_LITERS,
+  LOW_STOCK_ESSENCE_ML,
+  LOW_STOCK_PERFUME_ML,
   LOW_STOCK_UNITS
 } from './inventory.service';
 
@@ -44,8 +44,8 @@ export class InventoryPageComponent implements OnInit {
   private readonly inventoryService = inject(InventoryService);
 
   protected readonly searchQuery = signal('');
-  protected readonly lowStockPerfumeLiters = signal(LOW_STOCK_PERFUME_LITERS);
-  protected readonly lowStockEssenceLiters = signal(LOW_STOCK_ESSENCE_LITERS);
+  protected readonly lowStockPerfumeMl = signal(LOW_STOCK_PERFUME_ML);
+  protected readonly lowStockEssenceMl = signal(LOW_STOCK_ESSENCE_ML);
   protected readonly lowStockUnits = signal(LOW_STOCK_UNITS);
   protected readonly thresholdsOpen = signal(false);
   protected readonly activeTab = signal<StockTab>('PERFUME');
@@ -71,10 +71,9 @@ export class InventoryPageComponent implements OnInit {
 
   private lowStockLimit(row: { isBulk: boolean; variantTemplateId: string }): number {
     if (!row.isBulk) return this.lowStockUnits();
-    const liters = row.variantTemplateId === 'essence'
-      ? this.lowStockEssenceLiters()
-      : this.lowStockPerfumeLiters();
-    return liters * 1000;
+    return row.variantTemplateId === 'essence'
+      ? this.lowStockEssenceMl()
+      : this.lowStockPerfumeMl();
   }
 
   protected stockStatus(row: InventoryRow | undefined): StockStatus {
@@ -261,12 +260,12 @@ export class InventoryPageComponent implements OnInit {
 
   protected onPerfumeThreshold(value: string): void {
     const parsed = Number(value);
-    this.lowStockPerfumeLiters.set(Number.isFinite(parsed) ? parsed : 0);
+    this.lowStockPerfumeMl.set(Number.isFinite(parsed) ? parsed : 0);
   }
 
   protected onEssenceThreshold(value: string): void {
     const parsed = Number(value);
-    this.lowStockEssenceLiters.set(Number.isFinite(parsed) ? parsed : 0);
+    this.lowStockEssenceMl.set(Number.isFinite(parsed) ? parsed : 0);
   }
 
   protected onUnitsThreshold(value: string): void {

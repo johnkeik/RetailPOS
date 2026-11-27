@@ -721,4 +721,45 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('fixed-amount manual discount is entered in euros and capped at the total', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 720);
+    addTearDown(tester.view.reset);
+    final repository = _OfferOrderRepository();
+    final printer = LabelPrintService(baseUrl: 'http://print', client: MockClient((request) async =>
+      http.Response(jsonEncode({'success': true, 'labelsSubmitted': 3}), 200)));
+    await tester.pumpWidget(MaterialApp(theme: AppTheme.light(), home: PosHomePage(
+      catalogRepository: _OfferCatalogRepository(), orderRepository: repository, labelPrintService: printer,
+      employeeId: 'employee', employeeName: 'Μαρία', tenantId: 'store001',
+    )));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(_buttonWithLabel('Προσθήκη — €12.00'));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(_buttonWithLabel('Έκπτωση'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ποσό'));
+    await tester.pumpAndSettle();
+    Finder numpadKey(String label) =>
+        find.descendant(of: find.byType(OnScreenNumpad), matching: find.text(label));
+    // Total is €24: the "5" that would make €25 is ignored, so this types €2,5.
+    for (final key in ['2', '5', ',', '5']) {
+      await tester.tap(numpadKey(key));
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('Ποσό (έως €24.00)'), findsOneWidget);
+    await tester.tap(_buttonWithLabel('Εφαρμογή'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Έκπτωση Προσωπικό €2.50: −€2.50'), findsOneWidget);
+    await tester.tap(_buttonWithLabel('Ολοκλήρωση Πώλησης (€21.50)'));
+    await tester.pumpAndSettle();
+    expect(repository.expectedTotal, 21.5);
+    expect(repository.manualDiscount?.fixedAmountCents, 250);
+    expect(repository.manualDiscount?.percentage, isNull);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }

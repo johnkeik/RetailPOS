@@ -23,9 +23,28 @@
     <div class="inline-error" role="alert">{{ errorMessage() }}</div>
   }
 
+  @if (draftRestored() && rows().length) {
+    <div class="inline-success" role="status">
+      Ανακτήθηκε η πρόχειρη καταχώριση ({{ rows().length }} είδη). Συνεχίστε ή πατήστε «Καθαρισμός».
+    </div>
+  }
+
   @if (successMessage()) {
     <div class="inline-success" role="status">{{ successMessage() }}</div>
   }
+
+  <div class="reason-field">
+    <label class="field" for="entry-reason">Αιτιολογία (προαιρετικό)</label>
+    <input
+      id="entry-reason"
+      class="text-input"
+      type="text"
+      [value]="reason()"
+      (input)="reason.set(reasonInput.value)"
+      #reasonInput
+      [placeholder]="mode() === 'PURCHASE' ? 'π.χ. Τιμολόγιο αγοράς 123' : mode() === 'ADJUSTMENT' ? 'π.χ. Απογραφή Νοεμβρίου' : 'π.χ. Σπάσιμο, φθορά'"
+    />
+  </div>
 
   <div class="search-row">
     <div class="search-box">
@@ -125,7 +144,7 @@
                       #qtyInput
                       placeholder="0"
                     />
-                    <span class="unit">{{ part.volume ? 'L' : 'τεμ.' }}</span>
+                    <span class="unit">{{ part.volume ? 'ml' : 'τεμ.' }}</span>
                   </div>
                   @if (part.error) {
                     <small class="row-error">{{ part.error }}</small>
@@ -151,21 +170,6 @@
     </div>
 
     <footer class="entry-footer">
-      <div class="reason-field">
-        <label class="field" for="entry-reason">
-          Αιτιολογία {{ mode() === 'PURCHASE' ? '(προαιρετικό)' : '(υποχρεωτικό)' }}
-        </label>
-        <input
-          id="entry-reason"
-          class="text-input"
-          type="text"
-          [value]="reason()"
-          (input)="reason.set(reasonInput.value)"
-          #reasonInput
-          [placeholder]="mode() === 'PURCHASE' ? 'π.χ. Τιμολόγιο αγοράς 123' : 'π.χ. Απογραφή Οκτωβρίου, σπάσιμο'"
-        />
-      </div>
-
       <div class="entry-actions">
         <span class="summary" [class.has-errors]="invalidCount() > 0">
           @if (invalidCount() > 0) {

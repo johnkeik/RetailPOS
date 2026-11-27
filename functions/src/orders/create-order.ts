@@ -6,9 +6,17 @@ import { db, inventoryDocId, serverTimestamp } from "../common/firestore";
 import { calculatePromotions, Promotion } from "../promotions/promotion-pricing";
 import { BULK_INVENTORY_SENTINEL, CreateOrderInput } from "../types/domain";
 
-// Keep in parity with ManualDiscount.amountCentsOf in the POS: half-up to the cent.
-function manualDiscountCents(totalCents: number, percentage: number): number {
-  return Math.floor((totalCents * percentage + 50) / 100);
+type ManualDiscount =
+  { percentage: number; details: string } |
+  { fixedAmount: number; details: string };
+
+// Keep in parity with ManualDiscount.amountCentsOf in the POS: a percentage rounds
+// half-up to the cent; a fixed amount never exceeds the total.
+function manualDiscountCents(totalCents: number, discount: ManualDiscount): number {
+  if ("percentage" in discount) {
+    return Math.floor((totalCents * discount.percentage + 50) / 100);
+  }
+  return Math.min(Math.round(discount.fixedAmount * 100), totalCents);
 }
 
 // The standard bottle is the first recipe consumable; the special bottle replaces only that one.
@@ -66,18 +74,25 @@ export const createOrder = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Μη έγκυρο αναμενόμενο σύνολο.");
   }
   const rawDiscount = data.manualDiscount;
-  let manualDiscount: { percentage: number; details: string } | undefined;
+  let manualDiscount: ManualDiscount | undefined;
   if (rawDiscount !== undefined && rawDiscount !== null) {
-    const percentage = Number(rawDiscount.percentage);
     const details = typeof rawDiscount.details === "string" ? rawDiscount.details.trim() : "";
-    if (!Number.isInteger(percentage) || percentage < 1 || percentage > 100 ||
-        details.length === 0 || details.length > 80) {
+    const hasPercentage = rawDiscount.percentage !== undefined;
+    const hasFixedAmount = rawDiscount.fixedAmount !== undefined;
+    const percentage = Number(rawDiscount.percentage);
+    const fixedCents = Math.round(Number(rawDiscount.fixedAmount) * 100);
+    const validValue = hasPercentage !== hasFixedAmount && (hasPercentage ?
+      Number.isInteger(percentage) && percentage >= 1 && percentage <= 100 :
+      Number.isFinite(fixedCents) && fixedCents >= 1);
+    if (!validValue || details.length === 0 || details.length > 80) {
       throw new HttpsError("invalid-argument", "Μη έγκυρη έκπτωση παραγγελίας.");
     }
     if (data.expectedTotal === undefined) {
       throw new HttpsError("invalid-argument", "Η έκπτωση απαιτεί αναμενόμενο σύνολο.");
     }
-    manualDiscount = { percentage, details };
+    manualDiscount = hasPercentage ?
+      { percentage, details } :
+      { fixedAmount: fixedCents / 100, details };
   }
   let chargedTotal = 0;
   const orderRef = db.collection(`tenants/${actor.tenantId}/orders`).doc();
@@ -144,7 +159,7 @@ export const createOrder = onCall(async (request) => {
     }
     const promotionTotalCents = Math.round(pricing.total * 100);
     const manualCents = manualDiscount ?
-      manualDiscountCents(promotionTotalCents, manualDiscount.percentage) : 0;
+      manualDiscountCents(promotionTotalCents, manualDiscount) : 0;
     const totalCents = promotionTotalCents - manualCents;
     if ((pricing.discountTotal > 0 && data.expectedTotal === undefined) ||
         (data.expectedTotal !== undefined &&

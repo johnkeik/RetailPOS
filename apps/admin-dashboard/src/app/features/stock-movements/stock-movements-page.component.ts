@@ -252,7 +252,7 @@ export class StockMovementsPageComponent implements OnInit {
     switch (type) {
       case 'PURCHASE': return 'Παραλαβή';
       case 'SALE': return 'Πώληση';
-      case 'ADJUSTMENT': return 'Διόρθωση';
+      case 'ADJUSTMENT': return 'Απογραφή';
       case 'RETURN': return 'Επιστροφή';
       case 'LOSS': return 'Απώλεια';
     }
@@ -264,13 +264,13 @@ export class StockMovementsPageComponent implements OnInit {
       case 'ALL': return 'Όλες';
       case 'PURCHASE': return 'Παραλαβές';
       case 'SALE': return 'Πωλήσεις';
-      case 'ADJUSTMENT': return 'Διορθώσεις';
+      case 'ADJUSTMENT': return 'Απογραφές';
       case 'RETURN': return 'Επιστροφές';
       case 'LOSS': return 'Απώλειες';
     }
   }
 
-  /** Tags stay quiet; only corrections and losses stand out. */
+  /** Tags stay quiet; only stock-takes and losses stand out. */
   protected typeTagClass(type: StockMovementType): string {
     return type === 'LOSS' ? 'alert' : type === 'ADJUSTMENT' ? 'warn' : '';
   }

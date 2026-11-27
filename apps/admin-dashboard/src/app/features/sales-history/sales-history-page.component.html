@@ -89,7 +89,7 @@
                   <span class="tag alert">{{ row.status === 'DELETED' ? 'Διαγραμμένη' : 'Ακυρωμένη' }}</span>
                 }
                 @if (row.manualDiscount) {
-                  <span class="tag">{{ row.manualDiscount.details }} {{ row.manualDiscount.percentage }}%</span>
+                  <span class="tag">{{ row.manualDiscount.details }} {{ row.manualDiscount.percentage != null ? row.manualDiscount.percentage + '%' : formatCurrency(row.manualDiscount.fixedAmount ?? row.manualDiscount.amount) }}</span>
                 } @else if (row.discountTotal) {
                   <span class="tag">Έκπτωση</span>
                 }
@@ -134,7 +134,7 @@
                             <span class="muted">({{ promotion.name }} −{{ formatCurrency(promotion.discountTotal) }})</span>
                           }
                           @if (row.manualDiscount) {
-                            <span class="muted">({{ row.manualDiscount.details }} {{ row.manualDiscount.percentage }}% −{{ formatCurrency(row.manualDiscount.amount) }}, από {{ row.employeeName }})</span>
+                            <span class="muted">({{ row.manualDiscount.details }} {{ row.manualDiscount.percentage != null ? row.manualDiscount.percentage + '%' : formatCurrency(row.manualDiscount.fixedAmount ?? row.manualDiscount.amount) }} −{{ formatCurrency(row.manualDiscount.amount) }}, από {{ row.employeeName }})</span>
                           }
                         </p>
                       }

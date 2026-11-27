@@ -7,8 +7,8 @@ import { PeriodTotalsComponent, splitByPayment } from '../../shared/ui/period-to
 import {
   InventoryRow,
   InventoryService,
-  LOW_STOCK_ESSENCE_LITERS,
-  LOW_STOCK_PERFUME_LITERS,
+  LOW_STOCK_ESSENCE_ML,
+  LOW_STOCK_PERFUME_ML,
   LOW_STOCK_UNITS
 } from '../inventory/inventory.service';
 import { ExpensesService } from '../expenses/expenses.service';
@@ -35,8 +35,8 @@ export class DashboardPageComponent implements OnInit {
   /** Test-data tools only make sense against the local emulators, never on the live shop. */
   protected readonly showSeedTools = firebaseConfig.useEmulators;
   protected readonly stockThresholdDescription =
-    `Όριο αναπλήρωσης: ${LOW_STOCK_PERFUME_LITERS.toLocaleString('el-GR')} L για βάσεις, ` +
-    `${LOW_STOCK_ESSENCE_LITERS.toLocaleString('el-GR')} L για εσάνς, ${LOW_STOCK_UNITS} τεμάχια για συσκευασμένα.`;
+    `Όριο αναπλήρωσης: ${LOW_STOCK_PERFUME_ML.toLocaleString('el-GR')} ml για βάσεις, ` +
+    `${LOW_STOCK_ESSENCE_ML.toLocaleString('el-GR')} ml για εσάνς, ${LOW_STOCK_UNITS} τεμάχια για συσκευασμένα.`;
   protected readonly inventoryLoading = this.inventoryService.loading;
   protected readonly salesLoading = this.salesHistoryService.loading;
   protected readonly inventoryError = this.inventoryService.error;
@@ -289,9 +289,8 @@ export class DashboardPageComponent implements OnInit {
 
   private lowStockLimit(row: InventoryRow): number {
     if (!row.isBulk) return LOW_STOCK_UNITS;
-    const liters = row.variantTemplateId === 'essence'
-      ? LOW_STOCK_ESSENCE_LITERS
-      : LOW_STOCK_PERFUME_LITERS;
-    return liters * 1000;
+    return row.variantTemplateId === 'essence'
+      ? LOW_STOCK_ESSENCE_ML
+      : LOW_STOCK_PERFUME_ML;
   }
 }

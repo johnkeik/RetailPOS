@@ -747,7 +747,10 @@ class _PosHomePageState extends State<PosHomePage> {
     final tab = _activeTab;
     final result = await showDialog<_ManualDiscountChoice>(
       context: context,
-      builder: (_) => _ManualDiscountDialog(initial: tab.manualDiscount),
+      builder: (_) => _ManualDiscountDialog(
+        initial: tab.manualDiscount,
+        orderTotalCents: (_pricing.total * 100).round(),
+      ),
     );
     if (result == null || !mounted) return;
     setState(() => tab.manualDiscount = result.discount);
@@ -1865,7 +1868,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                                 '+${pricing.promotions.length - 2} ακόμη προσφορές'),
                                           if (manualDiscount != null)
                                             Text(
-                                                'Έκπτωση ${manualDiscount.details} ${manualDiscount.percentage}%: −€${(manualDiscountCents / 100).toStringAsFixed(2)}',
+                                                'Έκπτωση ${manualDiscount.details} ${manualDiscount.valueLabel}: −€${(manualDiscountCents / 100).toStringAsFixed(2)}',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
@@ -1917,7 +1920,7 @@ class _PosHomePageState extends State<PosHomePage> {
                                     label: Text(
                                       manualDiscount == null
                                           ? 'Έκπτωση'
-                                          : 'Έκπτωση: ${manualDiscount.details} ${manualDiscount.percentage}%',
+                                          : 'Έκπτωση: ${manualDiscount.details} ${manualDiscount.valueLabel}',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -2026,58 +2029,111 @@ class _ManualDiscountChoice {
 }
 
 class _ManualDiscountDialog extends StatefulWidget {
-  const _ManualDiscountDialog({this.initial});
+  const _ManualDiscountDialog({this.initial, required this.orderTotalCents});
 
   final ManualDiscount? initial;
+
+  /// The total after promotions; a fixed amount cannot exceed it.
+  final int orderTotalCents;
 
   @override
   State<_ManualDiscountDialog> createState() => _ManualDiscountDialogState();
 }
 
 class _ManualDiscountDialogState extends State<_ManualDiscountDialog> {
-  static const _presets = [10, 20, 30, 50, 100];
+  static const _presets = [10, 20, 100];
 
   late String _details =
       widget.initial?.details ?? ManualDiscount.detailOptions.first;
-  late final TextEditingController _percentage =
-      TextEditingController(text: widget.initial?.percentage.toString() ?? '');
+
+  /// True when entering a fixed euro amount instead of a percentage.
+  late bool _isAmount = widget.initial?.fixedAmountCents != null;
+
+  late final TextEditingController _value = TextEditingController(
+      text: widget.initial == null
+          ? ''
+          : widget.initial!.percentage?.toString() ??
+              (widget.initial!.fixedAmountCents! / 100)
+                  .toStringAsFixed(2)
+                  .replaceAll('.', ','));
 
   int? get _parsedPercentage {
-    final value = int.tryParse(_percentage.text.trim());
+    if (_isAmount) return null;
+    final value = int.tryParse(_value.text.trim());
     return value != null && value >= 1 && value <= 100 ? value : null;
   }
 
+  /// Cents typed in amount mode, accepting "," or "." as the decimal mark.
+  static int? _centsOf(String text) {
+    final normalized = text.trim().replaceAll(',', '.');
+    if (!RegExp(r'^\d+(\.\d{0,2})?$').hasMatch(normalized)) return null;
+    return (double.parse(normalized) * 100).round();
+  }
+
+  int? get _parsedAmountCents {
+    if (!_isAmount) return null;
+    final cents = _centsOf(_value.text);
+    return cents != null && cents >= 1 && cents <= widget.orderTotalCents
+        ? cents
+        : null;
+  }
+
+  bool get _canApply => _parsedPercentage != null || _parsedAmountCents != null;
+
   @override
   void dispose() {
-    _percentage.dispose();
+    _value.dispose();
     super.dispose();
   }
 
-  /// Appends a numpad digit, ignoring input that would leave 1–100.
-  void _typeDigit(String key) {
+  void _selectPreset(int preset) => setState(() {
+        _isAmount = false;
+        _value.text = preset.toString();
+      });
+
+  void _selectAmount() => setState(() {
+        if (!_isAmount) _value.clear();
+        _isAmount = true;
+      });
+
+  /// Appends a numpad key, ignoring input that would leave the valid range.
+  void _typeKey(String key) {
+    final text = _value.text.trim();
+    if (_isAmount) {
+      if (key == ',' && text.contains(',')) return;
+      final next = key == ',' && text.isEmpty ? '0,' : '$text$key';
+      final cents = _centsOf(next);
+      if (cents == null || cents > widget.orderTotalCents) return;
+      setState(() => _value.text = next);
+      return;
+    }
     if (int.tryParse(key) == null) return;
-    final next = '${_percentage.text.trim()}$key';
+    final next = '$text$key';
     final value = int.parse(next);
     if (value > 100 || (value == 0 && next.length > 1)) return;
-    setState(() => _percentage.text = value.toString());
+    setState(() => _value.text = value.toString());
   }
 
   void _backspace() {
-    final text = _percentage.text.trim();
+    final text = _value.text.trim();
     if (text.isEmpty) return;
-    setState(() => _percentage.text = text.substring(0, text.length - 1));
+    setState(() => _value.text = text.substring(0, text.length - 1));
   }
 
   void _apply() {
     final percentage = _parsedPercentage;
-    if (percentage == null) return;
-    Navigator.of(context).pop(_ManualDiscountChoice(
-        ManualDiscount(percentage: percentage, details: _details)));
+    final amountCents = _parsedAmountCents;
+    if (percentage == null && amountCents == null) return;
+    Navigator.of(context).pop(_ManualDiscountChoice(ManualDiscount(
+        percentage: percentage,
+        fixedAmountCents: amountCents,
+        details: _details)));
   }
 
   @override
   Widget build(BuildContext context) {
     final percentage = _parsedPercentage;
+    final maxAmount = (widget.orderTotalCents / 100).toStringAsFixed(2);
     return AlertDialog(
       title: const Text('Έκπτωση παραγγελίας'),
       content: SizedBox(
@@ -2106,20 +2162,36 @@ class _ManualDiscountDialogState extends State<_ManualDiscountDialog> {
                   ChoiceChip(
                     label: Text('$preset%'),
                     selected: percentage == preset,
-                    onSelected: (_) =>
-                        setState(() => _percentage.text = preset.toString()),
+                    onSelected: (_) => _selectPreset(preset),
                   ),
+                ChoiceChip(
+                  avatar: const Icon(Icons.euro, size: 18),
+                  label: const Text('Ποσό'),
+                  selected: _isAmount,
+                  onSelected: (_) => _selectAmount(),
+                ),
               ],
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _percentage,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Ποσοστό (1–100)',
-                suffixText: '%',
-                border: OutlineInputBorder(),
+              // A new key resets hardware input formatting per mode.
+              key: ValueKey(_isAmount),
+              controller: _value,
+              keyboardType: _isAmount
+                  ? const TextInputType.numberWithOptions(decimal: true)
+                  : TextInputType.number,
+              inputFormatters: [
+                _isAmount
+                    ? FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
+                    : FilteringTextInputFormatter.digitsOnly,
+              ],
+              decoration: InputDecoration(
+                labelText: _isAmount
+                    ? 'Ποσό (έως €$maxAmount)'
+                    : 'Ποσοστό (1–100)',
+                prefixText: _isAmount ? '€ ' : null,
+                suffixText: _isAmount ? null : '%',
+                border: const OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
               onSubmitted: (_) => _apply(),
@@ -2127,8 +2199,7 @@ class _ManualDiscountDialogState extends State<_ManualDiscountDialog> {
             const SizedBox(height: 12),
             SizedBox(
               height: 240,
-              child:
-                  OnScreenNumpad(onText: _typeDigit, onBackspace: _backspace),
+              child: OnScreenNumpad(onText: _typeKey, onBackspace: _backspace),
             ),
           ],
         )),
@@ -2145,7 +2216,7 @@ class _ManualDiscountDialogState extends State<_ManualDiscountDialog> {
           child: const Text('Άκυρο'),
         ),
         FilledButton(
-          onPressed: percentage == null ? null : _apply,
+          onPressed: _canApply ? _apply : null,
           child: const Text('Εφαρμογή'),
         ),
       ],

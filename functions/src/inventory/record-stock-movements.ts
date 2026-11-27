@@ -22,9 +22,6 @@ export const recordStockMovements = onCall(async (request) => {
   }
 
   const reason = data.reason?.trim() || null;
-  if (data.type !== "PURCHASE" && !reason) {
-    throw new HttpsError("invalid-argument", "reason is required for ADJUSTMENT and LOSS.");
-  }
 
   const lines = data.lines.map((line) => {
     const quantity = Number(line?.quantity);
