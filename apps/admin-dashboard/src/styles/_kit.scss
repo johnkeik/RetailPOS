@@ -40,13 +40,13 @@
 }
 
 .btn.primary {
-  border-color: var(--ink);
-  background: var(--ink);
+  border-color: var(--accent);
+  background: var(--accent);
   color: #ffffff;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #3d3548;
+  background: var(--accent-strong);
 }
 
 .btn.ghost {
@@ -101,13 +101,13 @@
 }
 
 .text-input::placeholder {
-  color: #9a94a3;
+  color: #a8999a;
 }
 
 .text-input:focus {
-  border-color: var(--ink);
+  border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 0 3px rgb(42 36 51 / 0.12);
+  box-shadow: 0 0 0 3px rgb(140 58 75 / 0.14);
 }
 
 textarea.text-input {
@@ -363,7 +363,7 @@ tr.is-inactive td {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 10px 30px rgb(42 36 51 / 0.14);
+  box-shadow: 0 10px 30px rgb(61 43 47 / 0.14);
 }
 
 .row-menu-item {
@@ -500,12 +500,12 @@ tr.is-inactive td {
 }
 
 .chip.active {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: #ffffff;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 
   span {
-    color: rgb(255 255 255 / 0.7);
+    color: var(--accent);
   }
 }
 

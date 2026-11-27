@@ -133,7 +133,9 @@ class OnScreenNumpad extends StatelessWidget {
   final ValueChanged<String> onText;
   final VoidCallback onBackspace;
 
-  Widget _key(String label, VoidCallback onTap, {Widget? child}) {
+  Widget _key(BuildContext context, String label, VoidCallback onTap,
+      {Widget? child}) {
+    final colors = Theme.of(context).colorScheme;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(3),
@@ -143,9 +145,10 @@ class OnScreenNumpad extends StatelessWidget {
             style: FilledButton.styleFrom(
               minimumSize: Size.zero,
               padding: EdgeInsets.zero,
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black87,
-              elevation: 1,
+              backgroundColor: colors.surface,
+              foregroundColor: colors.onSurface,
+              elevation: 0,
+              side: BorderSide(color: colors.outlineVariant),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
@@ -163,7 +166,9 @@ class OnScreenNumpad extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget row(List<String> labels) => Expanded(
           child: Row(
-            children: [for (final l in labels) _key(l, () => onText(l))],
+            children: [
+              for (final l in labels) _key(context, l, () => onText(l))
+            ],
           ),
         );
 
@@ -179,9 +184,9 @@ class OnScreenNumpad extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                _key(',', () => onText(',')),
-                _key('0', () => onText('0')),
-                _key('', onBackspace,
+                _key(context, ',', () => onText(',')),
+                _key(context, '0', () => onText('0')),
+                _key(context, '', onBackspace,
                     child: const Icon(Icons.backspace_outlined)),
               ],
             ),

@@ -256,11 +256,14 @@ class _PosExpensePageState extends State<PosExpensePage> {
                               style: OutlinedButton.styleFrom(
                                 minimumSize: const Size(56, 64),
                                 backgroundColor: _method == method
-                                    ? colors.secondary
+                                    ? colors.primaryContainer
                                     : colors.surface,
                                 foregroundColor: _method == method
-                                    ? colors.onSecondary
+                                    ? colors.onPrimaryContainer
                                     : colors.onSurface,
+                                side: _method == method
+                                    ? BorderSide(color: colors.primary)
+                                    : null,
                                 textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w700),
                               ),

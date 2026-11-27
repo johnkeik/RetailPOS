@@ -1,16 +1,21 @@
 @use 'styles/kit';
 @import '@angular/cdk/overlay-prebuilt.css';
 
-/* Design tokens shared by the whole admin. Pages should read these instead of hard-coding colours. */
+/* Design tokens shared by the whole admin. Pages should read these instead of hard-coding colours.
+   Palette taken from the shop and shared with the POS (apps/pos_client/lib/core/theme/app_theme.dart):
+   wine for main actions, ivory paper, warm sand lines, golden accents. */
 :root {
-	--paper: #f3f5f4;
+	--paper: #fbf7f2;
 	--surface: #ffffff;
-	--ink: #2a2433;
-	--ink-soft: #6b6475;
-	--line: #e1e3e4;
-	--line-strong: #cfd2d4;
-	--amber: #b8731a;
-	--amber-soft: #f4e4cb;
+	--ink: #3d2b2f;
+	--ink-soft: #7d6b6b;
+	--line: #ede3da;
+	--line-strong: #ddd0c5;
+	--accent: #8c3a4b;
+	--accent-strong: #7a2f3f;
+	--accent-soft: #f7e9e7;
+	--amber: #b8862e;
+	--amber-soft: #f3e6cc;
 	--alert: #b5401b;
 	--alert-soft: #f8e1d8;
 	--ok: #3f7d5c;
@@ -43,7 +48,7 @@ textarea {
 }
 
 :focus-visible {
-	outline: 2px solid var(--ink);
+	outline: 2px solid var(--accent);
 	outline-offset: 2px;
 }
 

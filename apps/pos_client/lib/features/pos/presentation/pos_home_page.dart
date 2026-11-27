@@ -704,7 +704,7 @@ class _PosHomePageState extends State<PosHomePage> {
         child: ExcludeSemantics(
           child: Material(
             key: ValueKey('payment-${method.name}'),
-            color: isSelected ? colors.secondary : Colors.transparent,
+            color: isSelected ? colors.primaryContainer : Colors.transparent,
             child: InkWell(
               onTap: _submittingOrder
                   ? null
@@ -718,8 +718,7 @@ class _PosHomePageState extends State<PosHomePage> {
                       Icon(
                         icon,
                         size: 20,
-                        color:
-                            isSelected ? colors.onSecondary : colors.onSurface,
+                        color: isSelected ? colors.primary : colors.onSurface,
                       ),
                       const SizedBox(width: 8),
                       Flexible(
@@ -729,7 +728,7 @@ class _PosHomePageState extends State<PosHomePage> {
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: isSelected
-                              ? colors.onSecondary
+                              ? colors.onPrimaryContainer
                               : colors.onSurface,
                         ),
                       )),
@@ -883,11 +882,15 @@ class _PosHomePageState extends State<PosHomePage> {
     required double fontSize,
     bool enabled = true,
   }) {
+    final colors = Theme.of(context).colorScheme;
     return FilledButton.tonal(
       onPressed: enabled ? onTap : null,
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(56),
         padding: EdgeInsets.zero,
+        backgroundColor: colors.surface,
+        foregroundColor: colors.onSurface,
+        side: BorderSide(color: colors.outlineVariant),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Text(
@@ -1014,8 +1017,8 @@ class _PosHomePageState extends State<PosHomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isBulk
-                      ? const Color(0xFFE0F2FE)
-                      : const Color(0xFFF1F5F9),
+                      ? colors.primaryContainer
+                      : colors.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -1023,9 +1026,7 @@ class _PosHomePageState extends State<PosHomePage> {
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
-                    color: isBulk
-                        ? const Color(0xFF0369A1)
-                        : const Color(0xFF475569),
+                    color: isBulk ? colors.primary : colors.onSurfaceVariant,
                   ),
                 ),
               ),

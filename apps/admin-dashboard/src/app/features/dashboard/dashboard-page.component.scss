@@ -22,12 +22,12 @@
 }
 
 .btn.primary {
-  background: var(--ink);
+  background: var(--accent);
   color: #ffffff;
 }
 
 .btn.primary:hover {
-  background: #3d3548;
+  background: var(--accent-strong);
 }
 
 .btn.quiet {

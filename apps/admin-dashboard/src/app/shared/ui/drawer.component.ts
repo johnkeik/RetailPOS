@@ -36,7 +36,7 @@ let nextId = 0;
         border: 0;
         background: var(--surface);
         color: var(--ink);
-        box-shadow: -12px 0 40px rgb(42 36 51 / 0.16);
+        box-shadow: -12px 0 40px rgb(61 43 47 / 0.16);
       }
 
       .drawer.wide {
@@ -50,7 +50,7 @@ let nextId = 0;
       }
 
       .drawer::backdrop {
-        background: rgb(42 36 51 / 0.35);
+        background: rgb(61 43 47 / 0.35);
       }
 
       .drawer-header {
