@@ -41,7 +41,6 @@
 
   <div class="period-filter">
     <div class="period-presets" role="group" aria-label="Γρήγορη επιλογή περιόδου">
-      <button type="button" [class.active]="selectedPeriod() === 'ALL'" [attr.aria-pressed]="selectedPeriod() === 'ALL'" (click)="selectPeriod('ALL')">Όλο το διάστημα</button>
       <button type="button" [class.active]="selectedPeriod() === 'TODAY'" [attr.aria-pressed]="selectedPeriod() === 'TODAY'" (click)="selectPeriod('TODAY')">Σήμερα</button>
       <button type="button" [class.active]="selectedPeriod() === '7D'" [attr.aria-pressed]="selectedPeriod() === '7D'" (click)="selectPeriod('7D')">7 ημέρες</button>
       <button type="button" [class.active]="selectedPeriod() === '30D'" [attr.aria-pressed]="selectedPeriod() === '30D'" (click)="selectPeriod('30D')">30 ημέρες</button>

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { QueryConstraint, Timestamp, collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
@@ -35,6 +35,15 @@ function changedBy(
   const employeeId = data[`${prefix}ByEmployeeId`] as string | undefined;
   if (employeeId) return employeeNames.get(employeeId) || employeeId;
   return data[`${prefix}ByUid`] ? 'Διαχειριστής' : null;
+}
+
+export type ExpenseRange = { from?: Date | null; to?: Date | null };
+
+function rangeConstraints(range: ExpenseRange): QueryConstraint[] {
+  const constraints: QueryConstraint[] = [];
+  if (range.from) constraints.push(where('createdAt', '>=', Timestamp.fromDate(range.from)));
+  if (range.to) constraints.push(where('createdAt', '<', Timestamp.fromDate(range.to)));
+  return constraints;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -82,7 +91,7 @@ export class ExpensesService {
     this.error.set(null);
     try {
       await httpsCallable(this.functions, name)({ tenantId, ...payload });
-      await this.load();
+      await this.load(this.range);
       return true;
     } catch (err) {
       console.error(err);
@@ -91,7 +100,14 @@ export class ExpensesService {
     }
   }
 
-  async load(): Promise<void> {
+  /** Last requested range, reused when a create/update/delete refreshes the list. */
+  private range: ExpenseRange = {};
+  private loadRequestId = 0;
+
+  /** Loads expenses with createdAt in [from, to). A missing bound leaves that side open. */
+  async load(range: ExpenseRange = this.range): Promise<void> {
+    this.range = range;
+    const requestId = ++this.loadRequestId;
     const tenantId = this.tenantContext.tenantId();
     if (!tenantId) {
       this.error.set('Δεν βρέθηκε πλαίσιο καταστήματος.');
@@ -105,10 +121,15 @@ export class ExpensesService {
     try {
       const [snapshot, employeesSnapshot] = await Promise.all([
         getDocs(
-          query(collection(this.firestore, `tenants/${tenantId}/expenses`), orderBy('createdAt', 'desc'))
+          query(
+            collection(this.firestore, `tenants/${tenantId}/expenses`),
+            ...rangeConstraints(range),
+            orderBy('createdAt', 'desc')
+          )
         ),
         getDocs(collection(this.firestore, `tenants/${tenantId}/employees`))
       ]);
+      if (requestId !== this.loadRequestId) return;
       const employeeNames = new Map(
         employeesSnapshot.docs.map((item) => [item.id, (item.data() as Partial<Employee>).name ?? ''])
       );
@@ -137,10 +158,12 @@ export class ExpensesService {
         })
       );
     } catch (err) {
+      if (requestId !== this.loadRequestId) return;
       console.error(err);
       this.error.set('Αποτυχία φόρτωσης εξόδων.');
+      this.expenses.set([]);
     } finally {
-      this.loading.set(false);
+      if (requestId === this.loadRequestId) this.loading.set(false);
     }
   }
 }

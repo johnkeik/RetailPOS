@@ -34,9 +34,9 @@ export class StockMovementsPageComponent implements OnInit {
 
   protected readonly searchQuery = signal('');
   protected readonly selectedType = signal<StockMovementType | 'ALL'>('ALL');
-  protected readonly dateFrom = signal('');
-  protected readonly dateTo = signal('');
-  protected readonly selectedPeriod = signal<'ALL' | 'TODAY' | '7D' | '30D' | 'CUSTOM'>('ALL');
+  protected readonly dateFrom = signal(toInputDate(new Date()));
+  protected readonly dateTo = signal(toInputDate(new Date()));
+  protected readonly selectedPeriod = signal<'TODAY' | '7D' | '30D' | 'CUSTOM'>('TODAY');
   protected readonly viewMode = signal<'events' | 'movements'>('events');
   protected readonly expandedEventId = signal<string | null>(null);
   protected readonly justSaved = signal(history.state?.saved === true);
@@ -54,7 +54,7 @@ export class StockMovementsPageComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    void this.service.loadMovements();
+    this.reload();
     // Clear the flag so a refresh does not show the banner again.
     if (this.justSaved()) history.replaceState({}, '');
   }
@@ -126,30 +126,46 @@ export class StockMovementsPageComponent implements OnInit {
     this.selectedType.set(value as StockMovementType | 'ALL');
   }
 
-  protected selectPeriod(period: 'ALL' | 'TODAY' | '7D' | '30D'): void {
+  protected selectPeriod(period: 'TODAY' | '7D' | '30D'): void {
     this.selectedPeriod.set(period);
-    if (period === 'ALL') {
-      this.dateFrom.set('');
-      this.dateTo.set('');
-      return;
-    }
-
     const to = new Date();
     const from = new Date(to);
     const days = period === 'TODAY' ? 1 : period === '7D' ? 7 : 30;
     from.setDate(from.getDate() - days + 1);
     this.dateFrom.set(toInputDate(from));
     this.dateTo.set(toInputDate(to));
+    this.reload();
   }
 
   protected onDateFromChange(value: string): void {
     this.dateFrom.set(value);
     this.selectedPeriod.set('CUSTOM');
+    this.reload();
   }
 
   protected onDateToChange(value: string): void {
     this.dateTo.set(value);
     this.selectedPeriod.set('CUSTOM');
+    this.reload();
+  }
+
+  /**
+   * Fetch only the selected range from Firestore (local days: from 00:00 to the day after `to`).
+   * The query is never unbounded: a cleared "Από" falls back to 30 days before "Έως" (or today).
+   */
+  private reload(): void {
+    if (!this.dateFrom()) {
+      const anchor = this.dateTo() ? new Date(`${this.dateTo()}T00:00:00`) : new Date();
+      anchor.setDate(anchor.getDate() - 29);
+      this.dateFrom.set(toInputDate(anchor));
+    }
+    const from = new Date(`${this.dateFrom()}T00:00:00`);
+    let to: Date | null = null;
+    if (this.dateTo()) {
+      to = new Date(`${this.dateTo()}T00:00:00`);
+      to.setDate(to.getDate() + 1);
+    }
+    void this.service.loadMovements({ from, to });
   }
 
   protected toggleEvent(eventId: string): void {

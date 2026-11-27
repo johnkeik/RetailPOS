@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { QueryConstraint, Timestamp, collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 
 import { TenantContextService } from '../../core/auth/tenant-context.service';
@@ -32,11 +32,13 @@ export class StockMovementsService {
     if (!this.tenantContext.tenantId()) {
       this.tenantContext.setTenant('store001');
     }
-
-    void this.loadMovements();
   }
 
-  async loadMovements(): Promise<void> {
+  private loadRequestId = 0;
+
+  /** Loads movements with createdAt in [from, to). A missing bound leaves that side open. */
+  async loadMovements(range: { from?: Date | null; to?: Date | null } = {}): Promise<void> {
+    const requestId = ++this.loadRequestId;
     const tenantId = this.tenantContext.tenantId();
     if (!tenantId) {
       this.error.set('Missing tenant context.');
@@ -57,7 +59,7 @@ export class StockMovementsService {
       const accountsRef = collection(this.firestore, `tenants/${tenantId}/employeeAccounts`);
 
       const [movementsSnapshot, productsSnapshot, templatesSnapshot, consumablesSnapshot, employeesSnapshot, accountsSnapshot] = await Promise.all([
-        getDocs(query(movementsRef, orderBy('createdAt', 'desc'))),
+        getDocs(query(movementsRef, ...this.rangeConstraints(range), orderBy('createdAt', 'desc'))),
         getDocs(query(productsRef, orderBy('name', 'asc'))),
         getDocs(query(templatesRef, orderBy('name', 'asc'))),
         getDocs(query(consumablesRef, orderBy('name', 'asc'))),
@@ -80,10 +82,16 @@ export class StockMovementsService {
         .filter((id): id is string => typeof id === 'string' && !!id && !employeeNames.has(id)))];
       const resolveNames = httpsCallable<{tenantId: string; actorIds: string[]}, {names: Record<string, string>}>(
         this.functions, 'getTenantActorNames');
-      for (let offset = 0; offset < unresolvedIds.length; offset += 100) {
-        const result = await resolveNames({tenantId, actorIds: unresolvedIds.slice(offset, offset + 100)});
-        for (const [id, name] of Object.entries(result.data.names)) employeeNames.set(id, name);
+      // Names are cosmetic: a failure here must not hide the movements themselves.
+      try {
+        for (let offset = 0; offset < unresolvedIds.length; offset += 100) {
+          const result = await resolveNames({tenantId, actorIds: unresolvedIds.slice(offset, offset + 100)});
+          for (const [id, name] of Object.entries(result.data.names)) employeeNames.set(id, name);
+        }
+      } catch (nameError) {
+        console.error('getTenantActorNames failed', nameError);
       }
+      if (requestId !== this.loadRequestId) return;
 
       const productsById = new Map(
         productsSnapshot.docs.map((item) => {
@@ -230,11 +238,20 @@ export class StockMovementsService {
           : undefined
       })));
     } catch (error) {
+      if (requestId !== this.loadRequestId) return;
       console.error(error);
       this.error.set('Αποτυχία φόρτωσης κινήσεων αποθέματος.');
+      this.movementRows.set([]);
     } finally {
-      this.loading.set(false);
+      if (requestId === this.loadRequestId) this.loading.set(false);
     }
+  }
+
+  private rangeConstraints(range: { from?: Date | null; to?: Date | null }): QueryConstraint[] {
+    const constraints: QueryConstraint[] = [];
+    if (range.from) constraints.push(where('createdAt', '>=', Timestamp.fromDate(range.from)));
+    if (range.to) constraints.push(where('createdAt', '<', Timestamp.fromDate(range.to)));
+    return constraints;
   }
 
   // BULK movements are stored in ml; display them in liters to match the receive/adjust inputs.

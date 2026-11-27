@@ -53,11 +53,11 @@
     </div>
     <div>
       <label class="field" for="from">Από</label>
-      <input id="from" class="text-input" type="date" (change)="dateFrom.set(from.value)" #from />
+      <input id="from" class="text-input" type="date" [value]="dateFrom()" (change)="onDateFromChange(from.value)" #from />
     </div>
     <div>
       <label class="field" for="to">Έως</label>
-      <input id="to" class="text-input" type="date" (change)="dateTo.set(to.value)" #to />
+      <input id="to" class="text-input" type="date" [value]="dateTo()" (change)="onDateToChange(to.value)" #to />
     </div>
     <label class="voided-toggle">
       <input type="checkbox" [checked]="showVoided()" (change)="showVoided.set(voidedToggle.checked)" #voidedToggle />

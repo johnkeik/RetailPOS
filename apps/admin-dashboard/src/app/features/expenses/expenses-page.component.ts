@@ -5,6 +5,16 @@ import { PageTitleComponent } from '../../shared/ui/page-title.component';
 import { EmployeesService } from '../employees/employees.service';
 import { ExpensesService } from './expenses.service';
 
+function toInputDate(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function startOfMonthInput(date: Date): string {
+  return toInputDate(new Date(date.getFullYear(), date.getMonth(), 1));
+}
+
 @Component({
   selector: 'app-expenses-page',
   imports: [EntityActionsComponent, PageTitleComponent],
@@ -21,8 +31,9 @@ export class ExpensesPageComponent implements OnInit {
   protected readonly loading = this.service.loading;
   protected readonly error = this.service.error;
   protected readonly employeeFilter = signal('');
-  protected readonly dateFrom = signal('');
-  protected readonly dateTo = signal('');
+  // Default to the current month so far; older periods are fetched only on request.
+  protected readonly dateFrom = signal(startOfMonthInput(new Date()));
+  protected readonly dateTo = signal(toInputDate(new Date()));
   protected readonly showVoided = signal(false);
   protected readonly editingId = signal<string | null>(null);
   protected readonly formError = signal<string | null>(null);
@@ -72,11 +83,39 @@ export class ExpensesPageComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    void this.service.load();
+    this.reload();
   }
 
   protected refresh(): void {
-    void this.service.load();
+    this.reload();
+  }
+
+  protected onDateFromChange(value: string): void {
+    this.dateFrom.set(value);
+    this.reload();
+  }
+
+  protected onDateToChange(value: string): void {
+    this.dateTo.set(value);
+    this.reload();
+  }
+
+  /**
+   * Fetch only the selected days from Firestore (local time, `to` inclusive).
+   * Never unbounded: a cleared "from" falls back to the start of the "to" month (or the current month).
+   */
+  private reload(): void {
+    if (!this.dateFrom()) {
+      const anchor = this.dateTo() ? new Date(`${this.dateTo()}T00:00:00`) : new Date();
+      this.dateFrom.set(startOfMonthInput(anchor));
+    }
+    const from = new Date(`${this.dateFrom()}T00:00:00`);
+    let to: Date | null = null;
+    if (this.dateTo()) {
+      to = new Date(`${this.dateTo()}T00:00:00`);
+      to.setDate(to.getDate() + 1);
+    }
+    void this.service.load({ from, to });
   }
 
   protected startEdit(id: string): void {
